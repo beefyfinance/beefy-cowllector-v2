@@ -6,7 +6,7 @@ import { rootLogger } from '../util/logger';
 import { getVaultsToMonitor } from '../lib/vault-list';
 import { harvestChain } from '../lib/harvest-chain';
 import { Hex } from 'viem';
-import { createDefaultReport, serializeReport } from '../lib/harvest-report';
+import { createDefaultReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { promiseTimings } from '../util/async';
 import { notifyReport } from '../lib/notify';
