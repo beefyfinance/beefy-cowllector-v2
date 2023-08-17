@@ -38,11 +38,23 @@ type HarvestReportGasEstimation = Async<GasEstimationReport>;
 type HarvestReportIsLiveDecision =
     | {
           shouldHarvest: false;
+          notHarvestingReason: 'harvest would fail';
+      }
+    | {
+          shouldHarvest: false;
+          notHarvestingReason: 'estimated call rewards is 0';
+      }
+    | {
+          shouldHarvest: false;
           notHarvestingReason: 'strategy paused';
       }
     | {
           shouldHarvest: false;
           notHarvestingReason: 'vault is eol';
+      }
+    | {
+          shouldHarvest: true;
+          comment: 'stargate vault should be harvested even if estimated call rewards is 0';
       }
     | {
           shouldHarvest: true;

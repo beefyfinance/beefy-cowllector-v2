@@ -73,8 +73,8 @@ export async function harvestChain({
     // ============================
     // Filter out paused strategies
     // ============================
-
     // use some kind of logic to filter out strats that we don't want to harvest
+
     if (chain === 'ethereum') {
         throw new UnsupportedChainError({ chain });
     }
@@ -83,6 +83,13 @@ export async function harvestChain({
         'isLiveDecision',
         'parallel',
         async item => {
+            if (item.simulation.harvestWillSucceed === false) {
+                return {
+                    shouldHarvest: false,
+                    notHarvestingReason: 'harvest would fail',
+                };
+            }
+
             if (item.vault.eol) {
                 return {
                     shouldHarvest: false,
@@ -96,6 +103,21 @@ export async function harvestChain({
                     notHarvestingReason: 'strategy paused',
                 };
             }
+
+            if (item.simulation.estimatedCallRewardsWei === 0n) {
+                if (item.vault.id.includes('stargate')) {
+                    return {
+                        shouldHarvest: true,
+                        comment: 'stargate vault should be harvested even if estimated call rewards is 0',
+                    };
+                } else {
+                    return {
+                        shouldHarvest: false,
+                        notHarvestingReason: 'estimated call rewards is 0',
+                    };
+                }
+            }
+
             return { shouldHarvest: true };
         }
     );
@@ -122,8 +144,8 @@ export async function harvestChain({
     // ======================
     // profitability decision
     // ======================
-
     // check for last harvest and profitability
+
     const harvestDecisions = await reportOnHarvestStep(
         successfulEstimations,
         'harvestDecision',
