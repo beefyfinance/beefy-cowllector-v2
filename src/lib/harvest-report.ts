@@ -54,10 +54,6 @@ type HarvestReportIsLiveDecision =
       }
     | {
           shouldHarvest: true;
-          comment: 'stargate vault should be harvested even if estimated call rewards is 0';
-      }
-    | {
-          shouldHarvest: true;
       };
 
 type HarvestReportShouldHarvestDecision =

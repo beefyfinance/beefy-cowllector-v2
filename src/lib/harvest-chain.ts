@@ -105,17 +105,10 @@ export async function harvestChain({
             }
 
             if (item.simulation.estimatedCallRewardsWei === 0n) {
-                if (item.vault.id.includes('stargate')) {
-                    return {
-                        shouldHarvest: true,
-                        comment: 'stargate vault should be harvested even if estimated call rewards is 0',
-                    };
-                } else {
-                    return {
-                        shouldHarvest: false,
-                        notHarvestingReason: 'estimated call rewards is 0',
-                    };
-                }
+                return {
+                    shouldHarvest: false,
+                    notHarvestingReason: 'estimated call rewards is 0',
+                };
             }
 
             return { shouldHarvest: true };
