@@ -98,8 +98,6 @@ async function main() {
         msg: 'Some chains errored',
         data: { count: rejectedReports.length, rejectedReports },
     });
-
-    successfulReports.forEach(r => console.log(serializeReport(r, true)));
 }
 
 runMain(main);

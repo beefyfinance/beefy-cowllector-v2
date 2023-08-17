@@ -11,7 +11,6 @@ describe('bigint', () => {
         expect(bigintPercent(100n, 0.123456789, 2)).toBe(12n);
     });
     it('should round to more precision', () => {
-        console.log(bigintPercent(100n, 0.129876543, 4));
         expect(bigintPercent(100n, 0.123456789, 4)).toBe(12n);
     });
 });
