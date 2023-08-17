@@ -5,7 +5,7 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "test": "yarn test:all && yarn build",
+        "test": "yarn test:all",
         "precommit": "yarn lint:format && yarn test:all",
         "build": "tsc",
         "lint:format": "prettier ./src --write",
