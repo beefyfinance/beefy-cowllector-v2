@@ -6,6 +6,8 @@
     "private": true,
     "scripts": {
         "test": "yarn test:all",
+        "heroku:build": "yarn install --frozen-lockfile && yarn build",
+        "heroku:harvest": "node ./dist/script/harvest.js -c base -l 4h",
         "precommit": "yarn lint:format && yarn test:all",
         "build": "tsc",
         "lint:format": "prettier ./src --write",
