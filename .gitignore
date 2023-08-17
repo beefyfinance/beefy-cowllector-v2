@@ -1,0 +1,13 @@
+.env
+.envrc
+tmp
+node_modules/
+.ts-node
+*.log
+.*.sw[i-z]
+.idea
+proposal.md
+dump.rdb
+dist/
+typings/
+old
