@@ -110,6 +110,9 @@ async function main() {
             msg: 'Some chains errored',
             data: { count: rejectedReports.length, rejectedReports: rejectedReports.map(r => r + '') },
         });
+        for (const rejectedReport of rejectedReports) {
+            logger.error(rejectedReport);
+        }
     }
 }
 
