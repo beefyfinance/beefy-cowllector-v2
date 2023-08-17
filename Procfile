@@ -1,1 +1,0 @@
-release: yarn heroku:build

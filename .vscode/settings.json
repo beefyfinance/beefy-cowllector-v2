@@ -2,5 +2,8 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": false,
     "prettier.configPath": "${workspaceFolder}/.prettierrc",
-    "prettier.prettierPath": "./node_modules/prettier"
+    "prettier.prettierPath": "./node_modules/prettier",
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "main"
+    ]
 }
