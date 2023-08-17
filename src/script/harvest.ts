@@ -64,6 +64,12 @@ async function main() {
                 const result = await promiseTimings(() =>
                     harvestChain({ report, now: options.now, chain: chain as Chain, vaults })
                 );
+
+                if (result.status === 'rejected') {
+                    logger.error({ msg: 'Harvesting errored', data: { chain, error: result.reason } });
+                    throw result.reason;
+                }
+
                 // update the summary
                 report.timing = result.timing;
                 report.details.forEach(item => {
@@ -94,10 +100,17 @@ async function main() {
         )
     );
     logger.trace({ msg: 'harvest results', data: { successfulReports, rejectedReports } });
-    logger.debug({
-        msg: 'Some chains errored',
-        data: { count: rejectedReports.length, rejectedReports },
+    const successfulChains = successfulReports.map(r => r.chain);
+    logger.info({
+        msg: 'Harvesting done',
+        data: { successfulChains, rejectedChains: options.chain.filter(c => !successfulChains.includes(c)) },
     });
+    if (rejectedReports.length > 0) {
+        logger.debug({
+            msg: 'Some chains errored',
+            data: { count: rejectedReports.length, rejectedReports: rejectedReports.map(r => r + '') },
+        });
+    }
 }
 
 runMain(main);
