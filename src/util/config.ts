@@ -22,7 +22,7 @@ if (!allLogLevels.includes(log_level as LogLevels)) {
 export const LOG_LEVEL: LogLevels = log_level as LogLevels;
 
 const RPC_FORCE_URL = process.env.RPC_FORCE_URL || null;
-const RPC_FORCE_PRIVATE_KEY = (process.env.RPC_FORCE_PRIVATE_KEY || null) as Hex | null;
+const PRIVATE_KEY = (process.env.PRIVATE_KEY || null) as Hex | null;
 export const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || null;
 export const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
 export const HARVEST_OVERESTIMATE_GAS_BY_PERCENT = parseFloat(process.env.HARVEST_OVERESTIMATE_GAS_BY_PERCENT || '0.5');
@@ -45,7 +45,7 @@ const defaultContracts: RpcConfig['contracts'] = {
     harvestLens: '0xa9b924a0AaFad0e6aAE25410bc16C205446A11D2',
 };
 const defaultAccount: RpcConfig['account'] = {
-    privateKey: RPC_FORCE_PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000',
+    privateKey: PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000',
 };
 const defaultTransactionConfig = {
     blockConfirmations: 3,
