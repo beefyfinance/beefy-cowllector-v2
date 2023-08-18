@@ -79,6 +79,7 @@ async function main() {
                             (item.gasEstimation !== null && item.gasEstimation.status === 'rejected') ||
                             (item.simulation !== null && item.simulation.status === 'rejected') ||
                             (item.harvestTransaction !== null && item.harvestTransaction.status === 'rejected'),
+                        warning: item.isLiveDecision?.warning || false,
                         profitWei:
                             item.harvestTransaction?.status === 'fulfilled'
                                 ? item.harvestTransaction?.value.profitWei
@@ -87,6 +88,7 @@ async function main() {
                 });
                 report.summary = {
                     errors: report.details.filter(item => item.summary.error).length,
+                    warnings: report.details.filter(item => item.summary.warning).length,
                     totalProfitWei: report.details.reduce((acc, item) => acc + item.summary.profitWei, 0n),
                     harvested: report.details.filter(item => item.summary.harvested).length,
                     skipped: report.details.filter(item => !item.summary.harvested && !item.summary.error).length,

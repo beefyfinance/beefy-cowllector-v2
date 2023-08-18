@@ -61,11 +61,16 @@ export async function harvestChain({
             functionName: 'harvest',
             args: [item.vault.strategy_address],
         });
-        const [estimatedCallRewardsWei, harvestWillSucceed, lastHarvest, strategyPaused] = result;
+        const [estimatedCallRewardsWei, harvestWillSucceed, rawLastHarvest, strategyPaused] = result;
+        const lastHarvest = new Date(Number(rawLastHarvest) * 1000);
+        const hoursSinceLastHarvest = (now.getTime() - lastHarvest.getTime()) / 1000 / 60 / 60;
+        const isLastHarvestRecent = hoursSinceLastHarvest < HARVEST_AT_LEAST_EVERY_HOURS;
         return {
             estimatedCallRewardsWei,
             harvestWillSucceed,
-            lastHarvest: new Date(Number(lastHarvest) * 1000),
+            lastHarvest,
+            hoursSinceLastHarvest,
+            isLastHarvestRecent,
             paused: strategyPaused,
         };
     });
@@ -86,6 +91,7 @@ export async function harvestChain({
             if (item.simulation.harvestWillSucceed === false) {
                 return {
                     shouldHarvest: false,
+                    warning: false,
                     notHarvestingReason: 'harvest would fail',
                 };
             }
@@ -93,6 +99,7 @@ export async function harvestChain({
             if (item.vault.eol) {
                 return {
                     shouldHarvest: false,
+                    warning: false,
                     notHarvestingReason: 'vault is eol',
                 };
             }
@@ -100,18 +107,31 @@ export async function harvestChain({
             if (item.simulation.paused) {
                 return {
                     shouldHarvest: false,
+                    warning: false,
                     notHarvestingReason: 'strategy paused',
                 };
             }
 
             if (item.simulation.estimatedCallRewardsWei === 0n) {
-                return {
-                    shouldHarvest: false,
-                    notHarvestingReason: 'estimated call rewards is 0',
-                };
+                if (item.simulation.isLastHarvestRecent) {
+                    return {
+                        shouldHarvest: false,
+                        warning: false,
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        notHarvestingReason: 'estimated call rewards is 0',
+                    };
+                } else {
+                    return {
+                        shouldHarvest: false,
+                        warning: true,
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        notHarvestingReason:
+                            'estimated call rewards is 0 and vault has not been harvested in a long time',
+                    };
+                }
             }
 
-            return { shouldHarvest: true };
+            return { shouldHarvest: true, warning: false };
         }
     );
     const liveStrats = liveStratsDecisions.filter(item => item.isLiveDecision.shouldHarvest);
@@ -144,17 +164,13 @@ export async function harvestChain({
         'harvestDecision',
         'parallel',
         async item => {
-            // - If lastHarvest was > 24 hrs ago -> harvest.
-            // - If callReward > gasLimit * gasPrice -> harvest.
-            const hoursSinceLastHarvest = (now.getTime() - item.simulation.lastHarvest.getTime()) / 1000 / 60 / 60;
-            const wouldBeProfitable = item.gasEstimation.estimatedGainWei > 0n;
-            const shouldHarvest = wouldBeProfitable || hoursSinceLastHarvest > HARVEST_AT_LEAST_EVERY_HOURS;
+            const shouldHarvest = item.gasEstimation.wouldBeProfitable || !item.simulation.isLastHarvestRecent;
 
             if (!shouldHarvest) {
                 return {
                     shouldHarvest: false,
-                    hoursSinceLastHarvest,
-                    wouldBeProfitable,
+                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                    wouldBeProfitable: item.gasEstimation.wouldBeProfitable,
                     callRewardsWei: item.gasEstimation.estimatedCallRewardsWei,
                     estimatedGainWei: item.gasEstimation.estimatedGainWei,
                     notHarvestingReason: 'not profitable and harvested too recently',
@@ -162,8 +178,8 @@ export async function harvestChain({
             } else {
                 return {
                     shouldHarvest: true,
-                    hoursSinceLastHarvest,
-                    wouldBeProfitable,
+                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                    wouldBeProfitable: item.gasEstimation.wouldBeProfitable,
                     callRewardsWei: item.gasEstimation.estimatedCallRewardsWei,
                     estimatedGainWei: item.gasEstimation.estimatedGainWei,
                 };

@@ -12,34 +12,28 @@ type DiscordWebhookParams = {
     avatar_url?: string;
 };
 
-const CONTENT_TEMPLATE = `
-- chain: {r.chain}
-- totalProfitWei: {r.summary.totalProfitWei}
-- totalStrategies: {r.summary.totalStrategies}
-- harvested: {r.summary.harvested}
-- skipped: {r.summary.skipped}
-- errors: {r.summary.errors}
-`;
-
 export async function notifyReport(report: HarvestReport) {
     if (!DISCORD_WEBHOOK_URL) {
         logger.warn({ msg: 'DISCORD_WEBHOOK_URL not set, not sending any discord message' });
         return;
     }
 
-    if (report.summary.harvested === 0 && report.summary.errors === 0) {
+    if (report.summary.harvested === 0 && report.summary.errors === 0 && report.summary.warnings === 0) {
         logger.info({ msg: 'All strats were skipped, not reporting', data: report.summary });
         return;
     }
 
     logger.info({ msg: 'notifying harvest for report', data: { chain: report.chain } });
     const params: DiscordWebhookParams = {
-        content: CONTENT_TEMPLATE.replace('{r.chain}', report.chain)
-            .replace('{r.summary.totalProfitWei}', report.summary.totalProfitWei.toString())
-            .replace('{r.summary.totalStrategies}', report.summary.totalStrategies.toString())
-            .replace('{r.summary.harvested}', report.summary.harvested.toString())
-            .replace('{r.summary.skipped}', report.summary.skipped.toString())
-            .replace('{r.summary.errors}', report.summary.errors.toString()),
+        content: `
+- chain: ${report.chain}
+- totalProfitWei: ${report.summary.totalProfitWei}
+- totalStrategies: ${report.summary.totalStrategies}
+- harvested: ${report.summary.harvested}
+- skipped: ${report.summary.skipped}
+- errors: ${report.summary.errors}
+- warnings: ${report.summary.warnings}
+        `,
     };
 
     try {

@@ -22,6 +22,7 @@ export type GasEstimationReport = {
     gasPrice: bigint;
     transactionCostEstimationWei: bigint;
     estimatedGainWei: bigint;
+    wouldBeProfitable: boolean;
 };
 
 export function createGasEstimationReport({
@@ -43,6 +44,7 @@ export function createGasEstimationReport({
     const gasPrice = bigintPercent(rawGasPrice, 1.0 + overestimateGasByPercent);
     const transactionCostEstimationWei = rawGasAmountEstimation.estimation * gasPrice;
     const estimatedGainWei = estimatedCallRewardsWei - transactionCostEstimationWei;
+    const wouldBeProfitable = estimatedGainWei > 0;
     return {
         rawGasPrice,
         rawGasAmountEstimation,
@@ -51,6 +53,7 @@ export function createGasEstimationReport({
         gasPrice,
         transactionCostEstimationWei,
         estimatedGainWei,
+        wouldBeProfitable,
     };
 }
 

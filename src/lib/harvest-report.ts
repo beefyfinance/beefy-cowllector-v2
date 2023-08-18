@@ -23,6 +23,7 @@ export type HarvestReport = {
         harvested: number;
         skipped: number;
         errors: number;
+        warnings: number;
     };
 };
 
@@ -30,30 +31,45 @@ type HarvestReportSimulation = Async<{
     estimatedCallRewardsWei: bigint;
     harvestWillSucceed: boolean;
     lastHarvest: Date;
+    hoursSinceLastHarvest: number;
+    isLastHarvestRecent: boolean;
     paused: boolean;
 }>;
 
 type HarvestReportGasEstimation = Async<GasEstimationReport>;
 
+// warn: true will tell the notifier to send a message
 type HarvestReportIsLiveDecision =
     | {
           shouldHarvest: false;
+          warning: false;
           notHarvestingReason: 'harvest would fail';
       }
     | {
           shouldHarvest: false;
+          hoursSinceLastHarvest: number;
+          warning: true;
+          notHarvestingReason: 'estimated call rewards is 0 and vault has not been harvested in a long time';
+      }
+    | {
+          shouldHarvest: false;
+          warning: false;
+          hoursSinceLastHarvest: number;
           notHarvestingReason: 'estimated call rewards is 0';
       }
     | {
           shouldHarvest: false;
+          warning: false;
           notHarvestingReason: 'strategy paused';
       }
     | {
           shouldHarvest: false;
+          warning: false;
           notHarvestingReason: 'vault is eol';
       }
     | {
           shouldHarvest: true;
+          warning: false;
       };
 
 type HarvestReportShouldHarvestDecision =
@@ -98,6 +114,7 @@ type HarvestReportItem = {
     summary: {
         harvested: boolean;
         error: boolean;
+        warning: boolean;
         profitWei: bigint;
     };
 };
@@ -116,6 +133,7 @@ export function createDefaultReport({ chain }: { chain: Chain }): HarvestReport 
             harvested: 0,
             skipped: 0,
             errors: 0,
+            warnings: 0,
         },
     };
 }
@@ -133,6 +151,7 @@ export function createDefaultReportItem({ vault }: { vault: BeefyVault }): Harve
         summary: {
             harvested: false,
             error: false,
+            warning: false,
             profitWei: 0n,
         },
     };
