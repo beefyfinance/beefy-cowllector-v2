@@ -26,6 +26,10 @@ const RPC_FORCE_PRIVATE_KEY = (process.env.RPC_FORCE_PRIVATE_KEY || null) as Hex
 export const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || null;
 export const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
 export const HARVEST_OVERESTIMATE_GAS_BY_PERCENT = parseFloat(process.env.HARVEST_OVERESTIMATE_GAS_BY_PERCENT || '0.5');
+export const HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS = parseInt(
+    process.env.HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS || '604800',
+    10
+); // 1 week default
 
 const defaultBatch: RpcConfig['batch'] = {
     jsonRpc: {

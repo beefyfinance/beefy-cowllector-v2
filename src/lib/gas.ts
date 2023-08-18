@@ -1,5 +1,5 @@
 import { bigintPercent } from '../util/bigint';
-import { HARVEST_OVERESTIMATE_GAS_BY_PERCENT } from '../util/config';
+import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT } from '../util/config';
 
 import { Hex, PublicClient } from 'viem';
 import { getRedisClient } from '../util/redis';
@@ -94,7 +94,7 @@ export async function estimateHarvestCallGasAmount({
 
     logger.trace({ msg: 'Gas estimation from chain done', data: { strategyAddress, estimation } });
 
-    await redisClient.set(cacheKey, estimation.toString(), { EX: 60 * 60 * 24 * 7 }); // 1 week
+    await redisClient.set(cacheKey, estimation.toString(), { EX: HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS });
 
     return { from: 'chain', estimation };
 }
