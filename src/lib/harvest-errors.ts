@@ -3,7 +3,12 @@ import { Chain } from './chain';
 
 export class NotEnoughRemainingGasError extends Error {
     constructor(
-        public data: { remainingGas: bigint; transactionCostEstimationWei: bigint; strategyAddress: Hex; chain: Chain }
+        public data: {
+            remainingGasWei: bigint;
+            transactionCostEstimationWei: bigint;
+            strategyAddress: Hex;
+            chain: Chain;
+        }
     ) {
         super('We expect not to have enough gas to harvest');
         this.name = 'NotEnoughRemainingGasError';

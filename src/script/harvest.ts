@@ -81,7 +81,7 @@ async function main() {
                         warning: item.isLiveDecision?.warning || false,
                         profitWei:
                             item.harvestTransaction?.status === 'fulfilled'
-                                ? item.harvestTransaction?.value.profitWei
+                                ? item.harvestTransaction?.value.estimatedProfitWei
                                 : 0n,
                     };
                 });

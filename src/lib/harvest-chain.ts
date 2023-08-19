@@ -191,48 +191,54 @@ export async function harvestChain({
     // =======================
     // now do the havest dance
     // =======================
-    let remainingGas = collectorBalanceBefore.balanceWei;
 
     logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
     await reportOnHarvestStep(stratsToBeHarvested, 'harvestTransaction', 'sequential', async item => {
         // check if we have enough gas to harvest
+        logger.trace({ msg: 'Checking gas', data: { chain, strat: item } });
         const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
         if (remainingGasWei < item.gasEstimation.transactionCostEstimationWei) {
-            logger.info({ msg: 'Not enough gas to harvest', data: { chain, remainingGas, strat: item } });
+            logger.info({ msg: 'Not enough gas to harvest', data: { chain, remainingGasWei, strat: item } });
             const error = new NotEnoughRemainingGasError({
                 chain,
-                remainingGas,
+                remainingGasWei,
                 transactionCostEstimationWei: item.gasEstimation.transactionCostEstimationWei,
                 strategyAddress: item.vault.strategy_address,
             });
             throw error;
         }
+        logger.debug({ msg: 'Enough gas to harvest', data: { chain, remainingGasWei, strat: item } });
 
         // harvest the strat
         // no need to set gas fees as viem has automatic EIP-1559 detection and gas settings
         // https://github.com/wagmi-dev/viem/blob/viem%401.6.0/src/utils/transaction/prepareRequest.ts#L89
+        logger.trace({ msg: 'Harvesting strat', data: { chain, strat: item } });
         const transactionHash = await walletClient.writeContract({
             abi: IStrategyABI,
             address: item.vault.strategy_address,
             functionName: 'harvest',
         });
+        logger.debug({ msg: 'Harvested strat', data: { chain, strat: item, transactionHash } });
 
         // wait for the transaction to be mined so we have a proper nonce for the next transaction
+        logger.trace({ msg: 'Waiting for transaction receipt', data: { chain, strat: item, transactionHash } });
         const receipt = await publicClient.waitForTransactionReceipt({
             hash: transactionHash,
             confirmations: rpcConfig.transaction.blockConfirmations,
             timeout: rpcConfig.transaction.timeoutMs,
         });
+        logger.debug({ msg: 'Got transaction receipt', data: { chain, strat: item, transactionHash, receipt } });
 
         // now we officially harvested the strat
+        logger.info({ msg: 'Harvested strat', data: { chain, strat: item, transactionHash, receipt } });
         return {
             transactionHash,
             blockNumber: receipt.blockNumber,
             gasUsed: receipt.gasUsed,
             effectiveGasPrice: receipt.effectiveGasPrice,
-            remainingGas,
+            balanceBeforeWei: remainingGasWei,
             // todo: this shouldn't be an estimate
-            profitWei: item.gasEstimation.estimatedGainWei - item.gasEstimation.transactionCostEstimationWei,
+            estimatedProfitWei: item.gasEstimation.estimatedGainWei - item.gasEstimation.transactionCostEstimationWei,
         };
     });
 

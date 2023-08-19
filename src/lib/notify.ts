@@ -3,6 +3,8 @@ import { HarvestReport, serializeReport } from './harvest-report';
 import { DISCORD_WEBHOOK_URL } from '../util/config';
 import { rootLogger } from '../util/logger';
 import { Blob, File } from 'buffer';
+import { bigintFormat } from '../util/bigint';
+import { getChainWNativeTokenSymbol } from './addressbook';
 
 const logger = rootLogger.child({ module: 'notify' });
 
@@ -24,15 +26,51 @@ export async function notifyReport(report: HarvestReport) {
     }
 
     logger.info({ msg: 'notifying harvest for report', data: { chain: report.chain } });
+
+    let reportLevel: string;
+    if (report.summary.errors > 0) {
+        reportLevel = '🔥 ERROR';
+    } else if (report.summary.warnings > 0) {
+        reportLevel = '⚠️ WARNING';
+    } else {
+        reportLevel = 'ℹ️ INFO';
+    }
+
+    const wnativeSymbol = getChainWNativeTokenSymbol(report.chain);
+
+    const harvestStats: string[] = [];
+    if (report.summary.totalStrategies > 0) {
+        harvestStats.push(`T=${report.summary.totalStrategies}`);
+    }
+    if (report.summary.harvested > 0) {
+        harvestStats.push(`🌾=${report.summary.harvested}`);
+    }
+    if (report.summary.skipped > 0) {
+        harvestStats.push(`⇏=${report.summary.skipped}`);
+    }
+    if (report.summary.errors > 0) {
+        harvestStats.push(`🔴=${report.summary.errors}`);
+    }
+    if (report.summary.warnings > 0) {
+        harvestStats.push(`⚠️=${report.summary.warnings}`);
+    }
+
     const params: DiscordWebhookParams = {
         content: `
-- chain: ${report.chain}
-- totalProfitWei: ${report.summary.totalProfitWei}
-- totalStrategies: ${report.summary.totalStrategies}
-- harvested: ${report.summary.harvested}
-- skipped: ${report.summary.skipped}
-- errors: ${report.summary.errors}
-- warnings: ${report.summary.warnings}
+### ${reportLevel} for ${report.chain.toLocaleUpperCase()}
+- Strats: ${harvestStats.join(' ')}
+- balance: 
+  - before: ${
+      report.collectorBalanceBefore && report.collectorBalanceBefore.status === 'fulfilled'
+          ? bigintFormat(report.collectorBalanceBefore.value.balanceWei, 18)
+          : '??'
+  } ${wnativeSymbol}
+  - after:  ${
+      report.collectorBalanceAfter && report.collectorBalanceAfter.status === 'fulfilled'
+          ? bigintFormat(report.collectorBalanceAfter.value.balanceWei, 18)
+          : '??'
+  } ${wnativeSymbol}
+  - profit: ${bigintFormat(report.summary.totalProfitWei, 18)} ${wnativeSymbol}
         `,
     };
 

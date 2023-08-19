@@ -92,11 +92,10 @@ type HarvestReportShouldHarvestDecision =
 type HarvestReportHarvestTransaction = Async<{
     transactionHash: Hex;
     blockNumber: bigint;
-    profitWei: bigint;
-    /** Gas used by this transaction */
     gasUsed: bigint;
-    /** Pre-London, it is equal to the transaction's gasPrice. Post-London, it is equal to the actual gas price paid for inclusion. */
     effectiveGasPrice: bigint;
+    balanceBeforeWei: bigint;
+    estimatedProfitWei: bigint;
 }>;
 
 type HarvestReportItem = {
