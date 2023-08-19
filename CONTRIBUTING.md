@@ -50,3 +50,11 @@ Create a server webhook
     - click "new webhook"
     - setup name, picture and channel
     - copy the webhook url -> DISCORD_WEBHOOK_URL env var
+
+### Operating
+
+- https://dashboard.oneoffdynometrics.com/
+
+```bash
+heroku logs --app beefy-cowllector-v2 --ps scheduler.X
+```
