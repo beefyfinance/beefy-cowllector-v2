@@ -6,7 +6,7 @@
     "private": true,
     "scripts": {
         "test": "yarn test:all",
-        "heroku:harvest": "node ./dist/script/harvest.js -c base",
+        "heroku:harvest": "node ./dist/script/harvest.js -c base -c bsc",
         "precommit": "yarn lint:format && yarn test:all",
         "build": "tsc",
         "lint:format": "prettier ./src --write",
