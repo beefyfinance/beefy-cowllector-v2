@@ -24,7 +24,15 @@ contract BeefyHarvestLens {
         IStrategyV7 _strategy
     ) external returns (uint256 callReward, bool success, uint256 lastHarvest, bool paused) {
         paused = _strategy.paused();
-        lastHarvest = _strategy.lastHarvest();
+
+        // some strategies don't have lastHarvest
+        try _strategy.lastHarvest() returns (uint256 _lastHarvest) {
+            lastHarvest = _lastHarvest;
+        } catch {
+            // explicitly call it out for readability;
+            lastHarvest = 0;
+        }
+
         uint256 before = IERC20(native).balanceOf(address(this));
 
         if (!paused) {

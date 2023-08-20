@@ -15,6 +15,7 @@ contract StrategyV7Mock {
     bool public pausedMock;
     uint256 public harvestLoops;
     bool public revertOnHarvest;
+    bool public revertOnLastHarvest;
     uint256 public harvestRewards;
 
     constructor(
@@ -23,6 +24,7 @@ contract StrategyV7Mock {
         bool _pausedMock,
         uint256 _harvestLoops,
         bool _revertOnHarvest,
+        bool _revertOnLastHarvest,
         uint256 _harvestRewards
     ) {
         native = _native;
@@ -30,10 +32,14 @@ contract StrategyV7Mock {
         pausedMock = _pausedMock;
         harvestLoops = _harvestLoops;
         revertOnHarvest = _revertOnHarvest;
+        revertOnLastHarvest = _revertOnLastHarvest;
         harvestRewards = _harvestRewards;
     }
 
     function lastHarvest() external view returns (uint256) {
+        if (revertOnLastHarvest) {
+            revert('revertOnLastHarvest');
+        }
         return lastHarvestMock;
     }
 

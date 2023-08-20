@@ -18,6 +18,7 @@ contract BeefyHarvestLensTest is Test {
     bool pausedMock;
     uint256 harvestLoops;
     bool revertOnHarvest;
+    bool revertOnLastHarvest;
     uint256 harvestRewards;
 
     function setUp() public {
@@ -26,13 +27,14 @@ contract BeefyHarvestLensTest is Test {
         pausedMock = false;
         harvestLoops = 10;
         revertOnHarvest = false;
+        revertOnLastHarvest = false;
         harvestRewards = 987654;
     }
 
     function _helperCreateContracts() private returns (IStrategyV7 strat, BeefyHarvestLens lens) {
         strat = IStrategyV7(
             address(
-                new StrategyV7Mock(native, lastHarvestMock, pausedMock, harvestLoops, revertOnHarvest, harvestRewards)
+                new StrategyV7Mock(native, lastHarvestMock, pausedMock, harvestLoops, revertOnHarvest, revertOnLastHarvest, harvestRewards)
             )
         );
         native.safeTransfer(address(strat), 1000 ether);
@@ -114,5 +116,18 @@ contract BeefyHarvestLensTest is Test {
         assertEq(lastHarvest, 123456);
         assertEq(paused, false);
         assertEq(native.balanceOf(address(this)), 0);
+    }
+
+    function testLensDoNotCrashWhenLastHarvestIsntDefined() public {
+        revertOnLastHarvest = true;
+
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
+        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+
+        assertEq(callReward, 987654);
+        assertEq(success, true);
+        assertEq(lastHarvest, 0);
+        assertEq(paused, false);
+        assertEq(native.balanceOf(address(this)), 987654);
     }
 }
