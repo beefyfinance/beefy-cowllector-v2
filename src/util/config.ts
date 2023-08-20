@@ -82,6 +82,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     bsc: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.BSC_RPC_URL || 'https://rpc.ankr.com/bsc',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: '0xA2413C80941fcD0EDE877F7fd67eA6e94B971bD3',
+        },
     },
     canto: {
         ...defaultConfig,
