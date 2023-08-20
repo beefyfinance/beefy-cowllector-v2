@@ -19,6 +19,7 @@ export type RpcConfig = {
     };
     contracts: {
         harvestLens: Hex | null;
+        deployer: Hex | null;
     };
     account: {
         privateKey: Hex;
