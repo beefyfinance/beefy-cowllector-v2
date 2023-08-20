@@ -79,16 +79,28 @@ async function main() {
                             (item.simulation !== null && item.simulation.status === 'rejected') ||
                             (item.harvestTransaction !== null && item.harvestTransaction.status === 'rejected'),
                         warning: item.isLiveDecision?.warning || false,
-                        profitWei:
+                        estimatedProfitWei:
                             item.harvestTransaction?.status === 'fulfilled'
                                 ? item.harvestTransaction?.value.estimatedProfitWei
                                 : 0n,
                     };
                 });
+
+                let totalProfitWei = 0n;
+                if (
+                    report.collectorBalanceBefore?.status === 'fulfilled' &&
+                    report.collectorBalanceAfter?.status === 'fulfilled'
+                ) {
+                    totalProfitWei =
+                        report.collectorBalanceAfter.value.balanceWei - report.collectorBalanceBefore.value.balanceWei;
+                } else {
+                    totalProfitWei = report.details.reduce((acc, item) => acc + item.summary.estimatedProfitWei, 0n);
+                }
+
                 report.summary = {
                     errors: report.details.filter(item => item.summary.error).length,
                     warnings: report.details.filter(item => item.summary.warning).length,
-                    totalProfitWei: report.details.reduce((acc, item) => acc + item.summary.profitWei, 0n),
+                    totalProfitWei,
                     harvested: report.details.filter(item => item.summary.harvested).length,
                     skipped: report.details.filter(item => !item.summary.harvested && !item.summary.error).length,
                     totalStrategies: report.details.length,

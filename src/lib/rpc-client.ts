@@ -1,4 +1,4 @@
-import { createPublicClient, createWalletClient, http } from 'viem';
+import { createPublicClient, createWalletClient } from 'viem';
 import { Chain } from './chain';
 import { privateKeyToAccount } from 'viem/accounts';
 import { RPC_CONFIG } from '../util/config';
@@ -24,6 +24,7 @@ import {
     zkSync,
 } from 'viem/chains';
 import { addressBook } from 'blockchain-addressbook';
+import { loggingHttpTransport } from './rpc-transport';
 
 const fuse = {
     id: addressBook.fuse.tokens.FUSE.chainId,
@@ -116,7 +117,7 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
 export function getReadOnlyRpcClient({ chain }: { chain: Chain }) {
     const rpcConfig = RPC_CONFIG[chain];
     return createPublicClient({
-        transport: http(rpcConfig.url, {
+        transport: loggingHttpTransport(rpcConfig.url, {
             batch: rpcConfig.batch.jsonRpc,
             timeout: rpcConfig.timeoutMs,
         }),
@@ -136,7 +137,7 @@ export function getWalletClient({ chain }: { chain: Chain }) {
     return createWalletClient({
         chain: viemChain,
         account: getWalletAccount({ chain }),
-        transport: http(rpcConfig.url, {
+        transport: loggingHttpTransport(rpcConfig.url, {
             batch: false,
             timeout: rpcConfig.timeoutMs,
         }),

@@ -114,7 +114,7 @@ type HarvestReportItem = {
         harvested: boolean;
         error: boolean;
         warning: boolean;
-        profitWei: bigint;
+        estimatedProfitWei: bigint;
     };
 };
 
@@ -151,7 +151,7 @@ export function createDefaultReportItem({ vault }: { vault: BeefyVault }): Harve
             harvested: false,
             error: false,
             warning: false,
-            profitWei: 0n,
+            estimatedProfitWei: 0n,
         },
     };
 }
@@ -226,6 +226,7 @@ export async function reportOnHarvestStep<
         const result = await promiseTimings(() => make(item));
         if (result.status === 'rejected') {
             logger.error({ msg: 'Report step failed', data: { reportKey, item, error: result.reason } });
+            logger.trace(result.reason);
             // @ts-ignore
             item.report[reportKey] = formatAsyncResult(result);
             throw result.reason;
