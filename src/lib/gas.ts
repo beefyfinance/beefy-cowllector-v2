@@ -1,5 +1,5 @@
 import { bigintPercent } from '../util/bigint';
-import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT } from '../util/config';
+import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from '../util/config';
 
 import { Hex, PublicClient } from 'viem';
 import { getRedisClient } from '../util/redis';
@@ -84,7 +84,10 @@ export async function estimateHarvestCallGasAmount({
     }
 
     logger.trace({ msg: 'Estimating gas cost', data: { strategyAddress } });
+
+    const gasParams = RPC_CONFIG[chain].estimateContractGas;
     const estimation = await rpcClient.estimateContractGas({
+        ...gasParams,
         // we use the lens to avoid having bad estimations on error
         abi: IStrategyABI,
         address: strategyAddress,

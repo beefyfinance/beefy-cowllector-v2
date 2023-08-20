@@ -24,4 +24,15 @@ export type RpcConfig = {
     account: {
         privateKey: Hex;
     };
+    // allow overriding the gas price for a gas estimation
+    estimateContractGas?:
+        | {
+              // EIP-1559
+              maxPriorityFeePerGas: bigint;
+              maxFeePerGas: bigint;
+          }
+        | {
+              // legacy
+              gasPrice: bigint;
+          };
 };
