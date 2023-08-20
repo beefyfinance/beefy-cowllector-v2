@@ -31,7 +31,7 @@
         "lodash": "^4.17.21",
         "pino": "^8.15.0",
         "redis": "^4.6.7",
-        "viem": "^1.6.0",
+        "viem": "^1.6.4",
         "yargs": "^17.7.2"
     },
     "devDependencies": {
