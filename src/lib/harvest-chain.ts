@@ -91,7 +91,7 @@ export async function harvestChain({
             if (item.simulation.harvestWillSucceed === false) {
                 return {
                     shouldHarvest: false,
-                    warning: false,
+                    warning: true,
                     notHarvestingReason: 'harvest would fail',
                 };
             }

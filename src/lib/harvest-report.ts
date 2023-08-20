@@ -42,7 +42,7 @@ type HarvestReportGasEstimation = Async<GasEstimationReport>;
 type HarvestReportIsLiveDecision =
     | {
           shouldHarvest: false;
-          warning: false;
+          warning: true;
           notHarvestingReason: 'harvest would fail';
       }
     | {
