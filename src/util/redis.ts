@@ -25,8 +25,13 @@ export async function getRedisClient() {
 
         redisClient.connect();
 
-        while (!isReady) {
+        let maxAttempts = 100;
+        while (!isReady && maxAttempts-- > 0) {
             await sleep(100);
+        }
+        if (!isReady) {
+            redisClient.quit();
+            throw new Error('Redis did not become ready in time');
         }
     }
 
