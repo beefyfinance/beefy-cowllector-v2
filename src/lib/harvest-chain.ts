@@ -2,7 +2,7 @@ import type { Chain } from './chain';
 import type { BeefyVault } from './vault';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
-import { HARVEST_AT_LEAST_EVERY_HOURS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from '../util/config';
+import { HARVEST_AT_LEAST_EVERY_HOURS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport, estimateHarvestCallGasAmount } from './gas';
 import { reportOnHarvestStep, reportOnAsyncCall, HarvestReport, createDefaultReportItem } from './harvest-report';
@@ -226,6 +226,7 @@ export async function harvestChain({
             hash: transactionHash,
             confirmations: rpcConfig.transaction.blockConfirmations,
             timeout: rpcConfig.transaction.timeoutMs,
+            pollingInterval: rpcConfig.transaction.pollingIntervalMs,
         });
         logger.debug({ msg: 'Got transaction receipt', data: { chain, strat: item, transactionHash, receipt } });
 

@@ -1,6 +1,6 @@
 import * as redis from 'redis';
 import type { RedisClientType } from 'redis';
-import { REDIS_URL } from './config';
+import { REDIS_URL } from '../lib/config';
 import { rootLogger } from './logger';
 import { sleep } from './promise';
 

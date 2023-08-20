@@ -5,7 +5,7 @@ import * as path from 'node:path';
 import { rootLogger } from './logger';
 import { Hex } from 'viem';
 import { Chain } from '../lib/chain';
-import { EXPLORER_CONFIG } from './config';
+import { EXPLORER_CONFIG } from '../lib/config';
 import { getNetworkId } from '../lib/addressbook';
 
 const execAsync = promisify(exec);

@@ -1,5 +1,5 @@
 import { bigintPercent } from '../util/bigint';
-import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from '../util/config';
+import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from './config';
 
 import { Hex, PublicClient } from 'viem';
 import { getRedisClient } from '../util/redis';

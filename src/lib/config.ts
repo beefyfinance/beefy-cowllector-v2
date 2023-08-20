@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
-import type { Chain } from '../lib/chain';
-import { allLogLevels } from './logger-type';
-import type { LogLevels } from './logger-type';
-import type { RpcConfig } from '../lib/rpc-config';
+import type { Chain } from './chain';
+import { allLogLevels } from '../util/logger-type';
+import type { LogLevels } from '../util/logger-type';
+import type { RpcConfig } from './rpc-config';
 import { Hex } from 'viem';
 dotenv.config();
 
@@ -51,6 +51,7 @@ const defaultAccount: RpcConfig['account'] = {
 const defaultTransactionConfig = {
     blockConfirmations: 1,
     timeoutMs: 5 * 60 * 1000,
+    pollingIntervalMs: 5 * 1000,
 };
 const defaultTimeoutMs = 60_000; // high timeout because we batch calls
 const defaultConfig = {

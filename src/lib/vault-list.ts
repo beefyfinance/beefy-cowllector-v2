@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Chain } from './chain';
 import { BeefyVault } from './vault';
-import { BEEFY_API_URL, RPC_CONFIG } from '../util/config';
+import { BEEFY_API_URL, RPC_CONFIG } from './config';
 import { rootLogger } from '../util/logger';
 import { Hex } from 'viem';
 import { groupBy, keyBy } from 'lodash';

@@ -1,7 +1,7 @@
 import { createPublicClient, createWalletClient } from 'viem';
 import { Chain } from './chain';
 import { privateKeyToAccount } from 'viem/accounts';
-import { RPC_CONFIG } from '../util/config';
+import { RPC_CONFIG } from './config';
 import type { Chain as ViemChain } from 'viem/chains';
 import {
     arbitrum,

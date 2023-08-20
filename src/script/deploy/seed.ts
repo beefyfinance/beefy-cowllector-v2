@@ -4,7 +4,7 @@ import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
 import { getReadOnlyRpcClient } from '../../lib/rpc-client';
 import { BeefyContractDeployerABI } from '../../abi/BeefyContractDeployerABI';
-import { RPC_CONFIG } from '../../util/config';
+import { RPC_CONFIG } from '../../lib/config';
 import { randomInt } from 'crypto';
 
 type CmdOptions = {

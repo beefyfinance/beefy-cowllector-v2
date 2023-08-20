@@ -16,6 +16,7 @@ export type RpcConfig = {
     transaction: {
         blockConfirmations: number;
         timeoutMs: number;
+        pollingIntervalMs?: number;
     };
     contracts: {
         harvestLens: Hex | null;

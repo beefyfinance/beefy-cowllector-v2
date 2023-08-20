@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { HarvestReport, serializeReport } from './harvest-report';
-import { DISCORD_WEBHOOK_URL } from '../util/config';
+import { DISCORD_WEBHOOK_URL } from './config';
 import { rootLogger } from '../util/logger';
 import { Blob, File } from 'buffer';
 import { bigintFormat } from '../util/bigint';

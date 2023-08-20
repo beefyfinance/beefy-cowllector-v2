@@ -4,7 +4,7 @@ import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
 import { getReadOnlyRpcClient, getWalletClient } from '../../lib/rpc-client';
 import { BeefyContractDeployerABI } from '../../abi/BeefyContractDeployerABI';
-import { RPC_CONFIG } from '../../util/config';
+import { RPC_CONFIG } from '../../lib/config';
 import { getFoundryContractOptimizedBytecode, verifyFoundryContractForExplorer } from '../../util/foundry';
 import { Hex } from 'viem';
 import { rootLogger } from '../../util/logger';
