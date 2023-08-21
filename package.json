@@ -7,12 +7,17 @@
     "scripts": {
         "test": "yarn test:all",
         "heroku:harvest": "node ./dist/script/harvest.js -c base -c bsc",
-        "precommit": "yarn lint:format && yarn test:all",
+        "precommit": "yarn lint:format && yarn test",
         "build": "tsc",
-        "lint:format": "prettier ./src --write",
-        "lint:staged": "lint-staged",
-        "test:unit": "LOG_LEVEL=error TZ=UTC jest --maxConcurrency=1",
-        "test:lint": "prettier ./src --check",
+        "lint:format": "yarn lint:format:solidity && yarn lint:format:typescript",
+        "lint:format:solidity": "forge fmt",
+        "lint:format:typescript": "prettier ./src --write",
+        "test:unit": "yarn test:unit:typescript && yarn test:unit:solidity",
+        "test:unit:typescript": "LOG_LEVEL=error TZ=UTC jest --maxConcurrency=1",
+        "test:unit:solidity": "forge test --match-contract BeefyHarvestLensTest -vvv",
+        "test:lint": "yarn test:lint:typescript && yarn test:lint:solidity",
+        "test:lint:typescript": "prettier ./src --check",
+        "test:lint:solidity": "forge fmt --check",
         "test:ts": "tsc --noEmit",
         "test:outdated": "ncu",
         "test:unused-exports": "ts-unused-exports ./tsconfig.json --showLineNumber",
@@ -51,6 +56,7 @@
         "typescript": "^5.1.6"
     },
     "lint-staged": {
-        "*.{js,ts,json}": "prettier ./src --write"
+        "*.{js,ts,json}": "prettier ./src --write",
+        "*.{sol}": "forge fmt"
     }
 }
