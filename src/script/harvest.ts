@@ -8,7 +8,7 @@ import { harvestChain } from '../lib/harvest-chain';
 import { Hex } from 'viem';
 import { createDefaultReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
-import { promiseTimings } from '../util/async';
+import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyReport } from '../lib/notify';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
@@ -86,21 +86,27 @@ async function main() {
                     };
                 });
 
-                let totalProfitWei = 0n;
-                if (
-                    report.collectorBalanceBefore?.status === 'fulfilled' &&
-                    report.collectorBalanceAfter?.status === 'fulfilled'
-                ) {
-                    totalProfitWei =
-                        report.collectorBalanceAfter.value.balanceWei - report.collectorBalanceBefore.value.balanceWei;
-                } else {
-                    totalProfitWei = report.details.reduce((acc, item) => acc + item.summary.estimatedProfitWei, 0n);
-                }
-
                 report.summary = {
                     errors: report.details.filter(item => item.summary.error).length,
                     warnings: report.details.filter(item => item.summary.warning).length,
-                    totalProfitWei,
+                    aggregatedProfitWei:
+                        asyncResultGet(report.collectorBalanceAfter, ba =>
+                            asyncResultGet(
+                                report.collectorBalanceBefore,
+                                bb => ba.aggregatedBalanceWei - bb.aggregatedBalanceWei
+                            )
+                        ) || 0n,
+                    nativeGasUsedWei:
+                        asyncResultGet(report.collectorBalanceAfter, ba =>
+                            asyncResultGet(report.collectorBalanceBefore, bb => ba.balanceWei - bb.balanceWei)
+                        ) || 0n,
+                    wnativeProfitWei:
+                        asyncResultGet(report.collectorBalanceAfter, ba =>
+                            asyncResultGet(
+                                report.collectorBalanceBefore,
+                                bb => ba.wnativeBalanceWei - bb.wnativeBalanceWei
+                            )
+                        ) || 0n,
                     harvested: report.details.filter(item => item.summary.harvested).length,
                     skipped: report.details.filter(item => !item.summary.harvested && !item.summary.error).length,
                     totalStrategies: report.details.length,

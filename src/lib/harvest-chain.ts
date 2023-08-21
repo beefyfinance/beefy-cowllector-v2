@@ -8,6 +8,8 @@ import { createGasEstimationReport, estimateHarvestCallGasAmount } from './gas';
 import { reportOnHarvestStep, reportOnAsyncCall, HarvestReport, createDefaultReportItem } from './harvest-report';
 import { IStrategyABI } from '../abi/IStrategyABI';
 import { NotEnoughRemainingGasError, UnsupportedChainError } from './harvest-errors';
+import { getChainWNativeTokenAddress } from './addressbook';
+import { WnativeABI } from '../abi/WnativeABI';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -48,9 +50,18 @@ export async function harvestChain({
         gasPriceWei: await publicClient.getGasPrice(),
     }));
 
-    const { collectorBalanceBefore } = await reportOnAsyncCall({ report }, 'collectorBalanceBefore', async () => ({
-        balanceWei: await publicClient.getBalance({ address: walletAccount.address }),
-    }));
+    await reportOnAsyncCall({ report }, 'collectorBalanceBefore', async () => {
+        const [balanceWei, wnativeBalanceWei] = await Promise.all([
+            publicClient.getBalance({ address: walletAccount.address }),
+            publicClient.readContract({
+                abi: WnativeABI,
+                address: getChainWNativeTokenAddress(chain),
+                functionName: 'balanceOf',
+                args: [walletAccount.address],
+            }),
+        ]);
+        return { balanceWei, wnativeBalanceWei, aggregatedBalanceWei: balanceWei + wnativeBalanceWei };
+    });
 
     // ==================
     // run the simulation
@@ -249,10 +260,18 @@ export async function harvestChain({
 
     // fetching this additional info shouldn't crash the whole harvest
     try {
-        const { collectorBalanceAfter } = await reportOnAsyncCall({ report }, 'collectorBalanceAfter', async () => ({
-            balanceWei: await publicClient.getBalance({ address: walletAccount.address }),
-        }));
-        report.summary.totalProfitWei = collectorBalanceAfter.balanceWei - collectorBalanceBefore.balanceWei;
+        await reportOnAsyncCall({ report }, 'collectorBalanceAfter', async () => {
+            const [balanceWei, wnativeBalanceWei] = await Promise.all([
+                publicClient.getBalance({ address: walletAccount.address }),
+                publicClient.readContract({
+                    abi: WnativeABI,
+                    address: getChainWNativeTokenAddress(chain),
+                    functionName: 'balanceOf',
+                    args: [walletAccount.address],
+                }),
+            ]);
+            return { balanceWei, wnativeBalanceWei, aggregatedBalanceWei: balanceWei + wnativeBalanceWei };
+        });
     } catch (e) {
         logger.error({ msg: 'Error getting collector balance after', data: { chain, e } });
     }

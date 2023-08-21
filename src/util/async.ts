@@ -17,6 +17,16 @@ export type AsyncSuccessType<TObj> = [TObj] extends [Async<infer TSuccessType> |
     ? TSuccessType
     : never;
 
+export function asyncResultGet<T, R>(result: Async<T> | null, getter: (o: T) => R): R | null {
+    if (!result) {
+        return null;
+    }
+    if (result.status === 'rejected') {
+        return null;
+    }
+    return getter(result.value);
+}
+
 /**
  * Make an async call
  */

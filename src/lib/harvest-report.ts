@@ -15,10 +15,20 @@ export type HarvestReport = {
     chain: Chain;
     details: HarvestReportItem[];
     fetchGasPrice: Async<{ gasPriceWei: bigint }> | null;
-    collectorBalanceBefore: Async<{ balanceWei: bigint }> | null;
-    collectorBalanceAfter: Async<{ balanceWei: bigint }> | null;
+    collectorBalanceBefore: Async<{
+        balanceWei: bigint;
+        wnativeBalanceWei: bigint;
+        aggregatedBalanceWei: bigint;
+    }> | null;
+    collectorBalanceAfter: Async<{
+        balanceWei: bigint;
+        wnativeBalanceWei: bigint;
+        aggregatedBalanceWei: bigint;
+    }> | null;
     summary: {
-        totalProfitWei: bigint;
+        nativeGasUsedWei: bigint;
+        wnativeProfitWei: bigint;
+        aggregatedProfitWei: bigint;
         totalStrategies: number;
         harvested: number;
         skipped: number;
@@ -127,7 +137,9 @@ export function createDefaultReport({ chain }: { chain: Chain }): HarvestReport 
         collectorBalanceBefore: null,
         collectorBalanceAfter: null,
         summary: {
-            totalProfitWei: 0n,
+            nativeGasUsedWei: 0n,
+            wnativeProfitWei: 0n,
+            aggregatedProfitWei: 0n,
             totalStrategies: 0,
             harvested: 0,
             skipped: 0,

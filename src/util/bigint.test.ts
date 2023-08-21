@@ -28,4 +28,7 @@ describe('bigintFormat', () => {
     it('should format a small number with a large amount of decimals', () => {
         expect(bigintFormat(123n, 10)).toBe('0.0000000123');
     });
+    it('should account for the desired precision', () => {
+        expect(bigintFormat(123456789n, 4, 2)).toBe('12345.67');
+    });
 });
