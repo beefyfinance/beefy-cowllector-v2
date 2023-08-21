@@ -32,10 +32,4 @@ jobs:
 
     - run: yarn install --frozen-lockfile
     - run: forge compile
-    
-    - run: yarn --silent test:lint:typescript >> $GITHUB_STEP_SUMMARY
-    - run: yarn --silent test:lint:solidity >> $GITHUB_STEP_SUMMARY
-    - run: yarn --silent test:unit:typescript >> $GITHUB_STEP_SUMMARY
-    - run: yarn --silent test:unit:solidity >> $GITHUB_STEP_SUMMARY
-    - run: yarn --silent test:unused-exports >> $GITHUB_STEP_SUMMARY
-    - run: yarn --silent test:ts >> $GITHUB_STEP_SUMMARY
+    - run: yarn test 2>&1 >> $GITHUB_STEP_SUMMARY
