@@ -2,9 +2,9 @@ import yargs from 'yargs';
 import { runMain } from '../../util/process';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
-import { getReadOnlyRpcClient, getWalletClient } from '../../lib/rpc-client';
+import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../../lib/rpc-client';
 import { BeefyContractDeployerABI } from '../../abi/BeefyContractDeployerABI';
-import { RPC_CONFIG } from '../../lib/config';
+import { EXPLORER_CONFIG, RPC_CONFIG } from '../../lib/config';
 import { getFoundryContractOptimizedBytecode, verifyFoundryContractForExplorer } from '../../util/foundry';
 import { Hex } from 'viem';
 import { rootLogger } from '../../util/logger';
@@ -47,12 +47,18 @@ async function main() {
         chain: argv.chain,
         salt: argv.salt as Hex,
     };
+    const { apiKey: explorerApiKey } = EXPLORER_CONFIG[options.chain];
+    if (!explorerApiKey) {
+        throw new Error(`No explorer api key for chain ${options.chain}, will not be able to verify contract`);
+    }
+
     const rpcConfig = RPC_CONFIG[options.chain];
     if (!rpcConfig.contracts.deployer) {
         throw new Error(`No deployer contract address for chain ${options.chain}`);
     }
     const publicClient = getReadOnlyRpcClient({ chain: options.chain });
     const walletClient = getWalletClient({ chain: options.chain });
+    const walletAccount = getWalletAccount({ chain: options.chain });
 
     // build
     const bytecode = await getFoundryContractOptimizedBytecode('BeefyHarvestLens');
@@ -63,8 +69,10 @@ async function main() {
         address: rpcConfig.contracts.deployer,
         functionName: 'deploy',
         args: [options.salt, bytecode],
+        account: walletAccount,
     });
     const deployTransaction = await walletClient.writeContract(deployRequest);
+    logger.info({ msg: 'Lens contract deploy trx', data: { deployTransaction, lensAddress } });
     const deployTrxReceipt = await publicClient.waitForTransactionReceipt({ hash: deployTransaction });
     logger.info({ msg: 'Lens contract deployed at trx', data: { deployTransaction, lensAddress, deployTrxReceipt } });
 
@@ -75,6 +83,7 @@ async function main() {
         address: lensAddress,
         functionName: 'init',
         args: [wnative],
+        account: walletAccount,
     });
     const initTransaction = await walletClient.writeContract(initRequest);
     const initTrxReceipt = await publicClient.waitForTransactionReceipt({ hash: initTransaction });

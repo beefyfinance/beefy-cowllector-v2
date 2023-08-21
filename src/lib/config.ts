@@ -161,6 +161,16 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     optimism: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.OPTIMISM_RPC_URL || 'https://rpc.ankr.com/optimism',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: '0xEeD0329C9D10dD0D85461203f89a54eD5A7B8418',
+        },
+        estimateContractGas: {
+            // we don't use this gas price after the gas estimation so it's value isn't important
+            // but ankr rpc will fail with a "gas is too high!" error when using the default provided by viem (1.5Gwei)
+            // watch viemChain.fees for updates: https://github.com/wagmi-dev/viem/blob/main/src/chains/index.ts
+            gasPrice: 1n,
+        },
     },
     polygon: {
         ...defaultConfig,
