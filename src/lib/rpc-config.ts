@@ -30,7 +30,7 @@ export type RpcConfig = {
         | {
               // EIP-1559
               maxPriorityFeePerGas: bigint;
-              maxFeePerGas: bigint;
+              maxFeePerGas?: bigint; // will be detected by viem if not provided
           }
         | {
               // legacy
