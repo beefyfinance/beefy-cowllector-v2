@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
-import './interfaces/beefy/IStrategyV7.sol';
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+
+import "./interfaces/beefy/IStrategyV7.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 // Simulate a harvest while recieving a call reward. Return callReward amount and whether or not it was a success.
 contract BeefyHarvestLens {
@@ -20,9 +21,10 @@ contract BeefyHarvestLens {
     }
 
     // Simulate harvest calling callStatic for return results. Can also just call harvest and get reward.
-    function harvest(
-        IStrategyV7 _strategy
-    ) external returns (uint256 callReward, bool success, uint256 lastHarvest, bool paused) {
+    function harvest(IStrategyV7 _strategy)
+        external
+        returns (uint256 callReward, bool success, uint256 lastHarvest, bool paused)
+    {
         paused = _strategy.paused();
 
         // some strategies don't have lastHarvest

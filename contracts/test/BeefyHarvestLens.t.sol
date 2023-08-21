@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import 'forge-std/Test.sol';
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import "forge-std/Test.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import '../src/BeefyHarvestLens.sol';
-import '../src/interfaces/beefy/IStrategyV7.sol';
-import './mocks/StrategyV7Mock.sol';
-import './mocks/ERC20Mock.sol';
+import "../src/BeefyHarvestLens.sol";
+import "../src/interfaces/beefy/IStrategyV7.sol";
+import "./mocks/StrategyV7Mock.sol";
+import "./mocks/ERC20Mock.sol";
 
 contract BeefyHarvestLensTest is Test {
     using SafeERC20 for IERC20;

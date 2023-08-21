@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 // import SafeERC20
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 // implements IStrategyV7 and allow mocking of all functions on the constructor
 // also adds a parameter to revert on harvest
@@ -38,14 +38,14 @@ contract StrategyV7Mock {
 
     function lastHarvest() external view returns (uint256) {
         if (revertOnLastHarvest) {
-            revert('revertOnLastHarvest');
+            revert("revertOnLastHarvest");
         }
         return lastHarvestMock;
     }
 
     function harvest(address callReceipient) external {
         if (revertOnHarvest) {
-            revert('revertOnHarvest');
+            revert("revertOnHarvest");
         }
         // consume some gas
         for (uint256 i = 0; i < harvestLoops; i++) {
