@@ -49,7 +49,7 @@ const defaultAccount: RpcConfig['account'] = {
     privateKey: PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000',
 };
 const defaultTransactionConfig = {
-    blockConfirmations: 1,
+    blockConfirmations: 3,
     timeoutMs: 5 * 60 * 1000,
     pollingIntervalMs: 5 * 1000,
 };
