@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { HarvestReport, serializeReport } from './harvest-report';
-import { DISCORD_WEBHOOK_URL } from './config';
+import { DISCORD_WEBHOOK_URL, NOTIFY_UNEVENTFUL_HARVEST } from './config';
 import { rootLogger } from '../util/logger';
 import { Blob, File } from 'buffer';
 import { bigintFormat } from '../util/bigint';
@@ -24,7 +24,9 @@ export async function notifyReport(report: HarvestReport) {
 
     if (report.summary.harvested === 0 && report.summary.errors === 0 && report.summary.warnings === 0) {
         logger.info({ msg: 'All strats were skipped, not reporting', data: report.summary });
-        return;
+        if (!NOTIFY_UNEVENTFUL_HARVEST) {
+            return;
+        }
     }
 
     logger.info({ msg: 'notifying harvest for report', data: { chain: report.chain } });
@@ -53,7 +55,13 @@ export async function notifyReport(report: HarvestReport) {
             drawHorizontalLine: (lineIndex: number, rowCount: number) => {
                 return lineIndex === 0 || lineIndex === 1 || lineIndex === rowCount - 1 || lineIndex === rowCount;
             },
-            columns: [{ alignment: 'right' }, { alignment: 'right' }, { alignment: 'right' }, { alignment: 'right' }],
+            columns: [
+                { alignment: 'right' },
+                { alignment: 'right' },
+                { alignment: 'right' },
+                { alignment: 'right' },
+                { alignment: 'right' },
+            ],
         }
     );
 
