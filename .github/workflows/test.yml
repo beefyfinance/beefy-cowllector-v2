@@ -31,4 +31,11 @@ jobs:
       uses: foundry-rs/foundry-toolchain@v1.0.10
 
     - run: yarn install --frozen-lockfile
-    - run: yarn test >> $GITHUB_STEP_SUMMARY
+    - run: forge compile
+    
+    - run: yarn --silent test:lint:typescript >> $GITHUB_STEP_SUMMARY
+    - run: yarn --silent test:lint:solidity >> $GITHUB_STEP_SUMMARY
+    - run: yarn --silent test:unit:typescript >> $GITHUB_STEP_SUMMARY
+    - run: yarn --silent test:unit:solidity >> $GITHUB_STEP_SUMMARY
+    - run: yarn --silent test:unused-exports >> $GITHUB_STEP_SUMMARY
+    - run: yarn --silent test:ts >> $GITHUB_STEP_SUMMARY
