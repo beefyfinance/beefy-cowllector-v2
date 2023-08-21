@@ -1,4 +1,4 @@
-export const WnativeABI = [
+export const WETHABI = [
     {
         constant: true,
         inputs: [{ name: '', type: 'address' }],

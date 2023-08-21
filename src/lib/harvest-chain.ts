@@ -9,7 +9,7 @@ import { reportOnHarvestStep, reportOnAsyncCall, HarvestReport, createDefaultRep
 import { IStrategyABI } from '../abi/IStrategyABI';
 import { NotEnoughRemainingGasError, UnsupportedChainError } from './harvest-errors';
 import { getChainWNativeTokenAddress } from './addressbook';
-import { WnativeABI } from '../abi/WnativeABI';
+import { WETHABI } from '../abi/WETHABI';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -54,7 +54,7 @@ export async function harvestChain({
         const [balanceWei, wnativeBalanceWei] = await Promise.all([
             publicClient.getBalance({ address: walletAccount.address }),
             publicClient.readContract({
-                abi: WnativeABI,
+                abi: WETHABI,
                 address: getChainWNativeTokenAddress(chain),
                 functionName: 'balanceOf',
                 args: [walletAccount.address],
@@ -264,7 +264,7 @@ export async function harvestChain({
             const [balanceWei, wnativeBalanceWei] = await Promise.all([
                 publicClient.getBalance({ address: walletAccount.address }),
                 publicClient.readContract({
-                    abi: WnativeABI,
+                    abi: WETHABI,
                     address: getChainWNativeTokenAddress(chain),
                     functionName: 'balanceOf',
                     args: [walletAccount.address],
