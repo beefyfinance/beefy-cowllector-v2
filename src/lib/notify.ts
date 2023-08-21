@@ -24,7 +24,7 @@ export async function notifyReport(report: HarvestReport) {
 
     if (report.summary.harvested === 0 && report.summary.errors === 0 && report.summary.warnings === 0) {
         logger.info({ msg: 'All strats were skipped, not reporting', data: report.summary });
-        //return;
+        return;
     }
 
     logger.info({ msg: 'notifying harvest for report', data: { chain: report.chain } });
@@ -38,83 +38,66 @@ export async function notifyReport(report: HarvestReport) {
         reportLevel = 'ℹ️ INFO';
     }
 
-    const harvestStats: string[] = [];
-    if (report.summary.totalStrategies > 0) {
-        harvestStats.push(`T=${report.summary.totalStrategies}`);
-    }
-    if (report.summary.harvested > 0) {
-        harvestStats.push(`🌾=${report.summary.harvested}`);
-    }
-    if (report.summary.skipped > 0) {
-        harvestStats.push(`⇏=${report.summary.skipped}`);
-    }
-    if (report.summary.errors > 0) {
-        harvestStats.push(`🔴=${report.summary.errors}`);
-    }
-    if (report.summary.warnings > 0) {
-        harvestStats.push(`⚠️=${report.summary.warnings}`);
-    }
+    const stratCountTableStr = table(
+        [
+            ['strategies', 'skipped', 'harvested', 'errors', 'warnings'],
+            [
+                report.summary.totalStrategies,
+                report.summary.skipped,
+                report.summary.harvested,
+                report.summary.errors,
+                report.summary.warnings,
+            ],
+        ],
+        {
+            drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+                return lineIndex === 0 || lineIndex === 1 || lineIndex === rowCount - 1 || lineIndex === rowCount;
+            },
+            columns: [{ alignment: 'right' }, { alignment: 'right' }, { alignment: 'right' }, { alignment: 'right' }],
+        }
+    );
 
     const wnativeSymbol = getChainWNativeTokenSymbol(report.chain);
-    // remove "w" or "W" prefix
-    const nativeSymbol = wnativeSymbol.slice(1);
+    const nativeSymbol = wnativeSymbol.slice(1); // remove "w" or "W" prefix
 
-    const tableStr =
-        '```' +
-        table(
+    const balanceTableStr = table(
+        [
+            ['balance of', nativeSymbol, wnativeSymbol, `${nativeSymbol} + ${wnativeSymbol}`],
             [
-                ['', nativeSymbol, wnativeSymbol, `${nativeSymbol} + ${wnativeSymbol}`],
-                [
-                    'before',
-                    asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.balanceWei, 18, 8)) || '??',
-                    asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.wnativeBalanceWei, 18, 8)) ||
-                        '??',
-                    asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.aggregatedBalanceWei, 18, 8)) ||
-                        '??',
-                ],
-                [
-                    'after',
-                    asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.balanceWei, 18, 8)) || '??',
-                    asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.wnativeBalanceWei, 18, 8)) || '??',
-                    asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.aggregatedBalanceWei, 18, 8)) ||
-                        '??',
-                ],
-                [
-                    'profit',
-                    bigintFormat(report.summary.nativeGasUsedWei, 18, 8) || '??',
-                    bigintFormat(report.summary.wnativeProfitWei, 18, 8) || '??',
-                    bigintFormat(report.summary.aggregatedProfitWei, 18, 8) || '??',
-                ],
+                'before',
+                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.balanceWei, 18, 8)) || '??',
+                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.wnativeBalanceWei, 18, 8)) || '??',
+                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.aggregatedBalanceWei, 18, 8)) || '??',
             ],
-            {
-                drawHorizontalLine: (lineIndex: number, rowCount: number) => {
-                    return (
-                        lineIndex === 0 ||
-                        lineIndex === 1 ||
-                        lineIndex === 2 ||
-                        lineIndex === rowCount - 1 ||
-                        lineIndex === rowCount
-                    );
-                },
-                columns: [
-                    { alignment: 'left' },
-                    { alignment: 'right' },
-                    { alignment: 'right' },
-                    { alignment: 'right' },
-                ],
-                header: {
-                    alignment: 'center',
-                    content: 'balance report',
-                },
-            }
-        ) +
-        '```';
+            [
+                'after',
+                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.balanceWei, 18, 8)) || '??',
+                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.wnativeBalanceWei, 18, 8)) || '??',
+                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.aggregatedBalanceWei, 18, 8)) || '??',
+            ],
+            [
+                'profit',
+                bigintFormat(report.summary.nativeGasUsedWei, 18, 8) || '??',
+                bigintFormat(report.summary.wnativeProfitWei, 18, 8) || '??',
+                bigintFormat(report.summary.aggregatedProfitWei, 18, 8) || '??',
+            ],
+        ],
+        {
+            drawHorizontalLine: (lineIndex: number, rowCount: number) => {
+                return lineIndex === 0 || lineIndex === 1 || lineIndex === rowCount - 1 || lineIndex === rowCount;
+            },
+            columns: [{ alignment: 'left' }, { alignment: 'right' }, { alignment: 'right' }, { alignment: 'right' }],
+        }
+    );
 
+    const codeSep = '```';
     const params: DiscordWebhookParams = {
         content: `
 ### ${reportLevel} for ${report.chain.toLocaleUpperCase()}
-- Strats: ${harvestStats.join(' ')}
-${tableStr}`,
+${codeSep}
+${stratCountTableStr}
+${balanceTableStr}
+${codeSep}`,
     };
 
     try {
