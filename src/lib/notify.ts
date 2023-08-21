@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { HarvestReport, serializeReport } from './harvest-report';
-import { DISCORD_WEBHOOK_URL, NOTIFY_UNEVENTFUL_HARVEST } from './config';
+import { DISCORD_PING_ROLE_IDS_ON_ERROR, DISCORD_WEBHOOK_URL, DISCORD_NOTIFY_UNEVENTFUL_HARVEST } from './config';
 import { rootLogger } from '../util/logger';
 import { Blob, File } from 'buffer';
 import { bigintFormat } from '../util/bigint';
@@ -24,7 +24,7 @@ export async function notifyReport(report: HarvestReport) {
 
     if (report.summary.harvested === 0 && report.summary.errors === 0 && report.summary.warnings === 0) {
         logger.info({ msg: 'All strats were skipped, not reporting', data: report.summary });
-        if (!NOTIFY_UNEVENTFUL_HARVEST) {
+        if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
             return;
         }
     }
@@ -98,6 +98,12 @@ export async function notifyReport(report: HarvestReport) {
         }
     );
 
+    const rolePing =
+        (report.summary.errors > 0 || report.summary.warnings > 0 || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) &&
+        DISCORD_PING_ROLE_IDS_ON_ERROR
+            ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
+            : '';
+
     const codeSep = '```';
     const params: DiscordWebhookParams = {
         content: `
@@ -105,7 +111,8 @@ export async function notifyReport(report: HarvestReport) {
 ${codeSep}
 ${stratCountTableStr}
 ${balanceTableStr}
-${codeSep}`,
+${codeSep}
+${rolePing}`,
     };
 
     try {

@@ -24,7 +24,10 @@ export const LOG_LEVEL: LogLevels = log_level as LogLevels;
 const RPC_FORCE_URL = process.env.RPC_FORCE_URL || null;
 const PRIVATE_KEY = (process.env.PRIVATE_KEY || null) as Hex | null;
 export const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || null;
-export const NOTIFY_UNEVENTFUL_HARVEST = process.env.NOTIFY_UNEVENTFUL_HARVEST === 'true';
+export const DISCORD_NOTIFY_UNEVENTFUL_HARVEST = process.env.DISCORD_NOTIFY_UNEVENTFUL_HARVEST === 'true';
+export const DISCORD_PING_ROLE_IDS_ON_ERROR = process.env.DISCORD_PING_ROLE_IDS_ON_ERROR
+    ? process.env.DISCORD_PING_ROLE_IDS_ON_ERROR.split(',')
+    : [];
 export const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
 export const HARVEST_OVERESTIMATE_GAS_BY_PERCENT = parseFloat(process.env.HARVEST_OVERESTIMATE_GAS_BY_PERCENT || '0.5');
 export const HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS = parseInt(
