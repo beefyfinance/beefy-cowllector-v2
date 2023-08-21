@@ -1,4 +1,4 @@
-import { serializeReport } from './harvest-report';
+import { serializeReport } from './reports';
 
 describe('harvest report', () => {
     it('should serialize a report to JSON without crashing', () => {

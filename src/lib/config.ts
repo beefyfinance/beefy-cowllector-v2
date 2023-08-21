@@ -58,6 +58,10 @@ const defaultTransactionConfig = {
     pollingIntervalMs: 5 * 1000,
 };
 const defaultTimeoutMs = 60_000; // high timeout because we batch calls
+const defaultUnwrapConfig = {
+    // default to 0.001 wnative (18 decimals)
+    triggerAmountWei: 1_000_000_000_000_000n,
+};
 const defaultConfig = {
     eol: false,
     timeoutMs: defaultTimeoutMs,
@@ -65,6 +69,7 @@ const defaultConfig = {
     contracts: defaultContracts,
     account: defaultAccount,
     transaction: defaultTransactionConfig,
+    unwrap: defaultUnwrapConfig,
 };
 
 export const RPC_CONFIG: Record<Chain, RpcConfig> = {

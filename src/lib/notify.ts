@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { HarvestReport, serializeReport } from './harvest-report';
+import { HarvestReport } from './harvest-report';
 import { DISCORD_PING_ROLE_IDS_ON_ERROR, DISCORD_WEBHOOK_URL, DISCORD_NOTIFY_UNEVENTFUL_HARVEST } from './config';
 import { rootLogger } from '../util/logger';
 import { Blob, File } from 'buffer';
@@ -7,6 +7,8 @@ import { bigintFormat } from '../util/bigint';
 import { getChainWNativeTokenSymbol } from './addressbook';
 import { table } from 'table';
 import { asyncResultGet } from '../util/async';
+import { serializeReport } from './reports';
+import { UnwrapReport } from './unwrap-report';
 
 const logger = rootLogger.child({ module: 'notify' });
 
@@ -16,7 +18,7 @@ type DiscordWebhookParams = {
     avatar_url?: string;
 };
 
-export async function notifyReport(report: HarvestReport) {
+export async function notifyHarvestReport(report: HarvestReport) {
     if (!DISCORD_WEBHOOK_URL) {
         logger.warn({ msg: 'DISCORD_WEBHOOK_URL not set, not sending any discord message' });
         return;
@@ -65,10 +67,95 @@ export async function notifyReport(report: HarvestReport) {
         }
     );
 
+    const rolePing =
+        (report.summary.errors > 0 || report.summary.warnings > 0 || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) &&
+        DISCORD_PING_ROLE_IDS_ON_ERROR
+            ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
+            : '';
+
+    const codeSep = '```';
+    const params: DiscordWebhookParams = {
+        content: `
+### Harvest ${reportLevel} for ${report.chain.toLocaleUpperCase()}
+${codeSep}
+${stratCountTableStr}
+${getBalanceReportTable(report)}
+${codeSep}
+${rolePing}`,
+    };
+
+    try {
+        const reportStr = serializeReport(report, true);
+        const reportBlob = new Blob([reportStr], { type: 'application/json' });
+        const reportFile = new File([reportBlob], `report_${report.chain}.json`);
+
+        const form = new FormData();
+        form.append('payload_json', JSON.stringify(params));
+        form.append('file1', reportFile as any);
+
+        await axios.post(DISCORD_WEBHOOK_URL, form);
+    } catch (e) {
+        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
+        logger.trace(e);
+    }
+}
+
+export async function notifyUnwrapReport(report: UnwrapReport) {
+    if (!DISCORD_WEBHOOK_URL) {
+        logger.warn({ msg: 'DISCORD_WEBHOOK_URL not set, not sending any discord message' });
+        return;
+    }
+
+    if (report.summary.success === true && report.summary.unwrapped === false) {
+        logger.info({ msg: 'Did not unwrap anything, not reporting', data: report.summary });
+        if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
+            return;
+        }
+    }
+
+    logger.info({ msg: 'notifying unwrap report', data: { chain: report.chain } });
+
+    let reportLevel: string;
+    if (!report.summary.success) {
+        reportLevel = '🔥 ERROR';
+    } else {
+        reportLevel = 'ℹ️ INFO';
+    }
+
+    const rolePing =
+        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR
+            ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
+            : '';
+
+    const codeSep = '```';
+    const params: DiscordWebhookParams = {
+        content: `
+### Wnative unwrap ${reportLevel} for ${report.chain.toLocaleUpperCase()}
+${report.summary.unwrapped ? codeSep + getBalanceReportTable(report) + codeSep : ''}  
+${rolePing}`,
+    };
+
+    try {
+        const reportStr = serializeReport(report, true);
+        const reportBlob = new Blob([reportStr], { type: 'application/json' });
+        const reportFile = new File([reportBlob], `report_${report.chain}.json`);
+
+        const form = new FormData();
+        form.append('payload_json', JSON.stringify(params));
+        form.append('file1', reportFile as any);
+
+        await axios.post(DISCORD_WEBHOOK_URL, form);
+    } catch (e) {
+        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
+        logger.trace(e);
+    }
+}
+
+function getBalanceReportTable(report: HarvestReport | UnwrapReport) {
     const wnativeSymbol = getChainWNativeTokenSymbol(report.chain);
     const nativeSymbol = wnativeSymbol.slice(1); // remove "w" or "W" prefix
 
-    const balanceTableStr = table(
+    return table(
         [
             ['balance of', nativeSymbol, wnativeSymbol, `${nativeSymbol} + ${wnativeSymbol}`],
             [
@@ -97,36 +184,4 @@ export async function notifyReport(report: HarvestReport) {
             columns: [{ alignment: 'left' }, { alignment: 'right' }, { alignment: 'right' }, { alignment: 'right' }],
         }
     );
-
-    const rolePing =
-        (report.summary.errors > 0 || report.summary.warnings > 0 || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) &&
-        DISCORD_PING_ROLE_IDS_ON_ERROR
-            ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
-            : '';
-
-    const codeSep = '```';
-    const params: DiscordWebhookParams = {
-        content: `
-### ${reportLevel} for ${report.chain.toLocaleUpperCase()}
-${codeSep}
-${stratCountTableStr}
-${balanceTableStr}
-${codeSep}
-${rolePing}`,
-    };
-
-    try {
-        const reportStr = serializeReport(report, true);
-        const reportBlob = new Blob([reportStr], { type: 'application/json' });
-        const reportFile = new File([reportBlob], `report_${report.chain}.json`);
-
-        const form = new FormData();
-        form.append('payload_json', JSON.stringify(params));
-        form.append('file1', reportFile as any);
-
-        await axios.post(DISCORD_WEBHOOK_URL, form);
-    } catch (e) {
-        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
-        logger.trace(e);
-    }
 }

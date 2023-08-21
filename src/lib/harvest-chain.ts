@@ -5,11 +5,15 @@ import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import { HARVEST_AT_LEAST_EVERY_HOURS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport, estimateHarvestCallGasAmount } from './gas';
-import { reportOnHarvestStep, reportOnAsyncCall, HarvestReport, createDefaultReportItem } from './harvest-report';
+import {
+    HarvestReport,
+    createDefaultHarvestReportItem,
+    reportOnMultipleHarvestAsyncCall,
+    reportOnSingleHarvestAsyncCall,
+} from './harvest-report';
 import { IStrategyABI } from '../abi/IStrategyABI';
 import { NotEnoughRemainingGasError, UnsupportedChainError } from './harvest-errors';
-import { getChainWNativeTokenAddress } from './addressbook';
-import { WETHABI } from '../abi/WETHABI';
+import { fetchCollectorBalance } from './collector-balance';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -31,7 +35,7 @@ export async function harvestChain({
     const walletAccount = getWalletAccount({ chain });
     const rpcConfig = RPC_CONFIG[chain];
 
-    const items = vaults.map(vault => ({ vault, report: createDefaultReportItem({ vault }) }));
+    const items = vaults.map(vault => ({ vault, report: createDefaultHarvestReportItem({ vault }) }));
     report.details = items.map(({ report }) => report);
 
     // we need the harvest lense
@@ -46,45 +50,39 @@ export async function harvestChain({
 
     const {
         fetchGasPrice: { gasPriceWei: rawGasPrice },
-    } = await reportOnAsyncCall({ report }, 'fetchGasPrice', async () => ({
+    } = await reportOnSingleHarvestAsyncCall({ report }, 'fetchGasPrice', async () => ({
         gasPriceWei: await publicClient.getGasPrice(),
     }));
 
-    await reportOnAsyncCall({ report }, 'collectorBalanceBefore', async () => {
-        const [balanceWei, wnativeBalanceWei] = await Promise.all([
-            publicClient.getBalance({ address: walletAccount.address }),
-            publicClient.readContract({
-                abi: WETHABI,
-                address: getChainWNativeTokenAddress(chain),
-                functionName: 'balanceOf',
-                args: [walletAccount.address],
-            }),
-        ]);
-        return { balanceWei, wnativeBalanceWei, aggregatedBalanceWei: balanceWei + wnativeBalanceWei };
-    });
+    await reportOnSingleHarvestAsyncCall({ report }, 'collectorBalanceBefore', () => fetchCollectorBalance({ chain }));
 
     // ==================
     // run the simulation
     // ==================
-    const successfulSimulations = await reportOnHarvestStep(items, 'simulation', 'parallel', async item => {
-        const { result } = await publicClient.simulateContract({
-            ...harvestLensContract,
-            functionName: 'harvest',
-            args: [item.vault.strategy_address],
-        });
-        const [estimatedCallRewardsWei, harvestWillSucceed, rawLastHarvest, strategyPaused] = result;
-        const lastHarvest = new Date(Number(rawLastHarvest) * 1000);
-        const hoursSinceLastHarvest = (now.getTime() - lastHarvest.getTime()) / 1000 / 60 / 60;
-        const isLastHarvestRecent = hoursSinceLastHarvest < HARVEST_AT_LEAST_EVERY_HOURS;
-        return {
-            estimatedCallRewardsWei,
-            harvestWillSucceed,
-            lastHarvest,
-            hoursSinceLastHarvest,
-            isLastHarvestRecent,
-            paused: strategyPaused,
-        };
-    });
+    const successfulSimulations = await reportOnMultipleHarvestAsyncCall(
+        items,
+        'simulation',
+        'parallel',
+        async item => {
+            const { result } = await publicClient.simulateContract({
+                ...harvestLensContract,
+                functionName: 'harvest',
+                args: [item.vault.strategy_address],
+            });
+            const [estimatedCallRewardsWei, harvestWillSucceed, rawLastHarvest, strategyPaused] = result;
+            const lastHarvest = new Date(Number(rawLastHarvest) * 1000);
+            const hoursSinceLastHarvest = (now.getTime() - lastHarvest.getTime()) / 1000 / 60 / 60;
+            const isLastHarvestRecent = hoursSinceLastHarvest < HARVEST_AT_LEAST_EVERY_HOURS;
+            return {
+                estimatedCallRewardsWei,
+                harvestWillSucceed,
+                lastHarvest,
+                hoursSinceLastHarvest,
+                isLastHarvestRecent,
+                paused: strategyPaused,
+            };
+        }
+    );
 
     // ============================
     // Filter out paused strategies
@@ -94,7 +92,7 @@ export async function harvestChain({
     if (chain === 'ethereum') {
         throw new UnsupportedChainError({ chain });
     }
-    const liveStratsDecisions = await reportOnHarvestStep(
+    const liveStratsDecisions = await reportOnMultipleHarvestAsyncCall(
         successfulSimulations,
         'isLiveDecision',
         'parallel',
@@ -151,26 +149,31 @@ export async function harvestChain({
     // Gas Estimation
     // ==============
 
-    const successfulEstimations = await reportOnHarvestStep(liveStrats, 'gasEstimation', 'sequential', async item => {
-        const gasEst = await estimateHarvestCallGasAmount({
-            chain,
-            rpcClient: publicClient,
-            strategyAddress: item.vault.strategy_address,
-        });
-        return createGasEstimationReport({
-            rawGasPrice,
-            rawGasAmountEstimation: gasEst,
-            estimatedCallRewardsWei: item.simulation.estimatedCallRewardsWei,
-            overestimateGasByPercent: HARVEST_OVERESTIMATE_GAS_BY_PERCENT,
-        });
-    });
+    const successfulEstimations = await reportOnMultipleHarvestAsyncCall(
+        liveStrats,
+        'gasEstimation',
+        'sequential',
+        async item => {
+            const gasEst = await estimateHarvestCallGasAmount({
+                chain,
+                rpcClient: publicClient,
+                strategyAddress: item.vault.strategy_address,
+            });
+            return createGasEstimationReport({
+                rawGasPrice,
+                rawGasAmountEstimation: gasEst,
+                estimatedCallRewardsWei: item.simulation.estimatedCallRewardsWei,
+                overestimateGasByPercent: HARVEST_OVERESTIMATE_GAS_BY_PERCENT,
+            });
+        }
+    );
 
     // ======================
     // profitability decision
     // ======================
     // check for last harvest and profitability
 
-    const harvestDecisions = await reportOnHarvestStep(
+    const harvestDecisions = await reportOnMultipleHarvestAsyncCall(
         successfulEstimations,
         'harvestDecision',
         'parallel',
@@ -204,7 +207,7 @@ export async function harvestChain({
     // =======================
 
     logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
-    await reportOnHarvestStep(stratsToBeHarvested, 'harvestTransaction', 'sequential', async item => {
+    await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'harvestTransaction', 'sequential', async item => {
         // check if we have enough gas to harvest
         logger.trace({ msg: 'Checking gas', data: { chain, strat: item } });
         const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
@@ -260,18 +263,9 @@ export async function harvestChain({
 
     // fetching this additional info shouldn't crash the whole harvest
     try {
-        await reportOnAsyncCall({ report }, 'collectorBalanceAfter', async () => {
-            const [balanceWei, wnativeBalanceWei] = await Promise.all([
-                publicClient.getBalance({ address: walletAccount.address }),
-                publicClient.readContract({
-                    abi: WETHABI,
-                    address: getChainWNativeTokenAddress(chain),
-                    functionName: 'balanceOf',
-                    args: [walletAccount.address],
-                }),
-            ]);
-            return { balanceWei, wnativeBalanceWei, aggregatedBalanceWei: balanceWei + wnativeBalanceWei };
-        });
+        await reportOnSingleHarvestAsyncCall({ report }, 'collectorBalanceAfter', () =>
+            fetchCollectorBalance({ chain })
+        );
     } catch (e) {
         logger.error({ msg: 'Error getting collector balance after', data: { chain, e } });
     }

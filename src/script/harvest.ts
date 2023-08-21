@@ -6,10 +6,10 @@ import { rootLogger } from '../util/logger';
 import { getVaultsToMonitor } from '../lib/vault-list';
 import { harvestChain } from '../lib/harvest-chain';
 import { Hex } from 'viem';
-import { createDefaultReport } from '../lib/harvest-report';
+import { createDefaultHarvestReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
-import { notifyReport } from '../lib/notify';
+import { notifyHarvestReport } from '../lib/notify';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -60,7 +60,7 @@ async function main() {
                 const chain = c as Chain;
 
                 // create the report objects
-                let report = createDefaultReport({ chain });
+                let report = createDefaultHarvestReport({ chain });
                 const result = await promiseTimings(() =>
                     harvestChain({ report, now: options.now, chain: chain as Chain, vaults })
                 );
@@ -112,7 +112,7 @@ async function main() {
                     totalStrategies: report.details.length,
                 };
 
-                await notifyReport(report);
+                await notifyHarvestReport(report);
 
                 return report;
             })

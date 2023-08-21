@@ -36,4 +36,7 @@ export type RpcConfig = {
               // legacy
               gasPrice: bigint;
           };
+    unwrap: {
+        triggerAmountWei: bigint;
+    };
 };
