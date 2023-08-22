@@ -11,6 +11,7 @@ const logger = rootLogger.child({ module: 'harvest-actions' });
 type HarvestParameters = {
     strategyAddress: Hex;
     transactionCostEstimationWei: bigint;
+    transactionGasLimit: bigint;
 };
 
 type HarvestReturnType = {
@@ -24,7 +25,7 @@ type HarvestReturnType = {
 async function harvest<TChain extends ViemChain | undefined>(
     client: Client<Transport, TChain>,
     chain: Chain,
-    { strategyAddress, transactionCostEstimationWei }: HarvestParameters
+    { strategyAddress, transactionCostEstimationWei, transactionGasLimit }: HarvestParameters
 ): Promise<HarvestReturnType> {
     // use our own clients since it's a bit of a pain to import the individual viem actions
     const publicClient = getReadOnlyRpcClient({ chain });
@@ -51,13 +52,17 @@ async function harvest<TChain extends ViemChain | undefined>(
     // no need to set gas fees as viem has automatic EIP-1559 detection and gas settings
     // https://github.com/wagmi-dev/viem/blob/viem%401.6.0/src/utils/transaction/prepareRequest.ts#L89
     logger.trace({ msg: 'Harvesting strat', data: { chain, strategyAddress } });
-    const transactionHash = await walletClient.writeContract({
+    // re-simulate the transaction in case something changed since we estimated the gas
+    const { request } = await publicClient.simulateContract({
         abi: IStrategyABI,
         address: strategyAddress,
         functionName: 'harvest',
         args: [walletAccount.address],
         account: walletAccount,
+        gas: transactionGasLimit,
     });
+    logger.trace({ msg: 'Harvest re-simulation ok', data: { chain, strategyAddress, request } });
+    const transactionHash = await walletClient.writeContract(request);
     logger.debug({ msg: 'Harvested strat', data: { chain, transactionHash } });
 
     // wait for the transaction to be mined so we have a proper nonce for the next transaction

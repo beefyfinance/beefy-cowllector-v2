@@ -1,5 +1,5 @@
 import { bigintPercent } from '../util/bigint';
-import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from './config';
+import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_PRICE_BY_PERCENT, RPC_CONFIG } from './config';
 
 import { Hex, PublicClient } from 'viem';
 import { getRedisClient } from '../util/redis';
@@ -29,7 +29,7 @@ export function createGasEstimationReport({
     rawGasPrice,
     estimatedCallRewardsWei,
     rawGasAmountEstimation,
-    overestimateGasByPercent = HARVEST_OVERESTIMATE_GAS_BY_PERCENT,
+    overestimateGasByPercent = HARVEST_OVERESTIMATE_GAS_PRICE_BY_PERCENT,
 }: {
     // current network gas price in wei
     rawGasPrice: bigint; // in wei
