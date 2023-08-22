@@ -59,6 +59,7 @@ async function harvest<TChain extends ViemChain | undefined>(
         functionName: 'harvest',
         args: [walletAccount.address],
         account: walletAccount,
+        // setting a gas limit is mandatory since the viem default is too low for larger protocols
         gas: transactionGasLimit,
     });
     logger.trace({ msg: 'Harvest re-simulation ok', data: { chain, strategyAddress, request } });

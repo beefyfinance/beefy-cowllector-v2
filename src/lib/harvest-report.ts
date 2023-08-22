@@ -77,7 +77,7 @@ type HarvestReportShouldHarvestDecision =
           hoursSinceLastHarvest: number;
           estimatedGainWei: bigint;
           wouldBeProfitable: boolean;
-          notHarvestingReason: 'not profitable and harvested too recently';
+          notHarvestingReason: 'harvested too recently';
       }
     | {
           shouldHarvest: true;

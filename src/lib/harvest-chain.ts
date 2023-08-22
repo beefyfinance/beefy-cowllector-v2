@@ -184,7 +184,16 @@ export async function harvestChain({
         'harvestDecision',
         'parallel',
         async item => {
-            const shouldHarvest = item.gasEstimation.wouldBeProfitable || !item.simulation.isLastHarvestRecent;
+            const shouldHarvest = !item.simulation.isLastHarvestRecent;
+
+            // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
+            // so we removed our profitability check for now
+            if (item.gasEstimation.wouldBeProfitable && !shouldHarvest) {
+                logger.info({
+                    msg: 'Harvesting would probably be profitable if we computed gas cost correctly. But we are not so we are not harvesting.',
+                    data: { gasEstimation: item.gasEstimation, simulation: item.simulation },
+                });
+            }
 
             if (!shouldHarvest) {
                 return {
@@ -193,7 +202,7 @@ export async function harvestChain({
                     wouldBeProfitable: item.gasEstimation.wouldBeProfitable,
                     callRewardsWei: item.gasEstimation.estimatedCallRewardsWei,
                     estimatedGainWei: item.gasEstimation.estimatedGainWei,
-                    notHarvestingReason: 'not profitable and harvested too recently',
+                    notHarvestingReason: 'harvested too recently',
                 };
             } else {
                 return {
