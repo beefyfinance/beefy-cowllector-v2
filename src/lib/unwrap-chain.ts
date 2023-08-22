@@ -69,6 +69,7 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
             address: getChainWNativeTokenAddress(chain),
             functionName: 'withdraw',
             args: [item.unwrapDecision.actualAmount],
+            account: walletAccount,
         });
         logger.debug({ msg: 'Simulated unwrapped wnative', data: { chain, strat: item, result } });
         const transactionHash = await walletClient.writeContract(request);

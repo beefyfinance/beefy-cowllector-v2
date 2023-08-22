@@ -1,6 +1,6 @@
 import type { Chain } from './chain';
 import type { BeefyVault } from './vault';
-import { getReadOnlyRpcClient, getWalletClient } from '../lib/rpc-client';
+import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import { HARVEST_AT_LEAST_EVERY_HOURS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from './config';
 import { rootLogger } from '../util/logger';
@@ -31,6 +31,7 @@ export async function harvestChain({
 
     const publicClient = getReadOnlyRpcClient({ chain });
     const walletClient = getWalletClient({ chain });
+    const walletAccount = getWalletAccount({ chain });
     const rpcConfig = RPC_CONFIG[chain];
 
     const items = vaults.map(vault => ({ vault, report: createDefaultHarvestReportItem({ vault }) }));
@@ -66,6 +67,7 @@ export async function harvestChain({
                 ...harvestLensContract,
                 functionName: 'harvest',
                 args: [item.vault.strategy_address],
+                account: walletAccount,
             });
             const [estimatedCallRewardsWei, harvestWillSucceed, rawLastHarvest, strategyPaused] = result;
             const lastHarvest = new Date(Number(rawLastHarvest) * 1000);
