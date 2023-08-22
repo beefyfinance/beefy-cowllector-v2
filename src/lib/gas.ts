@@ -85,14 +85,15 @@ export async function estimateHarvestCallGasAmount({
 
     logger.trace({ msg: 'Estimating gas cost', data: { strategyAddress } });
 
-    const gasParams = RPC_CONFIG[chain].estimateContractGas;
+    const gasParams = RPC_CONFIG[chain].gasConfig?.estimateContractGas ?? {};
     const estimation = await rpcClient.estimateContractGas({
-        ...gasParams,
         // we use the lens to avoid having bad estimations on error
         abi: IStrategyABI,
         address: strategyAddress,
         functionName: 'harvest',
+        args: [walletAccount.address],
         account: walletAccount,
+        ...gasParams,
     });
 
     logger.trace({ msg: 'Gas estimation from chain done', data: { strategyAddress, estimation } });
