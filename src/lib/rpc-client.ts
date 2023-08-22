@@ -25,7 +25,9 @@ import {
 } from 'viem/chains';
 import { addressBook } from 'blockchain-addressbook';
 import { loggingHttpTransport } from './rpc-transport';
-import { createCustomWalletActions } from './harvest-actions';
+import { createCustomHarvestActions } from './harvest-actions';
+import { cachedFactory } from '../util/cache';
+import { createCustomRpcActions } from './rpc-actions';
 
 const fuse = {
     id: addressBook.fuse.tokens.FUSE.chainId,
@@ -115,38 +117,51 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
 };
 
 // the view read only client has more options for batching
-export function getReadOnlyRpcClient({ chain }: { chain: Chain }) {
-    const rpcConfig = RPC_CONFIG[chain];
-    return createPublicClient({
-        transport: loggingHttpTransport(rpcConfig.url, {
-            batch: rpcConfig.batch.jsonRpc,
-            timeout: rpcConfig.timeoutMs,
-        }),
-        batch: {
-            multicall: rpcConfig.batch.multicall,
-        },
-    });
-}
-
-export function getWalletClient({ chain }: { chain: Chain }) {
-    const rpcConfig = RPC_CONFIG[chain];
-    const viemChain = VIEM_CHAINS[chain];
-    if (!viemChain) {
-        throw new Error(`Unsupported chain ${chain}`);
+export const getReadOnlyRpcClient = cachedFactory(
+    ({ chain }: { chain: Chain }) => chain,
+    ({ chain }) => {
+        const rpcConfig = RPC_CONFIG[chain];
+        const viemChain = VIEM_CHAINS[chain];
+        if (!viemChain) {
+            throw new Error(`Unsupported viem chain ${chain}`);
+        }
+        return createPublicClient({
+            chain: viemChain,
+            transport: loggingHttpTransport(rpcConfig.url, {
+                batch: rpcConfig.batch.jsonRpc,
+                timeout: rpcConfig.timeoutMs,
+            }),
+            batch: {
+                multicall: rpcConfig.batch.multicall,
+            },
+        }).extend(createCustomRpcActions({ chain }));
     }
+);
 
-    return createWalletClient({
-        chain: viemChain,
-        account: getWalletAccount({ chain }),
-        transport: loggingHttpTransport(rpcConfig.url, {
-            batch: false,
-            timeout: rpcConfig.timeoutMs,
-        }),
-    }).extend(createCustomWalletActions({ chain }));
-}
+export const getWalletClient = cachedFactory(
+    ({ chain }: { chain: Chain }) => chain,
+    ({ chain }) => {
+        const rpcConfig = RPC_CONFIG[chain];
+        const viemChain = VIEM_CHAINS[chain];
+        if (!viemChain) {
+            throw new Error(`Unsupported chain ${chain}`);
+        }
+        return createWalletClient({
+            chain: viemChain,
+            account: getWalletAccount({ chain }),
+            transport: loggingHttpTransport(rpcConfig.url, {
+                batch: false,
+                timeout: rpcConfig.timeoutMs,
+            }),
+        }).extend(createCustomHarvestActions({ chain }));
+    }
+);
 
-export function getWalletAccount({ chain }: { chain: Chain }) {
-    const rpcConfig = RPC_CONFIG[chain];
-    const pk = rpcConfig.account.privateKey;
-    return privateKeyToAccount(pk);
-}
+export const getWalletAccount = cachedFactory(
+    ({ chain }: { chain: Chain }) => chain,
+    ({ chain }) => {
+        const rpcConfig = RPC_CONFIG[chain];
+        const pk = rpcConfig.account.privateKey;
+        return privateKeyToAccount(pk);
+    }
+);

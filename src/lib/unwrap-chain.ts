@@ -77,7 +77,7 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
 
         // wait for the transaction to be mined so we have a proper nonce for the next transaction
         logger.trace({ msg: 'Waiting for transaction receipt', data: { chain, strat: item, transactionHash } });
-        const receipt = await publicClient.waitForTransactionReceipt({
+        const receipt = await publicClient.aggressivelyWaitForTransactionReceipt({
             hash: transactionHash,
             confirmations: rpcConfig.transaction.blockConfirmations,
             timeout: rpcConfig.transaction.timeoutMs,

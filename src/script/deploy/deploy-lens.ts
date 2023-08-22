@@ -73,7 +73,7 @@ async function main() {
     });
     const deployTransaction = await walletClient.writeContract(deployRequest);
     logger.info({ msg: 'Lens contract deploy trx', data: { deployTransaction, lensAddress } });
-    const deployTrxReceipt = await publicClient.waitForTransactionReceipt({ hash: deployTransaction });
+    const deployTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({ hash: deployTransaction });
     logger.info({ msg: 'Lens contract deployed at trx', data: { deployTransaction, lensAddress, deployTrxReceipt } });
 
     // init
@@ -86,7 +86,7 @@ async function main() {
         account: walletAccount,
     });
     const initTransaction = await walletClient.writeContract(initRequest);
-    const initTrxReceipt = await publicClient.waitForTransactionReceipt({ hash: initTransaction });
+    const initTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({ hash: initTransaction });
     logger.info({ msg: 'Lens contract initialized', data: { wnative, initTransaction, initTrxReceipt } });
 
     // verify

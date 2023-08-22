@@ -62,7 +62,7 @@ async function harvest<TChain extends ViemChain | undefined>(
 
     // wait for the transaction to be mined so we have a proper nonce for the next transaction
     logger.trace({ msg: 'Waiting for transaction receipt', data: { chain, strategyAddress, transactionHash } });
-    const receipt = await publicClient.waitForTransactionReceipt({
+    const receipt = await publicClient.aggressivelyWaitForTransactionReceipt({
         hash: transactionHash,
         confirmations: rpcConfig.transaction.blockConfirmations,
         timeout: rpcConfig.transaction.timeoutMs,
@@ -81,7 +81,7 @@ async function harvest<TChain extends ViemChain | undefined>(
     };
 }
 
-type CustomWalletActions<
+type CustomHarvestActions<
     TTransport extends Transport = Transport,
     TChain extends ViemChain | undefined = ViemChain | undefined,
     TAccount extends Account | undefined = Account | undefined,
@@ -89,12 +89,12 @@ type CustomWalletActions<
     harvest: ({ strategyAddress }: HarvestParameters) => Promise<HarvestReturnType>;
 };
 
-export function createCustomWalletActions({ chain }: { chain: Chain }) {
-    return function customWalletActions<
+export function createCustomHarvestActions({ chain }: { chain: Chain }) {
+    return function customHarvestActions<
         TTransport extends Transport = Transport,
         TChain extends ViemChain | undefined = ViemChain | undefined,
         TAccount extends Account | undefined = Account | undefined,
-    >(client: Client<TTransport, TChain, TAccount>): CustomWalletActions<TTransport, TChain, TAccount> {
+    >(client: Client<TTransport, TChain, TAccount>): CustomHarvestActions<TTransport, TChain, TAccount> {
         return {
             harvest: args => harvest(client, chain, args),
         };

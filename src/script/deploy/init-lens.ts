@@ -61,7 +61,7 @@ async function main() {
         account: walletAccount,
     });
     const initTransaction = await walletClient.writeContract(initRequest);
-    const initTrxReceipt = await publicClient.waitForTransactionReceipt({ hash: initTransaction });
+    const initTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({ hash: initTransaction });
     logger.info({ msg: 'Lens contract initialized', data: { wnative, initTransaction, initTrxReceipt } });
 
     // verify
