@@ -194,6 +194,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     polygon: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.POLYGON_RPC_URL || 'https://rpc.ankr.com/polygon',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: '0xEeD0329C9D10dD0D85461203f89a54eD5A7B8418',
+        },
     },
     zkevm: {
         ...defaultConfig,
