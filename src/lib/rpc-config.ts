@@ -37,9 +37,6 @@ export type RpcConfig = {
                   // legacy
                   gasPrice: bigint;
               };
-        simulateContract?: {
-            setGasParmeter?: boolean; // default to true, set to false to disable
-        };
     };
     unwrap: {
         triggerAmountWei: bigint;

@@ -90,10 +90,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 // watch viemChain.fees for updates: https://github.com/wagmi-dev/viem/blob/main/src/chains/index.ts
                 maxPriorityFeePerGas: 1n,
             },
-            simulateContract: {
-                // arbitrum rpc fail to simulate contract calls with gas set
-                setGasParmeter: false,
-            },
         },
     },
     aurora: {

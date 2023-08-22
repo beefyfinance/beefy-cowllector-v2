@@ -228,7 +228,7 @@ export async function harvestChain({
             transactionCostEstimationWei: item.gasEstimation.transactionCostEstimationWei,
             transactionGasLimit: bigintPercent(
                 item.gasEstimation.rawGasAmountEstimation.estimation,
-                HARVEST_LIMIT_GAS_AMOUNT_BY_PERCENT
+                1.0 + HARVEST_LIMIT_GAS_AMOUNT_BY_PERCENT
             ),
         });
 

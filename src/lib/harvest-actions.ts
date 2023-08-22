@@ -53,14 +53,6 @@ async function harvest<TChain extends ViemChain | undefined>(
     // https://github.com/wagmi-dev/viem/blob/viem%401.6.0/src/utils/transaction/prepareRequest.ts#L89
     logger.trace({ msg: 'Harvesting strat', data: { chain, strategyAddress } });
 
-    const gasConfig =
-        rpcConfig.gasConfig?.simulateContract?.setGasParmeter === false
-            ? {}
-            : {
-                  // setting a gas limit is mandatory since the viem default is too low for larger protocols
-                  // but some chains like arbitrum don't handle that well and fail when the gas parameter is set
-                  gas: transactionGasLimit,
-              };
     // re-simulate the transaction in case something changed since we estimated the gas
     const { request } = await publicClient.simulateContract({
         abi: IStrategyABI,
@@ -68,7 +60,8 @@ async function harvest<TChain extends ViemChain | undefined>(
         functionName: 'harvest',
         args: [walletAccount.address],
         account: walletAccount,
-        ...gasConfig,
+        // setting a gas limit is mandatory since the viem default is too low for larger protocols
+        gas: transactionGasLimit,
     });
     logger.trace({ msg: 'Harvest re-simulation ok', data: { chain, strategyAddress, request } });
     const transactionHash = await walletClient.writeContract(request);
