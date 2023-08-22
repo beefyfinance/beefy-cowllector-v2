@@ -1,6 +1,6 @@
 import type { Chain } from './chain';
 import type { BeefyVault } from './vault';
-import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
+import { getReadOnlyRpcClient, getWalletClient } from '../lib/rpc-client';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import { HARVEST_AT_LEAST_EVERY_HOURS, HARVEST_OVERESTIMATE_GAS_BY_PERCENT, RPC_CONFIG } from './config';
 import { rootLogger } from '../util/logger';
@@ -11,8 +11,7 @@ import {
     reportOnMultipleHarvestAsyncCall,
     reportOnSingleHarvestAsyncCall,
 } from './harvest-report';
-import { IStrategyABI } from '../abi/IStrategyABI';
-import { NotEnoughRemainingGasError, UnsupportedChainError } from './harvest-errors';
+import { UnsupportedChainError } from './harvest-errors';
 import { fetchCollectorBalance } from './collector-balance';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
@@ -32,7 +31,6 @@ export async function harvestChain({
 
     const publicClient = getReadOnlyRpcClient({ chain });
     const walletClient = getWalletClient({ chain });
-    const walletAccount = getWalletAccount({ chain });
     const rpcConfig = RPC_CONFIG[chain];
 
     const items = vaults.map(vault => ({ vault, report: createDefaultHarvestReportItem({ vault }) }));
@@ -208,50 +206,13 @@ export async function harvestChain({
 
     logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
     await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'harvestTransaction', 'sequential', async item => {
-        // check if we have enough gas to harvest
-        logger.trace({ msg: 'Checking gas', data: { chain, strat: item } });
-        const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
-        if (remainingGasWei < item.gasEstimation.transactionCostEstimationWei) {
-            logger.info({ msg: 'Not enough gas to harvest', data: { chain, remainingGasWei, strat: item } });
-            const error = new NotEnoughRemainingGasError({
-                chain,
-                remainingGasWei,
-                transactionCostEstimationWei: item.gasEstimation.transactionCostEstimationWei,
-                strategyAddress: item.vault.strategy_address,
-            });
-            throw error;
-        }
-        logger.debug({ msg: 'Enough gas to harvest', data: { chain, remainingGasWei, strat: item } });
-
-        // harvest the strat
-        // no need to set gas fees as viem has automatic EIP-1559 detection and gas settings
-        // https://github.com/wagmi-dev/viem/blob/viem%401.6.0/src/utils/transaction/prepareRequest.ts#L89
-        logger.trace({ msg: 'Harvesting strat', data: { chain, strat: item } });
-        const transactionHash = await walletClient.writeContract({
-            abi: IStrategyABI,
-            address: item.vault.strategy_address,
-            functionName: 'harvest',
+        const res = await walletClient.harvest({
+            strategyAddress: item.vault.strategy_address,
+            transactionCostEstimationWei: item.gasEstimation.transactionCostEstimationWei,
         });
-        logger.debug({ msg: 'Harvested strat', data: { chain, strat: item, transactionHash } });
 
-        // wait for the transaction to be mined so we have a proper nonce for the next transaction
-        logger.trace({ msg: 'Waiting for transaction receipt', data: { chain, strat: item, transactionHash } });
-        const receipt = await publicClient.waitForTransactionReceipt({
-            hash: transactionHash,
-            confirmations: rpcConfig.transaction.blockConfirmations,
-            timeout: rpcConfig.transaction.timeoutMs,
-            pollingInterval: rpcConfig.transaction.pollingIntervalMs,
-        });
-        logger.debug({ msg: 'Got transaction receipt', data: { chain, strat: item, transactionHash, receipt } });
-
-        // now we officially harvested the strat
-        logger.info({ msg: 'Harvested strat', data: { chain, strat: item, transactionHash, receipt } });
         return {
-            transactionHash,
-            blockNumber: receipt.blockNumber,
-            gasUsed: receipt.gasUsed,
-            effectiveGasPrice: receipt.effectiveGasPrice,
-            balanceBeforeWei: remainingGasWei,
+            ...res,
             // todo: this shouldn't be an estimate
             estimatedProfitWei: item.gasEstimation.estimatedGainWei - item.gasEstimation.transactionCostEstimationWei,
         };

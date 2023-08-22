@@ -25,6 +25,7 @@ import {
 } from 'viem/chains';
 import { addressBook } from 'blockchain-addressbook';
 import { loggingHttpTransport } from './rpc-transport';
+import { createCustomWalletActions } from './harvest-actions';
 
 const fuse = {
     id: addressBook.fuse.tokens.FUSE.chainId,
@@ -141,7 +142,7 @@ export function getWalletClient({ chain }: { chain: Chain }) {
             batch: false,
             timeout: rpcConfig.timeoutMs,
         }),
-    });
+    }).extend(createCustomWalletActions({ chain }));
 }
 
 export function getWalletAccount({ chain }: { chain: Chain }) {
