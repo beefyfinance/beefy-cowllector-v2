@@ -6,7 +6,7 @@
     "private": true,
     "scripts": {
         "test": "yarn --silent test:all",
-        "heroku:harvest": "node ./dist/script/harvest.js -c base -c bsc -c optimism",
+        "heroku:harvest": "node ./dist/script/harvest.js -c base -c bsc",
         "heroku:unwrap": "node ./dist/script/unwrap.js -c base -c bsc -c optimism",
         "precommit": "yarn --silent lint:format && yarn --silent test",
         "build": "tsc",
