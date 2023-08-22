@@ -6,8 +6,8 @@
     "private": true,
     "scripts": {
         "test": "yarn --silent test:all",
-        "heroku:harvest": "node ./dist/script/harvest.js -c base -c bsc -c optimism",
-        "heroku:unwrap": "node ./dist/script/unwrap.js -c base -c bsc -c optimism",
+        "heroku:harvest": "node ./dist/script/harvest.js -c base -c bsc -c optimism -c arbitrum",
+        "heroku:unwrap": "node ./dist/script/unwrap.js -c base -c bsc -c optimism -c arbitrum",
         "precommit": "yarn --silent lint:format && yarn --silent test",
         "build": "tsc",
         "lint:format": "yarn --silent lint:format:solidity && yarn --silent lint:format:typescript",
