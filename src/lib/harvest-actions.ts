@@ -54,13 +54,13 @@ async function harvest<TChain extends ViemChain | undefined>(
     logger.trace({ msg: 'Harvesting strat', data: { chain, strategyAddress } });
 
     const gasConfig =
-        rpcConfig.gasConfig?.simulateContract?.setGasParmeter === true
-            ? {
+        rpcConfig.gasConfig?.simulateContract?.setGasParmeter === false
+            ? {}
+            : {
                   // setting a gas limit is mandatory since the viem default is too low for larger protocols
                   // but some chains like arbitrum don't handle that well and fail when the gas parameter is set
                   gas: transactionGasLimit,
-              }
-            : {};
+              };
     // re-simulate the transaction in case something changed since we estimated the gas
     const { request } = await publicClient.simulateContract({
         abi: IStrategyABI,
