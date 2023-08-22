@@ -1,5 +1,5 @@
-import { bigintPercent } from '../util/bigint';
-import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_OVERESTIMATE_GAS_PRICE_BY_PERCENT, RPC_CONFIG } from './config';
+import { bigintMultiplyFloat } from '../util/bigint';
+import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, HARVEST_GAS_PRICE_MULTIPLIER, RPC_CONFIG } from './config';
 
 import { Hex, PublicClient } from 'viem';
 import { getRedisClient } from '../util/redis';
@@ -17,7 +17,7 @@ export type GasEstimationReport = {
     rawGasPrice: bigint;
     rawGasAmountEstimation: GasEstimationResult;
     estimatedCallRewardsWei: bigint;
-    overestimateGasByPercent: number;
+    gasPriceMultiplier: number;
     // computed values
     gasPrice: bigint;
     transactionCostEstimationWei: bigint;
@@ -29,7 +29,7 @@ export function createGasEstimationReport({
     rawGasPrice,
     estimatedCallRewardsWei,
     rawGasAmountEstimation,
-    overestimateGasByPercent = HARVEST_OVERESTIMATE_GAS_PRICE_BY_PERCENT,
+    gasPriceMultiplier = HARVEST_GAS_PRICE_MULTIPLIER,
 }: {
     // current network gas price in wei
     rawGasPrice: bigint; // in wei
@@ -37,11 +37,10 @@ export function createGasEstimationReport({
     rawGasAmountEstimation: GasEstimationResult; // in gas units
     // estimation of the call rewards in wei
     estimatedCallRewardsWei: bigint; // in wei
-    // overestimate the gas amount by this percent
-    // e.g. 0.1 = 10%
-    overestimateGasByPercent?: number;
+    // multiply the gas price by some value to overestimate the gas cost
+    gasPriceMultiplier?: number;
 }): GasEstimationReport {
-    const gasPrice = bigintPercent(rawGasPrice, 1.0 + overestimateGasByPercent);
+    const gasPrice = bigintMultiplyFloat(rawGasPrice, gasPriceMultiplier);
     const transactionCostEstimationWei = rawGasAmountEstimation.estimation * gasPrice;
     const estimatedGainWei = estimatedCallRewardsWei - transactionCostEstimationWei;
     const wouldBeProfitable = estimatedGainWei > 0;
@@ -49,7 +48,7 @@ export function createGasEstimationReport({
         rawGasPrice,
         rawGasAmountEstimation,
         estimatedCallRewardsWei,
-        overestimateGasByPercent,
+        gasPriceMultiplier,
         gasPrice,
         transactionCostEstimationWei,
         estimatedGainWei,

@@ -4,8 +4,8 @@ import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import {
     HARVEST_AT_LEAST_EVERY_HOURS,
-    HARVEST_LIMIT_GAS_AMOUNT_BY_PERCENT,
-    HARVEST_OVERESTIMATE_GAS_PRICE_BY_PERCENT,
+    HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
+    HARVEST_GAS_PRICE_MULTIPLIER,
     RPC_CONFIG,
 } from './config';
 import { rootLogger } from '../util/logger';
@@ -18,7 +18,7 @@ import {
 } from './harvest-report';
 import { UnsupportedChainError } from './harvest-errors';
 import { fetchCollectorBalance } from './collector-balance';
-import { bigintPercent } from '../util/bigint';
+import { bigintMultiplyFloat } from '../util/bigint';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -169,7 +169,7 @@ export async function harvestChain({
                 rawGasPrice,
                 rawGasAmountEstimation: gasEst,
                 estimatedCallRewardsWei: item.simulation.estimatedCallRewardsWei,
-                overestimateGasByPercent: HARVEST_OVERESTIMATE_GAS_PRICE_BY_PERCENT,
+                gasPriceMultiplier: HARVEST_GAS_PRICE_MULTIPLIER,
             });
         }
     );
@@ -226,9 +226,9 @@ export async function harvestChain({
         const res = await walletClient.harvest({
             strategyAddress: item.vault.strategy_address,
             transactionCostEstimationWei: item.gasEstimation.transactionCostEstimationWei,
-            transactionGasLimit: bigintPercent(
+            transactionGasLimit: bigintMultiplyFloat(
                 item.gasEstimation.rawGasAmountEstimation.estimation,
-                1.0 + HARVEST_LIMIT_GAS_AMOUNT_BY_PERCENT
+                HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER
             ),
         });
 

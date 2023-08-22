@@ -7,7 +7,7 @@ describe('gas', () => {
             rawGasPrice: 100n,
             estimatedCallRewardsWei: 1000n,
             rawGasAmountEstimation: { from: 'cache', estimation: 100n } satisfies GasEstimationResult,
-            overestimateGasByPercent: 0.5,
+            gasPriceMultiplier: 1.5,
         };
         expect(createGasEstimationReport(input)).toEqual({
             ...input,
@@ -23,7 +23,7 @@ describe('gas', () => {
             rawGasPrice: 100n,
             estimatedCallRewardsWei: 1000n,
             rawGasAmountEstimation: { from: 'cache', estimation: 100n } satisfies GasEstimationResult,
-            overestimateGasByPercent: 0.0,
+            gasPriceMultiplier: 1.0,
         };
         expect(createGasEstimationReport(input)).toEqual({
             ...input,
@@ -39,7 +39,7 @@ describe('gas', () => {
             rawGasPrice: 100n,
             estimatedCallRewardsWei: 1000000n,
             rawGasAmountEstimation: { from: 'cache', estimation: 100n } satisfies GasEstimationResult,
-            overestimateGasByPercent: 0.5,
+            gasPriceMultiplier: 1.5,
         };
         expect(createGasEstimationReport(input)).toEqual({
             ...input,
