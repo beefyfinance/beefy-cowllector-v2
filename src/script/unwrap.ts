@@ -8,6 +8,7 @@ import { unwrapChain } from '../lib/unwrap-chain';
 import { createDefaultUnwrapReport } from '../lib/unwrap-report';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyUnwrapReport } from '../lib/notify';
+import { DISABLE_COLLECTOR_FOR_CHAINS } from '../lib/config';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -35,45 +36,57 @@ async function main() {
     // harvest each chain
     const { fulfilled: successfulReports, rejected: rejectedReports } = splitPromiseResultsByStatus(
         await Promise.allSettled(
-            options.chain.map(async chain => {
-                let report = createDefaultUnwrapReport({ chain });
-                const result = await promiseTimings(() => unwrapChain({ report, chain }));
+            options.chain
+                .filter(chain => {
+                    const isChainDisabled = DISABLE_COLLECTOR_FOR_CHAINS.includes(chain);
+                    if (isChainDisabled) {
+                        logger.warn({
+                            msg: 'Skipping chain, disabled by env var DISABLE_COLLECTOR_FOR_CHAINS',
+                            data: { chain },
+                        });
+                    }
+                    return !isChainDisabled;
+                })
+                .map(async chain => {
+                    let report = createDefaultUnwrapReport({ chain });
+                    const result = await promiseTimings(() => unwrapChain({ report, chain }));
 
-                if (result.status === 'rejected') {
-                    logger.error({ msg: 'Unwrapping errored', data: { chain, error: result.reason } });
-                }
+                    if (result.status === 'rejected') {
+                        logger.error({ msg: 'Unwrapping errored', data: { chain, error: result.reason } });
+                    }
 
-                // update the summary
-                report.timing = result.timing;
-                report.summary = {
-                    success:
-                        report.unwrapTransaction?.status === 'fulfilled' ||
-                        (report.unwrapDecision?.status === 'fulfilled' && !report.unwrapDecision.value.shouldUnwrap),
-                    unwrapped: report.unwrapTransaction?.status === 'fulfilled',
-                    aggregatedProfitWei:
-                        asyncResultGet(report.collectorBalanceAfter, ba =>
-                            asyncResultGet(
-                                report.collectorBalanceBefore,
-                                bb => ba.aggregatedBalanceWei - bb.aggregatedBalanceWei
-                            )
-                        ) || 0n,
-                    nativeGasUsedWei:
-                        asyncResultGet(report.collectorBalanceAfter, ba =>
-                            asyncResultGet(report.collectorBalanceBefore, bb => ba.balanceWei - bb.balanceWei)
-                        ) || 0n,
-                    wnativeProfitWei:
-                        asyncResultGet(report.collectorBalanceAfter, ba =>
-                            asyncResultGet(
-                                report.collectorBalanceBefore,
-                                bb => ba.wnativeBalanceWei - bb.wnativeBalanceWei
-                            )
-                        ) || 0n,
-                };
+                    // update the summary
+                    report.timing = result.timing;
+                    report.summary = {
+                        success:
+                            report.unwrapTransaction?.status === 'fulfilled' ||
+                            (report.unwrapDecision?.status === 'fulfilled' &&
+                                !report.unwrapDecision.value.shouldUnwrap),
+                        unwrapped: report.unwrapTransaction?.status === 'fulfilled',
+                        aggregatedProfitWei:
+                            asyncResultGet(report.collectorBalanceAfter, ba =>
+                                asyncResultGet(
+                                    report.collectorBalanceBefore,
+                                    bb => ba.aggregatedBalanceWei - bb.aggregatedBalanceWei
+                                )
+                            ) || 0n,
+                        nativeGasUsedWei:
+                            asyncResultGet(report.collectorBalanceAfter, ba =>
+                                asyncResultGet(report.collectorBalanceBefore, bb => ba.balanceWei - bb.balanceWei)
+                            ) || 0n,
+                        wnativeProfitWei:
+                            asyncResultGet(report.collectorBalanceAfter, ba =>
+                                asyncResultGet(
+                                    report.collectorBalanceBefore,
+                                    bb => ba.wnativeBalanceWei - bb.wnativeBalanceWei
+                                )
+                            ) || 0n,
+                    };
 
-                await notifyUnwrapReport(report);
+                    await notifyUnwrapReport(report);
 
-                return report;
-            })
+                    return report;
+                })
         )
     );
     logger.trace({ msg: 'unwrap results', data: { successfulReports, rejectedReports } });

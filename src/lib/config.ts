@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import type { Chain } from './chain';
+import { allChainIds, type Chain } from './chain';
 import { allLogLevels } from '../util/logger-type';
 import type { LogLevels } from '../util/logger-type';
 import type { RpcConfig } from './rpc-config';
@@ -23,6 +23,9 @@ export const LOG_LEVEL: LogLevels = log_level as LogLevels;
 
 const RPC_FORCE_URL = process.env.RPC_FORCE_URL || null;
 const PRIVATE_KEY = (process.env.PRIVATE_KEY || null) as Hex | null;
+export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
+    process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
+).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || null;
 export const DISCORD_NOTIFY_UNEVENTFUL_HARVEST = process.env.DISCORD_NOTIFY_UNEVENTFUL_HARVEST === 'true';
 export const DISCORD_PING_ROLE_IDS_ON_ERROR = process.env.DISCORD_PING_ROLE_IDS_ON_ERROR

@@ -10,6 +10,7 @@ import { createDefaultHarvestReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyHarvestReport } from '../lib/notify';
+import { DISABLE_COLLECTOR_FOR_CHAINS } from '../lib/config';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -56,66 +57,77 @@ async function main() {
     // harvest each chain
     const { fulfilled: successfulReports, rejected: rejectedReports } = splitPromiseResultsByStatus(
         await Promise.allSettled(
-            Object.entries(vaultsByChain).map(async ([c, vaults]) => {
-                const chain = c as Chain;
+            Object.entries(vaultsByChain)
+                .map(([chain, vaults]) => [chain as Chain, vaults] as const)
+                .filter(([chain, _]) => {
+                    const isChainDisabled = DISABLE_COLLECTOR_FOR_CHAINS.includes(chain);
+                    if (isChainDisabled) {
+                        logger.warn({
+                            msg: 'Skipping chain, disabled by env var DISABLE_COLLECTOR_FOR_CHAINS',
+                            data: { chain },
+                        });
+                    }
+                    return !isChainDisabled;
+                })
+                .map(async ([chain, vaults]) => {
+                    // create the report objects
+                    let report = createDefaultHarvestReport({ chain });
+                    const result = await promiseTimings(() =>
+                        harvestChain({ report, now: options.now, chain: chain as Chain, vaults })
+                    );
 
-                // create the report objects
-                let report = createDefaultHarvestReport({ chain });
-                const result = await promiseTimings(() =>
-                    harvestChain({ report, now: options.now, chain: chain as Chain, vaults })
-                );
+                    if (result.status === 'rejected') {
+                        logger.error({ msg: 'Harvesting errored', data: { chain, error: result.reason } });
+                    }
 
-                if (result.status === 'rejected') {
-                    logger.error({ msg: 'Harvesting errored', data: { chain, error: result.reason } });
-                }
+                    // update the summary
+                    report.timing = result.timing;
+                    report.details.forEach(item => {
+                        item.summary = {
+                            harvested:
+                                item.harvestTransaction !== null && item.harvestTransaction.status === 'fulfilled',
+                            error:
+                                (item.gasEstimation !== null && item.gasEstimation.status === 'rejected') ||
+                                (item.simulation !== null && item.simulation.status === 'rejected') ||
+                                (item.harvestTransaction !== null && item.harvestTransaction.status === 'rejected'),
+                            warning: item.isLiveDecision?.warning || false,
+                            estimatedProfitWei:
+                                item.harvestTransaction?.status === 'fulfilled'
+                                    ? item.harvestTransaction?.value.estimatedProfitWei
+                                    : 0n,
+                        };
+                    });
 
-                // update the summary
-                report.timing = result.timing;
-                report.details.forEach(item => {
-                    item.summary = {
-                        harvested: item.harvestTransaction !== null && item.harvestTransaction.status === 'fulfilled',
-                        error:
-                            (item.gasEstimation !== null && item.gasEstimation.status === 'rejected') ||
-                            (item.simulation !== null && item.simulation.status === 'rejected') ||
-                            (item.harvestTransaction !== null && item.harvestTransaction.status === 'rejected'),
-                        warning: item.isLiveDecision?.warning || false,
-                        estimatedProfitWei:
-                            item.harvestTransaction?.status === 'fulfilled'
-                                ? item.harvestTransaction?.value.estimatedProfitWei
-                                : 0n,
+                    report.summary = {
+                        errors: report.details.filter(item => item.summary.error).length,
+                        warnings: report.details.filter(item => item.summary.warning).length,
+                        aggregatedProfitWei:
+                            asyncResultGet(report.collectorBalanceAfter, ba =>
+                                asyncResultGet(
+                                    report.collectorBalanceBefore,
+                                    bb => ba.aggregatedBalanceWei - bb.aggregatedBalanceWei
+                                )
+                            ) || 0n,
+                        nativeGasUsedWei:
+                            asyncResultGet(report.collectorBalanceAfter, ba =>
+                                asyncResultGet(report.collectorBalanceBefore, bb => ba.balanceWei - bb.balanceWei)
+                            ) || 0n,
+                        wnativeProfitWei:
+                            asyncResultGet(report.collectorBalanceAfter, ba =>
+                                asyncResultGet(
+                                    report.collectorBalanceBefore,
+                                    bb => ba.wnativeBalanceWei - bb.wnativeBalanceWei
+                                )
+                            ) || 0n,
+                        harvested: report.details.filter(item => item.summary.harvested).length,
+                        skipped: report.details.filter(item => !item.summary.harvested && !item.summary.error).length,
+                        totalStrategies: report.details.length,
                     };
-                });
 
-                report.summary = {
-                    errors: report.details.filter(item => item.summary.error).length,
-                    warnings: report.details.filter(item => item.summary.warning).length,
-                    aggregatedProfitWei:
-                        asyncResultGet(report.collectorBalanceAfter, ba =>
-                            asyncResultGet(
-                                report.collectorBalanceBefore,
-                                bb => ba.aggregatedBalanceWei - bb.aggregatedBalanceWei
-                            )
-                        ) || 0n,
-                    nativeGasUsedWei:
-                        asyncResultGet(report.collectorBalanceAfter, ba =>
-                            asyncResultGet(report.collectorBalanceBefore, bb => ba.balanceWei - bb.balanceWei)
-                        ) || 0n,
-                    wnativeProfitWei:
-                        asyncResultGet(report.collectorBalanceAfter, ba =>
-                            asyncResultGet(
-                                report.collectorBalanceBefore,
-                                bb => ba.wnativeBalanceWei - bb.wnativeBalanceWei
-                            )
-                        ) || 0n,
-                    harvested: report.details.filter(item => item.summary.harvested).length,
-                    skipped: report.details.filter(item => !item.summary.harvested && !item.summary.error).length,
-                    totalStrategies: report.details.length,
-                };
+                    await notifyHarvestReport(report);
 
-                await notifyHarvestReport(report);
-
-                return report;
-            })
+                    return report;
+                })
         )
     );
     logger.trace({ msg: 'harvest results', data: { successfulReports, rejectedReports } });
