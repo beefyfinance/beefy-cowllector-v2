@@ -64,7 +64,7 @@ const defaultTransactionConfig = {
 const defaultTimeoutMs = 60_000; // high timeout because we batch calls
 const defaultUnwrapConfig = {
     // default to 0.001 wnative (18 decimals)
-    triggerAmountWei: 100_000_000_000_000_000n,
+    triggerAmountWei: 1_000_000_000_000_000n,
 };
 const defaultConfig = {
     eol: false,

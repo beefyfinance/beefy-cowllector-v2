@@ -32,7 +32,7 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
     const unwrapDecision = await reportOnSingleUnwrapAsyncCall(item, 'unwrapDecision', async item => {
         const shouldUnwrap =
             item.collectorBalanceBefore.wnativeBalanceWei > 0n &&
-            item.collectorBalanceBefore.wnativeBalanceWei < rpcConfig.unwrap.triggerAmountWei;
+            item.collectorBalanceBefore.wnativeBalanceWei > rpcConfig.unwrap.triggerAmountWei;
 
         if (!shouldUnwrap) {
             return {
