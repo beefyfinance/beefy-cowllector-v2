@@ -1,4 +1,4 @@
-import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, RPC_CONFIG } from '../config';
+import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS } from '../config';
 import { Hex } from 'viem';
 import { getRedisClient } from '../../util/redis';
 import { IStrategyABI } from '../../abi/IStrategyABI';
@@ -24,7 +24,7 @@ export async function estimateHarvestCallGasAmount(
         strategyAddress: Hex;
     }
 ): Promise<GasEstimationResult> {
-    const { publicClient, walletAccount } = getRpcActionParams({ chain });
+    const { publicClient, walletAccount, rpcConfig } = getRpcActionParams({ chain });
 
     const redisClient = await getRedisClient();
 
@@ -37,7 +37,9 @@ export async function estimateHarvestCallGasAmount(
 
     logger.trace({ msg: 'Estimating gas cost', data: { strategyAddress } });
 
-    const gasParams = RPC_CONFIG[chain].gasConfig?.estimateContractGas ?? {};
+    const gasParams = await publicClient.estimateFeesPerGas({
+        type: rpcConfig.transaction.type,
+    });
     const estimation = await publicClient.estimateContractGas({
         // we use the lens to avoid having bad estimations on error
         abi: IStrategyABI,

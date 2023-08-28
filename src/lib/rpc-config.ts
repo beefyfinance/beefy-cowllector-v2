@@ -29,19 +29,6 @@ export type RpcConfig = {
     account: {
         privateKey: Hex;
     };
-    // allow overriding the gas price for a gas estimation
-    gasConfig?: {
-        estimateContractGas?:
-            | {
-                  // EIP-1559
-                  maxPriorityFeePerGas: bigint;
-                  maxFeePerGas?: bigint; // will be detected by viem if not provided
-              }
-            | {
-                  // legacy
-                  gasPrice: bigint;
-              };
-    };
     unwrap: {
         triggerAmountWei: bigint;
     };
