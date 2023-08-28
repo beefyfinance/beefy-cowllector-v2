@@ -6,6 +6,7 @@ import {
     Hex,
     TimeoutError,
     BlockNotFoundError,
+    TransactionReceipt,
 } from 'viem';
 import { type AggressivelyWaitForTransactionReceiptReturnType } from './aggressivelyWaitForTransactionReceipt';
 import { rootLogger } from '../../util/logger';
@@ -80,9 +81,18 @@ export async function aggressivelyWriteContract<
             msg: 'Waiting for transaction receipts',
             data: { chain, address: args.address, allPendingTransactions },
         });
-        const receipt = await Promise.any(
-            allPendingTransactions.map(hash => publicClient.waitForTransactionReceipt({ hash }))
-        );
+
+        let receipt: TransactionReceipt;
+        try {
+            receipt = await Promise.any(
+                allPendingTransactions.map(hash => publicClient.waitForTransactionReceipt({ hash }))
+            );
+        } catch (err) {
+            if (err instanceof AggregateError) {
+                throw err.errors[err.errors.length - 1];
+            }
+            throw err;
+        }
         logger.debug({
             msg: 'Got transaction receipt',
             data: { chain, address: args.address, transactionHash, receipt },
