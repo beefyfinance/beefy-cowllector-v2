@@ -8,21 +8,31 @@ import { groupBy, keyBy } from 'lodash';
 
 const logger = rootLogger.child({ module: 'vault-list' });
 
-type ApiBeefyVault = {
+type ApiBeefyVaultResponse = {
     id: string;
     name: string;
     status: 'eol' | 'active';
     strategy: string;
     chain: Chain;
     // + some other fields we don't care about
+}[];
+
+type ApiBeefyTvlResponse = {
+    [key: string]: {
+        [key: string]: number;
+    };
 };
 
 export async function getVaultsToMonitor(options: {
     chains: Chain[];
     contractAddress: Hex | null;
 }): Promise<Record<Chain, BeefyVault[]>> {
-    const response = await axios.get<ApiBeefyVault[]>(`${BEEFY_API_URL}/vaults`);
-    const rawVaults = response.data;
+    const vaultResponse = await axios.get<ApiBeefyVaultResponse>(`${BEEFY_API_URL}/vaults`);
+    const rawVaults = vaultResponse.data;
+
+    const tvlResponse = await axios.get<ApiBeefyTvlResponse>(`${BEEFY_API_URL}/tvl`);
+    const rawTvlByChains = tvlResponse.data;
+    const rawTvls = Object.values(rawTvlByChains).reduce((acc, tvl) => ({ ...acc, ...tvl }), {});
 
     // map to a simpler format
     const allVaults = rawVaults
@@ -30,7 +40,8 @@ export async function getVaultsToMonitor(options: {
             id: vault.id,
             eol: vault.status === 'eol',
             chain: vault.chain,
-            strategy_address: vault.strategy as Hex,
+            strategyAddress: vault.strategy as Hex,
+            tvlUsd: rawTvls[vault.id] || 0,
         }))
         // remove eol vaults
         .filter(vault => !vault.eol)
@@ -42,11 +53,11 @@ export async function getVaultsToMonitor(options: {
     // apply command line options
     let vaults = allVaults
         .filter(vault => options.chains.includes(vault.chain))
-        .filter(vault => (options.contractAddress ? vault.strategy_address === options.contractAddress : true));
+        .filter(vault => (options.contractAddress ? vault.strategyAddress === options.contractAddress : true));
     logger.info({ msg: 'Filtered vaults', data: { vaultLength: vaults.length } });
 
     // remove duplicates
-    const vaultsByStrategyAddress = keyBy(vaults, 'strategy_address');
+    const vaultsByStrategyAddress = keyBy(vaults, 'strategyAddress');
     vaults = Object.values(vaultsByStrategyAddress);
 
     // split by chain

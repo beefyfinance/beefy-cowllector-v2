@@ -72,7 +72,7 @@ export async function harvestChain({
             const { result } = await publicClient.simulateContract({
                 ...harvestLensContract,
                 functionName: 'harvest',
-                args: [item.vault.strategy_address],
+                args: [item.vault.strategyAddress],
                 account: walletAccount,
             });
             const [estimatedCallRewardsWei, harvestWillSucceed, rawLastHarvest, strategyPaused] = result;
@@ -103,6 +103,16 @@ export async function harvestChain({
         'isLiveDecision',
         'parallel',
         async item => {
+            if (item.vault.tvlUsd < rpcConfig.tvl.minThresholdUsd) {
+                return {
+                    shouldHarvest: false,
+                    warning: false,
+                    tvlThresholdUsd: rpcConfig.tvl.minThresholdUsd,
+                    vaultTvlUsd: item.vault.tvlUsd,
+                    notHarvestingReason: 'Tvl do not meet minimum threshold',
+                };
+            }
+
             if (item.simulation.harvestWillSucceed === false) {
                 return {
                     shouldHarvest: false,
@@ -161,7 +171,7 @@ export async function harvestChain({
         'sequential',
         async item => {
             const gasEst = await publicClient.estimateHarvestCallGasAmount({
-                strategyAddress: item.vault.strategy_address,
+                strategyAddress: item.vault.strategyAddress,
             });
             return createGasEstimationReport({
                 rawGasPrice,
@@ -222,7 +232,7 @@ export async function harvestChain({
     logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
     await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'harvestTransaction', 'sequential', async item => {
         const res = await walletClient.harvest({
-            strategyAddress: item.vault.strategy_address,
+            strategyAddress: item.vault.strategyAddress,
             transactionCostEstimationWei: item.gasEstimation.transactionCostEstimationWei,
             transactionGasLimit: bigintMultiplyFloat(
                 item.gasEstimation.rawGasAmountEstimation.estimation,

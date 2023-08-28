@@ -40,6 +40,13 @@ type HarvestReportGasEstimation = Async<GasEstimationReport>;
 type HarvestReportIsLiveDecision =
     | {
           shouldHarvest: false;
+          warning: false;
+          tvlThresholdUsd: number;
+          vaultTvlUsd: number;
+          notHarvestingReason: 'Tvl do not meet minimum threshold';
+      }
+    | {
+          shouldHarvest: false;
           warning: true;
           notHarvestingReason: 'harvest would fail';
       }

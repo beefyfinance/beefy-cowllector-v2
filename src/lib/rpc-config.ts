@@ -44,4 +44,7 @@ export type RpcConfig = {
     unwrap: {
         triggerAmountWei: bigint;
     };
+    tvl: {
+        minThresholdUsd: number;
+    };
 };

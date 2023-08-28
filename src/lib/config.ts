@@ -70,14 +70,18 @@ const defaultUnwrapConfig = {
     // default to 0.001 wnative (18 decimals)
     triggerAmountWei: 1_000_000_000_000_000n,
 };
-const defaultConfig = {
+const defaultConfig: RpcConfig = {
     eol: false,
+    url: 'changeme',
     timeoutMs: defaultTimeoutMs,
     batch: defaultBatch,
     contracts: defaultContracts,
     account: defaultAccount,
     transaction: defaultTransactionConfig,
     unwrap: defaultUnwrapConfig,
+    tvl: {
+        minThresholdUsd: 100,
+    },
 };
 
 export const RPC_CONFIG: Record<Chain, RpcConfig> = {
@@ -131,6 +135,9 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 // watch viemChain.fees for updates: https://github.com/wagmi-dev/viem/blob/main/src/chains/index.ts
                 gasPrice: 1n,
             },
+        },
+        tvl: {
+            minThresholdUsd: 10_000,
         },
     },
     canto: {
