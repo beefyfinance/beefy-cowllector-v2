@@ -4,6 +4,10 @@
     "description": "The bot to harvest all vaults.",
     "license": "MIT",
     "private": true,
+    "engines": {
+        "node": "20.5.x",
+        "yarn": "1.22.x"
+    },
     "scripts": {
         "test": "yarn --silent test:all",
         "heroku:harvest": "node ./dist/script/harvest.js -c arbitrum -c base -c bsc -c optimism",
