@@ -1,20 +1,18 @@
-import { Account, Chain as ViemChain, Client, Transport, Hex } from 'viem';
-import { Chain } from './chain';
-import { rootLogger } from '../util/logger';
-import { IStrategyABI } from '../abi/IStrategyABI';
-import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
-import { RPC_CONFIG } from './config';
-import { NotEnoughRemainingGasError } from './harvest-errors';
+import { Hex } from 'viem';
+import { rootLogger } from '../../util/logger';
+import { IStrategyABI } from '../../abi/IStrategyABI';
+import { RpcActionParams } from '../rpc-client';
+import { NotEnoughRemainingGasError } from '../harvest-errors';
 
 const logger = rootLogger.child({ module: 'harvest-actions' });
 
-type HarvestParameters = {
+export type HarvestParameters = {
     strategyAddress: Hex;
     transactionCostEstimationWei: bigint;
     transactionGasLimit: bigint;
 };
 
-type HarvestReturnType = {
+export type HarvestReturnType = {
     transactionHash: Hex;
     blockNumber: bigint;
     gasUsed: bigint;
@@ -22,17 +20,10 @@ type HarvestReturnType = {
     balanceBeforeWei: bigint;
 };
 
-async function harvest<TChain extends ViemChain | undefined>(
-    client: Client<Transport, TChain>,
-    chain: Chain,
+export async function harvest(
+    { publicClient, walletClient, walletAccount, rpcConfig, chain }: RpcActionParams,
     { strategyAddress, transactionCostEstimationWei, transactionGasLimit }: HarvestParameters
 ): Promise<HarvestReturnType> {
-    // use our own clients since it's a bit of a pain to import the individual viem actions
-    const publicClient = getReadOnlyRpcClient({ chain });
-    const walletClient = getWalletClient({ chain });
-    const walletAccount = getWalletAccount({ chain });
-    const rpcConfig = RPC_CONFIG[chain];
-
     // check if we have enough gas to harvest
     logger.trace({ msg: 'Checking gas', data: { chain, strategyAddress } });
     const balanceBeforeWei = await publicClient.getBalance({ address: walletAccount.address });
@@ -71,9 +62,6 @@ async function harvest<TChain extends ViemChain | undefined>(
     logger.trace({ msg: 'Waiting for transaction receipt', data: { chain, strategyAddress, transactionHash } });
     const receipt = await publicClient.aggressivelyWaitForTransactionReceipt({
         hash: transactionHash,
-        confirmations: rpcConfig.transaction.blockConfirmations,
-        timeout: rpcConfig.transaction.timeoutMs,
-        pollingInterval: rpcConfig.transaction.pollingIntervalMs,
     });
     logger.debug({ msg: 'Got transaction receipt', data: { chain, strategyAddress, transactionHash, receipt } });
 
@@ -85,25 +73,5 @@ async function harvest<TChain extends ViemChain | undefined>(
         gasUsed: receipt.gasUsed,
         effectiveGasPrice: receipt.effectiveGasPrice,
         balanceBeforeWei,
-    };
-}
-
-type CustomHarvestActions<
-    TTransport extends Transport = Transport,
-    TChain extends ViemChain | undefined = ViemChain | undefined,
-    TAccount extends Account | undefined = Account | undefined,
-> = {
-    harvest: ({ strategyAddress }: HarvestParameters) => Promise<HarvestReturnType>;
-};
-
-export function createCustomHarvestActions({ chain }: { chain: Chain }) {
-    return function customHarvestActions<
-        TTransport extends Transport = Transport,
-        TChain extends ViemChain | undefined = ViemChain | undefined,
-        TAccount extends Account | undefined = Account | undefined,
-    >(client: Client<TTransport, TChain, TAccount>): CustomHarvestActions<TTransport, TChain, TAccount> {
-        return {
-            harvest: args => harvest(client, chain, args),
-        };
     };
 }

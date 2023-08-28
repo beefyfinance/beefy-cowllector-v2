@@ -9,7 +9,7 @@ import {
     RPC_CONFIG,
 } from './config';
 import { rootLogger } from '../util/logger';
-import { createGasEstimationReport, estimateHarvestCallGasAmount } from './gas';
+import { createGasEstimationReport } from './gas';
 import {
     HarvestReport,
     createDefaultHarvestReportItem,
@@ -160,9 +160,7 @@ export async function harvestChain({
         'gasEstimation',
         'sequential',
         async item => {
-            const gasEst = await estimateHarvestCallGasAmount({
-                chain,
-                rpcClient: publicClient,
+            const gasEst = await publicClient.estimateHarvestCallGasAmount({
                 strategyAddress: item.vault.strategy_address,
             });
             return createGasEstimationReport({

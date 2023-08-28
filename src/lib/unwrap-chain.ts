@@ -79,9 +79,6 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
         logger.trace({ msg: 'Waiting for transaction receipt', data: { chain, strat: item, transactionHash } });
         const receipt = await publicClient.aggressivelyWaitForTransactionReceipt({
             hash: transactionHash,
-            confirmations: rpcConfig.transaction.blockConfirmations,
-            timeout: rpcConfig.transaction.timeoutMs,
-            pollingInterval: rpcConfig.transaction.pollingIntervalMs,
         });
         logger.debug({ msg: 'Got transaction receipt', data: { chain, strat: item, transactionHash, receipt } });
 
