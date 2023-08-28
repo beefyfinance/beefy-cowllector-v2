@@ -59,10 +59,12 @@ export async function aggressivelyWriteContract<
         address: walletAccount.address,
         blockTag: 'pending',
     });
+    logger.debug({ msg: 'Got nonce', data: { chain, address: args.address, nonce } });
 
     const gasParams = await publicClient.estimateFeesPerGas({
         type: rpcConfig.transaction.type,
     });
+    logger.debug({ msg: 'Got gas params', data: { chain, address: args.address, gasParams } });
 
     const allPendingTransactions: Hex[] = [];
 
@@ -107,6 +109,7 @@ export async function aggressivelyWriteContract<
 
     for (let i = 0; i < rpcConfig.transaction.retries; i++) {
         try {
+            logger.trace({ msg: 'Trying to mint', data: { chain, address: args.address, try: i, gasParams } });
             return await mint();
         } catch (err) {
             if (
