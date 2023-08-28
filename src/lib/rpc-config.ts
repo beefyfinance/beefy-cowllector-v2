@@ -17,6 +17,7 @@ export type RpcConfig = {
         type: 'legacy' | 'eip1559';
         retries: number;
         retryGasMultiplier: number;
+        baseFeeMultiplier: number;
         blockConfirmations: number;
         timeoutMs: number;
         pollingIntervalMs?: number;

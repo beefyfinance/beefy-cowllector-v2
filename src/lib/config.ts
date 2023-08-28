@@ -57,18 +57,22 @@ const defaultContracts: RpcConfig['contracts'] = {
 const defaultAccount: RpcConfig['account'] = {
     privateKey: PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000',
 };
-const defaultTransactionConfig = {
+const defaultTransactionConfig: RpcConfig['transaction'] = {
     type: 'eip1559' as const,
     retries: 3,
     retryGasMultiplier: 1.2, // up gas by 20% on each retry
     blockConfirmations: 3,
     timeoutMs: 5 * 60 * 1000,
     pollingIntervalMs: 5 * 1000,
+    baseFeeMultiplier: 1.25, // 25% above base fee
 };
-const defaultTimeoutMs = 60_000; // high timeout because we batch calls
-const defaultUnwrapConfig = {
+const defaultTimeoutMs: RpcConfig['timeoutMs'] = 60_000; // high timeout because we batch calls
+const defaultUnwrapConfig: RpcConfig['unwrap'] = {
     // default to 0.001 wnative (18 decimals)
     triggerAmountWei: 1_000_000_000_000_000n,
+};
+const defaultTvLConfig: RpcConfig['tvl'] = {
+    minThresholdUsd: 100,
 };
 const defaultConfig: RpcConfig = {
     eol: false,
@@ -79,9 +83,7 @@ const defaultConfig: RpcConfig = {
     account: defaultAccount,
     transaction: defaultTransactionConfig,
     unwrap: defaultUnwrapConfig,
-    tvl: {
-        minThresholdUsd: 100,
-    },
+    tvl: defaultTvLConfig,
 };
 
 export const RPC_CONFIG: Record<Chain, RpcConfig> = {
@@ -137,6 +139,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             },
         },
         tvl: {
+            ...defaultTvLConfig,
             minThresholdUsd: 10_000,
         },
     },
@@ -245,6 +248,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         contracts: {
             ...defaultContracts,
             harvestLens: '0xEeD0329C9D10dD0D85461203f89a54eD5A7B8418',
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            baseFeeMultiplier: 1.7, // polygon is known to stall trx for days when base fee is too low
         },
     },
     zkevm: {

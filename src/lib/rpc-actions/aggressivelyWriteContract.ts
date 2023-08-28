@@ -5,6 +5,7 @@ import {
     type SimulateContractParameters,
     Hex,
     TimeoutError,
+    BlockNotFoundError,
 } from 'viem';
 import { type AggressivelyWaitForTransactionReceiptReturnType } from './aggressivelyWaitForTransactionReceipt';
 import { rootLogger } from '../../util/logger';
@@ -62,6 +63,8 @@ export async function aggressivelyWriteContract<
         type: rpcConfig.transaction.type,
     });
 
+    const allPendingTransactions: Hex[] = [];
+
     const mint = async () => {
         const { request, result: simulationResult } = await publicClient.simulateContract({
             ...(args as any), // TODO: fix typings
@@ -71,15 +74,15 @@ export async function aggressivelyWriteContract<
         logger.trace({ msg: 'Simulation ok', data: { chain, address: args.address, request } });
         const transactionHash = await walletClient.writeContract(request as any); // TODO: fix typings
         logger.debug({ msg: 'Harvested strat', data: { chain, transactionHash } });
-
+        allPendingTransactions.push(transactionHash);
         // wait for the transaction to be mined so we have a proper nonce for the next transaction
         logger.trace({
-            msg: 'Waiting for transaction receipt',
-            data: { chain, address: args.address, transactionHash },
+            msg: 'Waiting for transaction receipts',
+            data: { chain, address: args.address, allPendingTransactions },
         });
-        const receipt = await publicClient.aggressivelyWaitForTransactionReceipt({
-            hash: transactionHash,
-        });
+        const receipt = await Promise.any(
+            allPendingTransactions.map(hash => publicClient.waitForTransactionReceipt({ hash }))
+        );
         logger.debug({
             msg: 'Got transaction receipt',
             data: { chain, address: args.address, transactionHash, receipt },
@@ -87,7 +90,7 @@ export async function aggressivelyWriteContract<
 
         return {
             simulation: simulationResult as any, // TODO: fix typings
-            transactionHash,
+            transactionHash: receipt.transactionHash,
             transactionReceipt: receipt as any, // TODO: fix typings
         };
     };
@@ -96,7 +99,10 @@ export async function aggressivelyWriteContract<
         try {
             return await mint();
         } catch (err) {
-            if (err instanceof TimeoutError && i < rpcConfig.transaction.retries - 1) {
+            if (
+                (err instanceof TimeoutError || err instanceof BlockNotFoundError) &&
+                i < rpcConfig.transaction.retries - 1
+            ) {
                 logger.warn({ msg: 'Simulation timed out', data: { chain, address: args.address } });
                 // increase the gas price for the next transaction
                 if (gasParams.gasPrice) {

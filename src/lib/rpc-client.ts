@@ -84,6 +84,10 @@ function applyConfig(chain: Chain, viemChain: ViemChain): ViemChain {
 
     return {
         ...viemChain,
+        fees: {
+            ...viemChain.fees,
+            baseFeeMultiplier: rpcConfig.transaction.baseFeeMultiplier,
+        },
         rpcUrls: {
             default: { http: [rpcConfig.url] },
             public: { http: [rpcConfig.url] },
