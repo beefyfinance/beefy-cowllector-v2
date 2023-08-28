@@ -78,6 +78,7 @@ async function main() {
 
                     if (result.status === 'rejected') {
                         logger.error({ msg: 'Harvesting errored', data: { chain, error: result.reason } });
+                        logger.trace(result.reason);
                     }
 
                     // update the summary

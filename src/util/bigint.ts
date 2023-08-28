@@ -1,7 +1,8 @@
-export function bigintMultiplyFloat(n: bigint, percent: number, precision: number = 4) {
+// n * m
+export function bigintMultiplyFloat(n: bigint, m: number, precision: number = 4) {
     // round to precision
     const divisor = 10 ** precision;
-    const mult = BigInt(Math.round(percent * divisor));
+    const mult = BigInt(Math.round(m * divisor));
     return (n * mult) / BigInt(divisor);
 }
 

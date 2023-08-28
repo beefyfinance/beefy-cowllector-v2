@@ -2,9 +2,10 @@ import { HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS, RPC_CONFIG } from '../config';
 import { Hex } from 'viem';
 import { getRedisClient } from '../../util/redis';
 import { IStrategyABI } from '../../abi/IStrategyABI';
-import { RpcActionParams } from '../rpc-client';
 import { rootLogger } from '../../util/logger';
 import { GasEstimationResult } from '../gas';
+import { Chain } from '../chain';
+import { getRpcActionParams } from '../rpc-client';
 
 const logger = rootLogger.child({ module: 'harvest-actions', component: 'estimateHarvestCallGasAmount' });
 
@@ -16,13 +17,15 @@ const logger = rootLogger.child({ module: 'harvest-actions', component: 'estimat
  * of strategies is somewhat predictable so we can cache the results of the simulation
  */
 export async function estimateHarvestCallGasAmount(
-    { chain, publicClient, walletAccount }: RpcActionParams,
+    { chain }: { chain: Chain },
     {
         strategyAddress,
     }: {
         strategyAddress: Hex;
     }
 ): Promise<GasEstimationResult> {
+    const { publicClient, walletAccount } = getRpcActionParams({ chain });
+
     const redisClient = await getRedisClient();
 
     const cacheKey = `gas-estimation:harvest:${strategyAddress.toLocaleLowerCase()}`;

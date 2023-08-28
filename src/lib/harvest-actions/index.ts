@@ -2,7 +2,6 @@ import { Account, Chain as ViemChain, Client, Transport, Hex } from 'viem';
 import { Chain } from '../chain';
 import { HarvestParameters, HarvestReturnType, harvest } from './harvest';
 import { estimateHarvestCallGasAmount } from './estimateHarvestCallGasAmount';
-import { getRpcActionParams } from '../rpc-client';
 import { GasEstimationResult } from '../gas';
 
 type CustomHarvestPublicActions<
@@ -19,9 +18,8 @@ export function createCustomHarvestPublicActions({ chain }: { chain: Chain }) {
         TChain extends ViemChain | undefined = ViemChain | undefined,
         TAccount extends Account | undefined = Account | undefined,
     >(client: Client<TTransport, TChain, TAccount>): CustomHarvestPublicActions<TTransport, TChain, TAccount> {
-        const actionParams = getRpcActionParams({ chain });
         return {
-            estimateHarvestCallGasAmount: args => estimateHarvestCallGasAmount(actionParams, args),
+            estimateHarvestCallGasAmount: args => estimateHarvestCallGasAmount({ chain }, args),
         };
     };
 }
@@ -39,10 +37,9 @@ export function createCustomHarvestWalletActions({ chain }: { chain: Chain }) {
         TTransport extends Transport = Transport,
         TChain extends ViemChain | undefined = ViemChain | undefined,
         TAccount extends Account | undefined = Account | undefined,
-    >(client: Client<TTransport, TChain, TAccount>): CustomHarvestWalletActions<TTransport, TChain, TAccount> {
-        const actionParams = getRpcActionParams({ chain });
+    >(_: Client<TTransport, TChain, TAccount>): CustomHarvestWalletActions<TTransport, TChain, TAccount> {
         return {
-            harvest: args => harvest(actionParams, args),
+            harvest: args => harvest({ chain }, args),
         };
     };
 }

@@ -175,12 +175,11 @@ export const getWalletAccount = cachedFactory(
 
 type WalletAccount = Awaited<ReturnType<typeof getWalletAccount>>;
 
-export type RpcActionParams = {
+type RpcActionParams = {
     publicClient: PublicClient;
     walletClient: WalletClient;
     walletAccount: WalletAccount;
     rpcConfig: (typeof RPC_CONFIG)[Chain];
-    chain: Chain;
 };
 
 export const getRpcActionParams = cachedFactory(
@@ -188,7 +187,6 @@ export const getRpcActionParams = cachedFactory(
     ({ chain }): RpcActionParams => {
         const rpcConfig = RPC_CONFIG[chain];
         return {
-            chain,
             publicClient: getReadOnlyRpcClient({ chain }),
             walletClient: getWalletClient({ chain }),
             walletAccount: getWalletAccount({ chain }),

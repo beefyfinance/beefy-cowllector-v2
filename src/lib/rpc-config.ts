@@ -14,6 +14,9 @@ export type RpcConfig = {
         multicall: false | MulticallBatchOptions;
     };
     transaction: {
+        type: 'legacy' | 'eip1559';
+        retries: number;
+        retryGasMultiplier: number;
         blockConfirmations: number;
         timeoutMs: number;
         pollingIntervalMs?: number;

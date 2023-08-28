@@ -10,7 +10,6 @@ import {
     AggressivelyWriteContractReturnType,
     aggressivelyWriteContract,
 } from './aggressivelyWriteContract';
-import { getRpcActionParams } from '../rpc-client';
 
 type CustomRpcPublicActions<TChain extends ViemChain | undefined = ViemChain | undefined> = {
     aggressivelyWaitForTransactionReceipt: (
@@ -23,9 +22,8 @@ export function createCustomRpcPublicActions({ chain }: { chain: Chain }) {
         TChain extends ViemChain | undefined = ViemChain | undefined,
         TAccount extends Account | undefined = Account | undefined,
     >(client: Client<TTransport, TChain, TAccount>): CustomRpcPublicActions</*TTransport,*/ TChain /*, TAccount*/> {
-        const actionParams = getRpcActionParams({ chain });
         return {
-            aggressivelyWaitForTransactionReceipt: args => aggressivelyWaitForTransactionReceipt(actionParams, args),
+            aggressivelyWaitForTransactionReceipt: args => aggressivelyWaitForTransactionReceipt({ chain }, args),
         };
     };
 }
@@ -45,10 +43,9 @@ export function createCustomRpcWalletActions({ chain }: { chain: Chain }) {
         TTransport extends Transport = Transport,
         TChain extends ViemChain | undefined = ViemChain | undefined,
         TAccount extends Account | undefined = Account | undefined,
-    >(client: Client<TTransport, TChain, TAccount>): CustomRpcWalletActions</*TTransport,*/ TChain /*, TAccount*/> {
-        const actionParams = getRpcActionParams({ chain });
+    >(_: Client<TTransport, TChain, TAccount>): CustomRpcWalletActions</*TTransport,*/ TChain /*, TAccount*/> {
         return {
-            aggressivelyWriteContract: args => aggressivelyWriteContract(actionParams, args),
+            aggressivelyWriteContract: args => aggressivelyWriteContract({ chain }, args),
         };
     };
 }

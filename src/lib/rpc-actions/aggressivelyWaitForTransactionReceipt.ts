@@ -1,7 +1,8 @@
 import { type Chain as ViemChain, type WaitForTransactionReceiptReturnType, BlockNotFoundError, Hex } from 'viem';
 import { rootLogger } from '../../util/logger';
 import { withRetry } from '../../util/promise';
-import { RpcActionParams } from '../rpc-client';
+import { getRpcActionParams } from '../rpc-client';
+import { Chain } from '../chain';
 
 export type AggressivelyWaitForTransactionReceiptParameters = {
     hash: Hex;
@@ -13,9 +14,10 @@ export type AggressivelyWaitForTransactionReceiptReturnType<TChain extends ViemC
 const logger = rootLogger.child({ module: 'rpc-actions', component: 'aggressivelyWaitForTransactionReceipt' });
 
 export function aggressivelyWaitForTransactionReceipt<TChain extends ViemChain | undefined>(
-    { publicClient, rpcConfig }: RpcActionParams,
+    { chain }: { chain: Chain },
     args: AggressivelyWaitForTransactionReceiptParameters
 ): Promise<WaitForTransactionReceiptReturnType<TChain>> {
+    const { publicClient, rpcConfig } = getRpcActionParams({ chain });
     return withRetry(
         () =>
             publicClient.waitForTransactionReceipt({

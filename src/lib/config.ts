@@ -38,6 +38,7 @@ export const HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS = parseInt(
     process.env.HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS || '604800',
     10
 ); // 1 week default
+export const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
 const defaultBatch: RpcConfig['batch'] = {
     jsonRpc: {
@@ -57,6 +58,9 @@ const defaultAccount: RpcConfig['account'] = {
     privateKey: PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000',
 };
 const defaultTransactionConfig = {
+    type: 'eip1559' as const,
+    retries: 3,
+    retryGasMultiplier: 1.2, // up gas by 20% on each retry
     blockConfirmations: 3,
     timeoutMs: 5 * 60 * 1000,
     pollingIntervalMs: 5 * 1000,
@@ -96,6 +100,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     aurora: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.AURORA_RPC_URL || 'https://mainnet.aurora.dev',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     avax: {
         ...defaultConfig,
@@ -108,6 +116,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     bsc: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.BSC_RPC_URL || 'https://rpc.ankr.com/bsc',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
         contracts: {
             ...defaultContracts,
             harvestLens: '0xA2413C80941fcD0EDE877F7fd67eA6e94B971bD3',
@@ -124,6 +136,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     canto: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.CANTO_RPC_URL || 'https://canto.slingshot.finance',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     celo: {
         ...defaultConfig,
@@ -138,6 +154,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.EMERALD_RPC_URL || 'https://emerald.oasis.dev',
         eol: true,
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     ethereum: {
         ...defaultConfig,
@@ -150,6 +170,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     fuse: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.FUSE_RPC_URL || 'https://rpc.fuse.io',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     heco: {
         ...defaultConfig,
@@ -158,10 +182,18 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     kava: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.KAVA_RPC_URL || 'https://evm.kava.io',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     moonbeam: {
         ...defaultConfig,
@@ -175,10 +207,18 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ONE_RPC_URL || 'https://rpc.ankr.com/harmony',
         eol: true,
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     optimism: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.OPTIMISM_RPC_URL || 'https://rpc.ankr.com/optimism',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
         contracts: {
             ...defaultContracts,
             harvestLens: '0xEeD0329C9D10dD0D85461203f89a54eD5A7B8418',
@@ -203,6 +243,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     zkevm: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKEVM_RPC_URL || 'https://rpc.ankr.com/polygon_zkevm',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
     },
     zksync: {
         ...defaultConfig,
