@@ -8,8 +8,6 @@ import { EXPLORER_CONFIG, RPC_CONFIG } from '../../lib/config';
 import { getFoundryContractOptimizedBytecode, verifyFoundryContractForExplorer } from '../../util/foundry';
 import { Hex } from 'viem';
 import { rootLogger } from '../../util/logger';
-import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
-import { getChainWNativeTokenAddress } from '../../lib/addressbook';
 
 const logger = rootLogger.child({ module: 'deploy-lens' });
 
@@ -75,19 +73,6 @@ async function main() {
     logger.info({ msg: 'Lens contract deploy trx', data: { deployTransaction, lensAddress } });
     const deployTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({ hash: deployTransaction });
     logger.info({ msg: 'Lens contract deployed at trx', data: { deployTransaction, lensAddress, deployTrxReceipt } });
-
-    // init
-    const wnative = getChainWNativeTokenAddress(options.chain);
-    const { request: initRequest } = await publicClient.simulateContract({
-        abi: BeefyHarvestLensABI,
-        address: lensAddress,
-        functionName: 'init',
-        args: [wnative],
-        account: walletAccount,
-    });
-    const initTransaction = await walletClient.writeContract(initRequest);
-    const initTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({ hash: initTransaction });
-    logger.info({ msg: 'Lens contract initialized', data: { wnative, initTransaction, initTrxReceipt } });
 
     // verify
     await verifyFoundryContractForExplorer({

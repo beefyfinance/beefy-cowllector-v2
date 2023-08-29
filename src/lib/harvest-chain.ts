@@ -19,6 +19,7 @@ import {
 import { UnsupportedChainError } from './harvest-errors';
 import { fetchCollectorBalance } from './collector-balance';
 import { bigintMultiplyFloat } from '../util/bigint';
+import { getChainWNativeTokenAddress } from './addressbook';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -35,6 +36,7 @@ export async function harvestChain({
 }) {
     logger.debug({ msg: 'Harvesting chain', data: { chain, vaults: vaults.length } });
 
+    const wnative = getChainWNativeTokenAddress(chain);
     const publicClient = getReadOnlyRpcClient({ chain });
     const walletClient = getWalletClient({ chain });
     const walletAccount = getWalletAccount({ chain });
@@ -69,23 +71,30 @@ export async function harvestChain({
         'simulation',
         'parallel',
         async item => {
-            const { result } = await publicClient.simulateContract({
+            const {
+                result: { callReward, gasUsed, lastHarvest, paused, success },
+            } = await publicClient.simulateContract({
                 ...harvestLensContract,
                 functionName: 'harvest',
-                args: [item.vault.strategyAddress],
+                args: [item.vault.strategyAddress, wnative],
                 account: walletAccount,
             });
-            const [estimatedCallRewardsWei, harvestWillSucceed, rawLastHarvest, strategyPaused] = result;
-            const lastHarvest = new Date(Number(rawLastHarvest) * 1000);
-            const hoursSinceLastHarvest = (now.getTime() - lastHarvest.getTime()) / 1000 / 60 / 60;
+            const lastHarvestDate = new Date(Number(lastHarvest) * 1000);
+            const hoursSinceLastHarvest = (now.getTime() - lastHarvestDate.getTime()) / 1000 / 60 / 60;
             const isLastHarvestRecent = hoursSinceLastHarvest < HARVEST_AT_LEAST_EVERY_HOURS;
             return {
-                estimatedCallRewardsWei,
-                harvestWillSucceed,
-                lastHarvest,
+                estimatedCallRewardsWei: callReward,
+                harvestWillSucceed: success,
+                lastHarvest: lastHarvestDate,
                 hoursSinceLastHarvest,
                 isLastHarvestRecent,
-                paused: strategyPaused,
+                paused,
+                gas: createGasEstimationReport({
+                    rawGasPrice,
+                    rawGasAmountEstimation: gasUsed,
+                    estimatedCallRewardsWei: callReward,
+                    gasPriceMultiplier: HARVEST_GAS_PRICE_MULTIPLIER,
+                }),
             };
         }
     );
@@ -98,9 +107,9 @@ export async function harvestChain({
     if (chain === 'ethereum') {
         throw new UnsupportedChainError({ chain });
     }
-    const liveStratsDecisions = await reportOnMultipleHarvestAsyncCall(
+    const shouldHarvestDecisions = await reportOnMultipleHarvestAsyncCall(
         successfulSimulations,
-        'isLiveDecision',
+        'decision',
         'parallel',
         async item => {
             if (item.vault.tvlUsd < rpcConfig.tvl.minThresholdUsd) {
@@ -156,86 +165,50 @@ export async function harvestChain({
                 }
             }
 
-            return { shouldHarvest: true, warning: false };
-        }
-    );
-    const liveStrats = liveStratsDecisions.filter(item => item.isLiveDecision.shouldHarvest);
-
-    // ==============
-    // Gas Estimation
-    // ==============
-
-    const successfulEstimations = await reportOnMultipleHarvestAsyncCall(
-        liveStrats,
-        'gasEstimation',
-        'sequential',
-        async item => {
-            const gasEst = await publicClient.estimateHarvestCallGasAmount({
-                strategyAddress: item.vault.strategyAddress,
-            });
-            return createGasEstimationReport({
-                rawGasPrice,
-                rawGasAmountEstimation: gasEst,
-                estimatedCallRewardsWei: item.simulation.estimatedCallRewardsWei,
-                gasPriceMultiplier: HARVEST_GAS_PRICE_MULTIPLIER,
-            });
-        }
-    );
-
-    // ======================
-    // profitability decision
-    // ======================
-    // check for last harvest and profitability
-
-    const harvestDecisions = await reportOnMultipleHarvestAsyncCall(
-        successfulEstimations,
-        'harvestDecision',
-        'parallel',
-        async item => {
-            const shouldHarvest = !item.simulation.isLastHarvestRecent;
-
             // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
             // so we removed our profitability check for now
-            if (item.gasEstimation.wouldBeProfitable && !shouldHarvest) {
+            if (item.simulation.gas.wouldBeProfitable) {
                 logger.info({
                     msg: 'Harvesting would probably be profitable if we computed gas cost correctly. But we are not so we are not harvesting.',
-                    data: { gasEstimation: item.gasEstimation, simulation: item.simulation },
+                    data: { gasEstimation: item.simulation.gas, simulation: item.simulation },
                 });
             }
 
-            if (!shouldHarvest) {
+            if (!item.simulation.isLastHarvestRecent) {
                 return {
                     shouldHarvest: false,
+                    warning: false,
                     hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
-                    wouldBeProfitable: item.gasEstimation.wouldBeProfitable,
-                    callRewardsWei: item.gasEstimation.estimatedCallRewardsWei,
-                    estimatedGainWei: item.gasEstimation.estimatedGainWei,
+                    wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
+                    callRewardsWei: item.simulation.estimatedCallRewardsWei,
+                    estimatedGainWei: item.simulation.gas.estimatedGainWei,
                     notHarvestingReason: 'harvested too recently',
                 };
-            } else {
-                return {
-                    shouldHarvest: true,
-                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
-                    wouldBeProfitable: item.gasEstimation.wouldBeProfitable,
-                    callRewardsWei: item.gasEstimation.estimatedCallRewardsWei,
-                    estimatedGainWei: item.gasEstimation.estimatedGainWei,
-                };
             }
+
+            return {
+                shouldHarvest: true,
+                warning: false,
+                hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
+                callRewardsWei: item.simulation.estimatedCallRewardsWei,
+                estimatedGainWei: item.simulation.gas.estimatedGainWei,
+            };
         }
     );
-    const stratsToBeHarvested = harvestDecisions.filter(item => item.harvestDecision.shouldHarvest);
+    const stratsToBeHarvested = shouldHarvestDecisions.filter(item => item.decision.shouldHarvest);
 
     // =======================
     // now do the havest dance
     // =======================
 
     logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
-    await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'harvestTransaction', 'sequential', async item => {
+    await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', 'sequential', async item => {
         const res = await walletClient.harvest({
             strategyAddress: item.vault.strategyAddress,
-            transactionCostEstimationWei: item.gasEstimation.transactionCostEstimationWei,
+            transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
             transactionGasLimit: bigintMultiplyFloat(
-                item.gasEstimation.rawGasAmountEstimation.estimation,
+                item.simulation.gas.rawGasAmountEstimation,
                 HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER
             ),
         });
@@ -243,7 +216,7 @@ export async function harvestChain({
         return {
             ...res,
             // todo: this shouldn't be an estimate
-            estimatedProfitWei: item.gasEstimation.estimatedGainWei - item.gasEstimation.transactionCostEstimationWei,
+            estimatedProfitWei: item.simulation.gas.estimatedGainWei - item.simulation.gas.transactionCostEstimationWei,
         };
     });
 

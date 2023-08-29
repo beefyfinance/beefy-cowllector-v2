@@ -27,6 +27,7 @@ export type HarvestReport = {
 
 type HarvestReportSimulation = Async<{
     estimatedCallRewardsWei: bigint;
+    gas: GasEstimationReport;
     harvestWillSucceed: boolean;
     lastHarvest: Date;
     hoursSinceLastHarvest: number;
@@ -34,10 +35,8 @@ type HarvestReportSimulation = Async<{
     paused: boolean;
 }>;
 
-type HarvestReportGasEstimation = Async<GasEstimationReport>;
-
 // warn: true will tell the notifier to send a message
-type HarvestReportIsLiveDecision =
+type HarvestReportDecision =
     | {
           shouldHarvest: false;
           warning: false;
@@ -73,13 +72,8 @@ type HarvestReportIsLiveDecision =
           notHarvestingReason: 'vault is eol';
       }
     | {
-          shouldHarvest: true;
-          warning: false;
-      };
-
-type HarvestReportShouldHarvestDecision =
-    | {
           shouldHarvest: false;
+          warning: false;
           callRewardsWei: bigint;
           hoursSinceLastHarvest: number;
           estimatedGainWei: bigint;
@@ -88,13 +82,14 @@ type HarvestReportShouldHarvestDecision =
       }
     | {
           shouldHarvest: true;
+          warning: false;
           callRewardsWei: bigint;
           hoursSinceLastHarvest: number;
           estimatedGainWei: bigint;
           wouldBeProfitable: boolean;
       };
 
-type HarvestReportHarvestTransaction = Async<{
+type HarvestReportTransaction = Async<{
     transactionHash: Hex;
     blockNumber: bigint;
     gasUsed: bigint;
@@ -109,10 +104,8 @@ type HarvestReportItem = {
 
     // harvest steps, null: not started
     simulation: HarvestReportSimulation | null;
-    isLiveDecision: HarvestReportIsLiveDecision | null;
-    gasEstimation: HarvestReportGasEstimation | null;
-    harvestDecision: HarvestReportShouldHarvestDecision | null;
-    harvestTransaction: HarvestReportHarvestTransaction | null;
+    decision: HarvestReportDecision | null;
+    transaction: HarvestReportTransaction | null;
 
     // summary
     summary: {
@@ -149,10 +142,8 @@ export function createDefaultHarvestReportItem({ vault }: { vault: BeefyVault })
         vault,
 
         simulation: null,
-        gasEstimation: null,
-        isLiveDecision: null,
-        harvestDecision: null,
-        harvestTransaction: null,
+        decision: null,
+        transaction: null,
 
         summary: {
             harvested: false,

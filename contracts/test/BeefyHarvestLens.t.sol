@@ -13,7 +13,7 @@ import "./mocks/ERC20Mock.sol";
 contract BeefyHarvestLensTest is Test {
     using SafeERC20 for IERC20;
 
-    IERC20 native;
+    IERC20 rewardToken;
     uint256 lastHarvestMock;
     bool pausedMock;
     uint256 harvestLoops;
@@ -22,7 +22,7 @@ contract BeefyHarvestLensTest is Test {
     uint256 harvestRewards;
 
     function setUp() public {
-        native = IERC20(new ERC20Mock(1000 ether));
+        rewardToken = IERC20(new ERC20Mock(1000 ether));
         lastHarvestMock = 123456;
         pausedMock = false;
         harvestLoops = 10;
@@ -31,103 +31,114 @@ contract BeefyHarvestLensTest is Test {
         harvestRewards = 987654;
     }
 
-    function _helperCreateContracts() private returns (IStrategyV7 strat, BeefyHarvestLens lens) {
+    function _helper_create_contracts() private returns (IStrategyV7 strat, BeefyHarvestLens lens) {
         strat = IStrategyV7(
             address(
-                new StrategyV7Mock(native, lastHarvestMock, pausedMock, harvestLoops, revertOnHarvest, revertOnLastHarvest, harvestRewards)
+                new StrategyV7Mock(rewardToken, lastHarvestMock, pausedMock, harvestLoops, revertOnHarvest, revertOnLastHarvest, harvestRewards)
             )
         );
-        native.safeTransfer(address(strat), 1000 ether);
+        rewardToken.safeTransfer(address(strat), 1000 ether);
         lens = new BeefyHarvestLens();
-        lens.init(native);
     }
 
-    function testLensDoNotThrowWhenHarvestReverts() public {
+    function test_lens_do_not_throw_when_harvest_reverts() public {
         revertOnHarvest = true;
 
-        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
-        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
 
-        assertEq(callReward, 0);
-        assertEq(success, false);
-        assertEq(lastHarvest, 123456);
-        assertEq(paused, false);
-        assertEq(native.balanceOf(address(this)), 0);
+        assertEq(res.callReward, 0);
+        assertEq(res.success, false);
+        assertEq(res.lastHarvest, 123456);
+        assertEq(res.paused, false);
+        assertEq(res.gasUsed, 0);
+        assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
-    function testNormalHarvest() public {
-        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
-        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+    function test_normal_harvest() public {
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
 
-        assertEq(callReward, 987654);
-        assertEq(success, true);
-        assertEq(lastHarvest, 123456);
-        assertEq(paused, false);
-        assertEq(native.balanceOf(address(this)), 987654);
+        assertEq(res.callReward, 987654);
+        assertEq(res.success, true);
+        assertEq(res.lastHarvest, 123456);
+        assertEq(res.paused, false);
+        assertGt(res.gasUsed, 20000);
+        assertLt(res.gasUsed, 40000);
+        assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 
-    function testLensReturnsCallRewards() public {
+    function test_lens_returns_call_rewards() public {
         harvestRewards = 1 ether;
 
-        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
-        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
 
-        assertEq(callReward, 1 ether);
-        assertEq(success, true);
-        assertEq(lastHarvest, 123456);
-        assertEq(paused, false);
-        assertEq(native.balanceOf(address(this)), 1 ether);
+        assertEq(res.callReward, 1 ether);
+        assertEq(res.success, true);
+        assertEq(res.lastHarvest, 123456);
+        assertEq(res.paused, false);
+        assertGt(res.gasUsed, 20000);
+        assertLt(res.gasUsed, 40000);
+        assertEq(rewardToken.balanceOf(address(this)), 1 ether);
     }
 
-    function testLensReturnsPaused() public {
+    function test_lens_returns_paused() public {
         pausedMock = true;
 
-        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
-        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
 
-        assertEq(callReward, 0);
-        assertEq(success, false);
-        assertEq(lastHarvest, 123456);
-        assertEq(paused, true);
-        assertEq(native.balanceOf(address(this)), 0);
+        assertEq(res.callReward, 0);
+        assertEq(res.success, false);
+        assertEq(res.lastHarvest, 123456);
+        assertEq(res.paused, true);
+        assertEq(res.gasUsed, 0);
+        assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
-    function testLensReturnsLastHarvest() public {
+    function test_lens_returns_last_harvest() public {
         lastHarvestMock = 98765;
 
-        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
-        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
 
-        assertEq(callReward, 987654);
-        assertEq(success, true);
-        assertEq(lastHarvest, 98765);
-        assertEq(paused, false);
-        assertEq(native.balanceOf(address(this)), 987654);
+        assertEq(res.callReward, 987654);
+        assertEq(res.success, true);
+        assertEq(res.lastHarvest, 98765);
+        assertEq(res.paused, false);
+        assertGt(res.gasUsed, 20000);
+        assertLt(res.gasUsed, 40000);
+        assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 
-    function testLensSuccessWhenCallRewardIsZero() public {
+    function test_lens_success_when_call_reward_is_zero() public {
         harvestRewards = 0;
 
-        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
-        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
 
-        assertEq(callReward, 0);
-        assertEq(success, true);
-        assertEq(lastHarvest, 123456);
-        assertEq(paused, false);
-        assertEq(native.balanceOf(address(this)), 0);
+        assertEq(res.callReward, 0);
+        assertEq(res.success, true);
+        assertEq(res.lastHarvest, 123456);
+        assertEq(res.paused, false);
+        assertGt(res.gasUsed, 1000);
+        assertLt(res.gasUsed, 20000);
+        assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
-    function testLensDoNotCrashWhenLastHarvestIsntDefined() public {
+    function test_lens_do_not_crash_when_last_harvest_isnt_defined() public {
         revertOnLastHarvest = true;
 
-        (IStrategyV7 strat, BeefyHarvestLens lens) = _helperCreateContracts();
-        (uint256 callReward, bool success, uint256 lastHarvest, bool paused) = lens.harvest(strat);
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
 
-        assertEq(callReward, 987654);
-        assertEq(success, true);
-        assertEq(lastHarvest, 0);
-        assertEq(paused, false);
-        assertEq(native.balanceOf(address(this)), 987654);
+        assertEq(res.callReward, 987654);
+        assertEq(res.success, true);
+        assertEq(res.lastHarvest, 0);
+        assertEq(res.paused, false);
+        assertGt(res.gasUsed, 20000);
+        assertLt(res.gasUsed, 40000);
+        assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 }

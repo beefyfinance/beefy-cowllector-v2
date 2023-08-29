@@ -11,6 +11,12 @@ ignored_error_codes = [
     #"init-code-size",
 ]
 deny_warnings = true
+remappings = [
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "ds-test/=contracts/lib/forge-std/lib/ds-test/src/",
+    "forge-std/=contracts/lib/forge-std/src/",
+]
+
 
 [profile.gas-optimize]
 solc_version = '0.8.21'
