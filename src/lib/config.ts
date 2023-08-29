@@ -102,6 +102,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'legacy',
         },
+        eol: true,
     },
     avax: {
         ...defaultConfig,
@@ -172,6 +173,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     heco: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.HECO_RPC_URL || 'https://http-mainnet.hecochain.com',
+        eol: true,
     },
     kava: {
         ...defaultConfig,

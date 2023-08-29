@@ -59,36 +59,28 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
     }
 
     await reportOnSingleUnwrapAsyncCall(unwrapDecision, 'unwrapTransaction', async item => {
-        // check if we have enough gas to harvest
-        logger.trace({ msg: 'Checking gas', data: { chain, strat: item } });
+        logger.trace({ msg: 'Fetching total gas before', data: { chain, strat: item } });
         const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
 
         logger.trace({ msg: 'Unwrapping wnative', data: { chain, strat: item } });
-        const { request, result } = await publicClient.simulateContract({
+        const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
             abi: WETHABI,
             address: getChainWNativeTokenAddress(chain),
             functionName: 'withdraw',
             args: [item.unwrapDecision.actualAmount],
             account: walletAccount,
         });
-        logger.debug({ msg: 'Simulated unwrapped wnative', data: { chain, strat: item, result } });
-        const transactionHash = await walletClient.writeContract(request);
-        logger.debug({ msg: 'Unwrapped wnative', data: { chain, strat: item, transactionHash, result } });
-
-        // wait for the transaction to be mined so we have a proper nonce for the next transaction
-        logger.trace({ msg: 'Waiting for transaction receipt', data: { chain, strat: item, transactionHash } });
-        const receipt = await publicClient.aggressivelyWaitForTransactionReceipt({
-            hash: transactionHash,
+        logger.debug({
+            msg: 'Got transaction receipt',
+            data: { chain, strat: item, transactionHash, transactionReceipt },
         });
-        logger.debug({ msg: 'Got transaction receipt', data: { chain, strat: item, transactionHash, receipt } });
 
-        // now we officially harvested the strat
-        logger.info({ msg: 'Unwrapped wnative', data: { chain, strat: item, transactionHash, receipt } });
+        logger.info({ msg: 'Unwrapped wnative', data: { chain, strat: item, transactionHash, transactionReceipt } });
         return {
             transactionHash,
-            blockNumber: receipt.blockNumber,
-            gasUsed: receipt.gasUsed,
-            effectiveGasPrice: receipt.effectiveGasPrice,
+            blockNumber: transactionReceipt.blockNumber,
+            gasUsed: transactionReceipt.gasUsed,
+            effectiveGasPrice: transactionReceipt.effectiveGasPrice,
             balanceBeforeWei: remainingGasWei,
             unwrappedAmount: item.unwrapDecision.actualAmount,
         };
