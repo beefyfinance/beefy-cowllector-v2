@@ -174,7 +174,7 @@ export async function harvestChain({
                 });
             }
 
-            if (!item.simulation.isLastHarvestRecent) {
+            if (item.simulation.isLastHarvestRecent) {
                 return {
                     shouldHarvest: false,
                     warning: false,
