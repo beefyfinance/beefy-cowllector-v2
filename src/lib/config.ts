@@ -85,10 +85,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     arbitrum: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ARBITRUM_RPC_URL || 'https://rpc.ankr.com/arbitrum',
-        contracts: {
-            ...defaultContracts,
-            harvestLens: '0xEeD0329C9D10dD0D85461203f89a54eD5A7B8418',
-        },
     },
     aurora: {
         ...defaultConfig,
@@ -113,10 +109,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
-        },
-        contracts: {
-            ...defaultContracts,
-            harvestLens: '0xA2413C80941fcD0EDE877F7fd67eA6e94B971bD3',
         },
         tvl: {
             ...defaultTvLConfig,
@@ -210,18 +202,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'legacy',
         },
-        contracts: {
-            ...defaultContracts,
-            harvestLens: '0xEeD0329C9D10dD0D85461203f89a54eD5A7B8418',
-        },
     },
     polygon: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.POLYGON_RPC_URL || 'https://rpc.ankr.com/polygon',
-        contracts: {
-            ...defaultContracts,
-            harvestLens: '0xEeD0329C9D10dD0D85461203f89a54eD5A7B8418',
-        },
         transaction: {
             ...defaultTransactionConfig,
             baseFeeMultiplier: 1.7, // polygon is known to stall trx for days when base fee is too low

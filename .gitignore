@@ -11,3 +11,4 @@ dump.rdb
 dist/
 typings/
 old
+.DS_Store
