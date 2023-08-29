@@ -11,7 +11,6 @@ if (timezone !== 'UTC') {
     throw new Error('Please set TZ=UTC in your .env file or command line');
 }
 
-export const REDIS_URL = process.env.REDIS_URL || process.env.REDISCLOUD_URL || 'redis://localhost:6379';
 export const BEEFY_API_URL = process.env.BEEFY_API_URL || 'https://api.beefy.finance';
 
 const log_level = process.env.LOG_LEVEL || 'info';
@@ -34,10 +33,6 @@ export const DISCORD_PING_ROLE_IDS_ON_ERROR = process.env.DISCORD_PING_ROLE_IDS_
 export const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
 export const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
 export const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
-export const HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS = parseInt(
-    process.env.HARVEST_CACHE_GAS_ESTIMATIONS_SECONDS || '604800',
-    10
-); // 1 week default
 export const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
 const defaultBatch: RpcConfig['batch'] = {
@@ -106,7 +101,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     },
     avax: {
         ...defaultConfig,
-        url: RPC_FORCE_URL || process.env.AVALANCHE_RPC_URL || 'https://rpc.ankr.com/avalanche',
+        url: RPC_FORCE_URL || process.env.AVAX_RPC_URL || 'https://rpc.ankr.com/avalanche',
     },
     base: {
         ...defaultConfig,

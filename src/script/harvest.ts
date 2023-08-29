@@ -85,16 +85,14 @@ async function main() {
                     report.timing = result.timing;
                     report.details.forEach(item => {
                         item.summary = {
-                            harvested:
-                                item.harvestTransaction !== null && item.harvestTransaction.status === 'fulfilled',
+                            harvested: item.transaction !== null && item.transaction.status === 'fulfilled',
                             error:
-                                (item.gasEstimation !== null && item.gasEstimation.status === 'rejected') ||
                                 (item.simulation !== null && item.simulation.status === 'rejected') ||
-                                (item.harvestTransaction !== null && item.harvestTransaction.status === 'rejected'),
-                            warning: item.isLiveDecision?.warning || false,
+                                (item.transaction !== null && item.transaction.status === 'rejected'),
+                            warning: item.decision?.warning || false,
                             estimatedProfitWei:
-                                item.harvestTransaction?.status === 'fulfilled'
-                                    ? item.harvestTransaction?.value.estimatedProfitWei
+                                item.transaction?.status === 'fulfilled'
+                                    ? item.transaction?.value.estimatedProfitWei
                                     : 0n,
                         };
                     });

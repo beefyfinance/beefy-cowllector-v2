@@ -25,7 +25,7 @@ import {
 } from 'viem/chains';
 import { addressBook } from 'blockchain-addressbook';
 import { loggingHttpTransport } from './rpc-transport';
-import { createCustomHarvestPublicActions, createCustomHarvestWalletActions } from './harvest-actions';
+import { createCustomHarvestWalletActions } from './harvest-actions';
 import { cachedFactory } from '../util/cache';
 import { createCustomRpcPublicActions, createCustomRpcWalletActions } from './rpc-actions';
 
@@ -138,9 +138,7 @@ export const getReadOnlyRpcClient = cachedFactory(
             batch: {
                 multicall: rpcConfig.batch.multicall,
             },
-        })
-            .extend(createCustomRpcPublicActions({ chain }))
-            .extend(createCustomHarvestPublicActions({ chain }));
+        }).extend(createCustomRpcPublicActions({ chain }));
     }
 );
 
