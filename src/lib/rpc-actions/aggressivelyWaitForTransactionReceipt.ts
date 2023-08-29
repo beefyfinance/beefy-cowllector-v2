@@ -1,4 +1,10 @@
-import { type Chain as ViemChain, type WaitForTransactionReceiptReturnType, BlockNotFoundError, Hex } from 'viem';
+import {
+    type Chain as ViemChain,
+    type WaitForTransactionReceiptReturnType,
+    BlockNotFoundError,
+    Hex,
+    TransactionReceiptNotFoundError,
+} from 'viem';
 import { rootLogger } from '../../util/logger';
 import { withRetry } from '../../util/promise';
 import { getRpcActionParams } from '../rpc-client';
@@ -36,6 +42,12 @@ export function aggressivelyWaitForTransactionReceipt<TChain extends ViemChain |
                 // happens a lot with ankr's rpc cluster
                 if (err instanceof BlockNotFoundError) {
                     logger.warn({ msg: 'waitForTransactionReceipt: block not found, retrying', data: { err } });
+                    return true;
+                } else if (err instanceof TransactionReceiptNotFoundError) {
+                    logger.warn({
+                        msg: 'waitForTransactionReceipt: transaction receipt not found, retrying',
+                        data: { err },
+                    });
                     return true;
                 }
 
