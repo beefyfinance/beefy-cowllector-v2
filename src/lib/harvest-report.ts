@@ -59,7 +59,7 @@ type HarvestReportDecision = Async<
     | {
           shouldHarvest: false;
           warning: false;
-          notHarvestingReason: 'harvest would failt but it is a gamma vault so it mmight just be out of range';
+          notHarvestingReason: 'harvest would fail but it is a gamma vault so it might just be out of range';
       }
     | {
           shouldHarvest: false;
