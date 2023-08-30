@@ -230,6 +230,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                blockConfirmations: 1, // reduces the amount of TransactionReceiptNotFoundError we get
+            },
         },
     },
     zksync: {
