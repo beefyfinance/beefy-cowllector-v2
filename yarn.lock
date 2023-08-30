@@ -955,11 +955,6 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@wagmi/chains@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@wagmi/chains/-/chains-1.7.0.tgz#8f6ad81cf867e1788417f7c978ca92bc083ecaf6"
-  integrity sha512-TKVeHv0GqP5sV1yQ8BDGYToAFezPnCexbbBpeH14x7ywi5a1dDStPffpt9x+ytE6LJWkZ6pAMs/HNWXBQ5Nqmw==
-
 abbrev@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -1211,10 +1206,10 @@ base64-js@^1.3.1:
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-blockchain-addressbook@^0.44.3:
-  version "0.44.3"
-  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.44.3.tgz#cef25776c8ca6b24f12cd1b57a597fa5ceb5b8eb"
-  integrity sha512-PqLbKcGIbkjjohGarqOCzreiAgtOwiinDWC93i4nGvVLdj8YX4ujU9Ja6pd8f7emUBKN1pEKAv3R2MZzRMna9Q==
+blockchain-addressbook@^0.44.5:
+  version "0.44.5"
+  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.44.5.tgz#290dd4bcc1960269e30b6cbc96310e6a5cd76266"
+  integrity sha512-5sP3V7HOokIFCVZ5pVZv4WWQL3Dm+jAah04DvTVNX55GCLWwLC8H8MeacuALQLxHXGvqgndzLaB79fOODjCCQg==
 
 boxen@^7.0.0:
   version "7.1.1"
@@ -3342,10 +3337,10 @@ npm-bundled@^3.0.0:
   dependencies:
     npm-normalize-package-bin "^3.0.0"
 
-npm-check-updates@^16.13.1:
-  version "16.13.1"
-  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-16.13.1.tgz#7aa0d24b180b6b7f4a881abff7d7150f0ca5a884"
-  integrity sha512-RIKBemiyAOEAUfzgYzDffLQwXI/Zo4CMSGHtup9fUoBpHqPNtD0pPFjpxDnt/sFpGiV5iANdE2Ck6xOxuQFfJg==
+npm-check-updates@^16.13.2:
+  version "16.13.2"
+  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-16.13.2.tgz#552e8223d83ae5ae2d48a11ac254cf0b231277b9"
+  integrity sha512-0pQI+k1y0JVwenB2gBc69tXFYfkckSVrNrlcn7TIrZfis4LnfdzakY/LYzZKt/lx37edN2isk3d2Zw4csptu/w==
   dependencies:
     chalk "^5.3.0"
     cli-table3 "^0.6.3"
@@ -3690,10 +3685,10 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-prettier@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.0.2.tgz#78fcecd6d870551aa5547437cdae39d4701dca5b"
-  integrity sha512-o2YR9qtniXvwEZlOKbveKfDQVyqxbEIWn48Z8m3ZJjBjcCmUy3xZGIv+7AkaeuaTr6yPXJjwv07ZWlsWbEy1rQ==
+prettier@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.0.3.tgz#432a51f7ba422d1469096c0fdc28e235db8f9643"
+  integrity sha512-L/4pUDMxcNa8R/EthV08Zt42WBO4h1rarVtK0K+QJG0X187OLo7l699jWw0GKuwzkPQ//jMFA/8Xm6Fh3J/DAg==
 
 pretty-format@^29.0.0, pretty-format@^29.6.2:
   version "29.6.2"
@@ -4562,10 +4557,10 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-viem@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.8.1.tgz#36e4e7db430b2a5b5535e455ad2a7da5ef63cca5"
-  integrity sha512-g+8dW8K6uae+3k/5pezSmlwo3/G+uEZiQsHlJooH86Z4PT3clgtU179iL/GNEcNGwafyJh/Iq/1e+FTbHQKH8Q==
+viem@^1.9.2:
+  version "1.9.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.9.2.tgz#7cc15d8945e8268810d885610a8a06b11c0bbe16"
+  integrity sha512-a4l502Sl4ytYOT6a77ezDCEEgztR+wF8ZZRLAEVcrQawFFIiAWXGPrXVPT8MQmDF00idPMKPON8Ayz34Ft3NLw==
   dependencies:
     "@adraffy/ens-normalize" "1.9.0"
     "@noble/curves" "1.1.0"
@@ -4573,7 +4568,6 @@ viem@^1.8.1:
     "@scure/bip32" "1.3.0"
     "@scure/bip39" "1.2.0"
     "@types/ws" "^8.5.4"
-    "@wagmi/chains" "1.7.0"
     abitype "0.9.3"
     isomorphic-ws "5.0.0"
     ws "8.12.0"
