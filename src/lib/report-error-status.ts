@@ -1,6 +1,7 @@
 import { get } from 'lodash';
 import { Async } from '../util/async';
 import { Chain } from './chain';
+import { extractErrorMessage } from './error-message';
 
 export type ReportAsyncStatus = 'success' | 'error' | 'silent-error' | 'warning' | 'not-started';
 
@@ -17,7 +18,7 @@ export function getReportAsyncStatus<T>({ chain }: { chain: Chain }, report: Asy
         }
         return 'success';
     } else if (get(report, 'status', undefined) === 'rejected') {
-        if (chain === 'zkevm' && get(report, 'reason.details', '') === 'failed to execute the unsigned transaction') {
+        if (chain === 'zkevm' && extractErrorMessage(report) === 'failed to execute the unsigned transaction') {
             return 'silent-error';
         }
         return 'error';

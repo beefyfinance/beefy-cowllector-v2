@@ -14,7 +14,7 @@ import { table } from 'table';
 import { asyncResultGet } from '../util/async';
 import { serializeReport } from './reports';
 import { UnwrapReport } from './unwrap-report';
-import { get } from 'lodash';
+import { extractErrorMessage } from './error-message';
 
 const logger = rootLogger.child({ module: 'notify' });
 
@@ -83,11 +83,11 @@ export async function notifyHarvestReport(report: HarvestReport) {
         const stratLink = `[${truncatedAddy}](<${stratExplorerLink}>)`;
 
         if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
-            const errorMsg = get(stratReport.simulation, 'reason.details', 'unknown');
+            const errorMsg = extractErrorMessage(stratReport.simulation);
             errorDetails += `- simulation 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.decision && stratReport.decision.status === 'rejected') {
-            const errorMsg = get(stratReport.decision, 'reason.details', 'unknown');
+            const errorMsg = extractErrorMessage(stratReport.decision);
             errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.decision && stratReport.decision.status === 'fulfilled' && stratReport.decision.value.warning) {
@@ -95,7 +95,7 @@ export async function notifyHarvestReport(report: HarvestReport) {
             errorDetails += `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
-            const errorMsg = get(stratReport.transaction, 'reason.details', 'unknown');
+            const errorMsg = extractErrorMessage(stratReport.transaction);
             errorDetails += `- transaction 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
     }
@@ -160,14 +160,10 @@ export async function notifyUnwrapReport(report: UnwrapReport) {
 
     let errorDetails = '';
     if (report.unwrapDecision && report.unwrapDecision.status === 'rejected') {
-        errorDetails += `- 🔥 Unwrap decision failed: ${get(report.unwrapDecision, 'reason.details', 'unknown')}\n`;
+        errorDetails += `- 🔥 Unwrap decision failed: ${extractErrorMessage(report.unwrapDecision)}\n`;
     }
     if (report.unwrapTransaction && report.unwrapTransaction.status === 'rejected') {
-        errorDetails += `- 🔥 Unwrap transaction failed: ${get(
-            report.unwrapTransaction,
-            'reason.details',
-            'unknown'
-        )}\n`;
+        errorDetails += `- 🔥 Unwrap transaction failed: ${extractErrorMessage(report.unwrapTransaction)}\n`;
     }
 
     const rolePing =

@@ -49,9 +49,7 @@ export function aggressivelyWaitForTransactionReceipt<TChain extends ViemChain |
                         data: { err },
                     });
                     return true;
-                }
-
-                return false;
+                } else return false;
             },
         }
     );
