@@ -6,5 +6,6 @@ export type BeefyVault = {
     eol: boolean;
     chain: Chain;
     strategyAddress: Hex;
+    platformId: string;
     tvlUsd: number;
 };

@@ -140,6 +140,15 @@ export async function harvestChain({
                     };
                 }
 
+                if (item.vault.platformId === 'gamma') {
+                    return {
+                        shouldHarvest: false,
+                        warning: false,
+                        notHarvestingReason:
+                            'harvest would failt but it is a gamma vault so it mmight just be out of range',
+                    };
+                }
+
                 return {
                     shouldHarvest: false,
                     warning: true,

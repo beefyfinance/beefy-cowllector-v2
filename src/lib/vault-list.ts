@@ -15,6 +15,7 @@ async function fetchVaults() {
         status: 'eol' | 'active';
         strategy: string;
         chain: Chain;
+        platformId: string;
         // + some other fields we don't care about
     }[];
 
@@ -37,6 +38,7 @@ async function fetchVaults() {
         eol: vault.status === 'eol',
         chain: vault.chain,
         strategyAddress: vault.strategy as Hex,
+        platformId: vault.platformId,
         tvlUsd: rawTvls[vault.id] || 0,
     }));
 }

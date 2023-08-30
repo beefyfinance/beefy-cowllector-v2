@@ -58,6 +58,11 @@ type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
+          warning: false;
+          notHarvestingReason: 'harvest would failt but it is a gamma vault so it mmight just be out of range';
+      }
+    | {
+          shouldHarvest: false;
           hoursSinceLastHarvest: number;
           warning: false;
           notHarvestingReason: 'estimated call rewards is 0 but this vault have not seen rewards in a long time anyway';
