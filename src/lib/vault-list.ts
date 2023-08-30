@@ -8,25 +8,22 @@ import { groupBy, keyBy } from 'lodash';
 
 const logger = rootLogger.child({ module: 'vault-list' });
 
-type ApiBeefyVaultResponse = {
-    id: string;
-    name: string;
-    status: 'eol' | 'active';
-    strategy: string;
-    chain: Chain;
-    // + some other fields we don't care about
-}[];
+async function fetchVaults() {
+    type ApiBeefyVaultResponse = {
+        id: string;
+        name: string;
+        status: 'eol' | 'active';
+        strategy: string;
+        chain: Chain;
+        // + some other fields we don't care about
+    }[];
 
-type ApiBeefyTvlResponse = {
-    [key: string]: {
-        [key: string]: number;
+    type ApiBeefyTvlResponse = {
+        [key: string]: {
+            [key: string]: number;
+        };
     };
-};
 
-export async function getVaultsToMonitor(options: {
-    chains: Chain[];
-    contractAddress: Hex | null;
-}): Promise<Record<Chain, BeefyVault[]>> {
     const vaultResponse = await axios.get<ApiBeefyVaultResponse>(`${BEEFY_API_URL}/vaults`);
     const rawVaults = vaultResponse.data;
 
@@ -35,14 +32,28 @@ export async function getVaultsToMonitor(options: {
     const rawTvls = Object.values(rawTvlByChains).reduce((acc, tvl) => ({ ...acc, ...tvl }), {});
 
     // map to a simpler format
-    const allVaults = rawVaults
-        .map(vault => ({
-            id: vault.id,
-            eol: vault.status === 'eol',
-            chain: vault.chain,
-            strategyAddress: vault.strategy as Hex,
-            tvlUsd: rawTvls[vault.id] || 0,
-        }))
+    return rawVaults.map(vault => ({
+        id: vault.id,
+        eol: vault.status === 'eol',
+        chain: vault.chain,
+        strategyAddress: vault.strategy as Hex,
+        tvlUsd: rawTvls[vault.id] || 0,
+    }));
+}
+
+export async function getVault(options: { chain: Chain; strategyAddress: Hex }): Promise<BeefyVault | null> {
+    const vaults = await fetchVaults();
+    const vault = vaults.find(
+        vault => vault.chain === options.chain && vault.strategyAddress === options.strategyAddress
+    );
+    return vault || null;
+}
+
+export async function getVaultsToMonitorByChain(options: {
+    chains: Chain[];
+    strategyAddress: Hex | null;
+}): Promise<Record<Chain, BeefyVault[]>> {
+    const allVaults = (await fetchVaults())
         // remove eol vaults
         .filter(vault => !vault.eol)
         // remove eol chains
@@ -53,7 +64,7 @@ export async function getVaultsToMonitor(options: {
     // apply command line options
     let vaults = allVaults
         .filter(vault => options.chains.includes(vault.chain))
-        .filter(vault => (options.contractAddress ? vault.strategyAddress === options.contractAddress : true));
+        .filter(vault => (options.strategyAddress ? vault.strategyAddress === options.strategyAddress : true));
     logger.info({ msg: 'Filtered vaults', data: { vaultLength: vaults.length } });
 
     // remove duplicates

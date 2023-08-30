@@ -3,7 +3,7 @@ import { runMain } from '../util/process';
 import { allChainIds } from '../lib/chain';
 import type { Chain } from '../lib/chain';
 import { rootLogger } from '../util/logger';
-import { getVaultsToMonitor } from '../lib/vault-list';
+import { getVaultsToMonitorByChain } from '../lib/vault-list';
 import { harvestChain } from '../lib/harvest-chain';
 import { Hex } from 'viem';
 import { createDefaultHarvestReport } from '../lib/harvest-report';
@@ -18,7 +18,7 @@ const logger = rootLogger.child({ module: 'harvest-main' });
 
 type CmdOptions = {
     chain: Chain[];
-    contractAddress: Hex | null;
+    strategyAddress: Hex | null;
     now: Date;
 };
 
@@ -32,11 +32,11 @@ async function main() {
             default: 'all',
             describe: 'only harest these chains. eol chains will be ignored',
         },
-        'contract-address': {
+        'strategy-address': {
             type: 'string',
             demand: false,
             alias: 'a',
-            describe: 'only harvest for this contract address',
+            describe: 'only harvest for this strategy address',
         },
         now: {
             type: 'string',
@@ -48,13 +48,16 @@ async function main() {
 
     const options: CmdOptions = {
         chain: argv.chain.includes('all') ? allChainIds : (argv.chain as Chain[]),
-        contractAddress: (argv['contract-address'] || null) as Hex | null,
+        strategyAddress: (argv['strategy-address'] || null) as Hex | null,
         now: argv.now ? new Date(argv.now) : new Date(Date.now()),
     };
     logger.trace({ msg: 'running with options', data: options });
 
     // fetch vaults from beefy api
-    const vaultsByChain = await getVaultsToMonitor({ chains: options.chain, contractAddress: options.contractAddress });
+    const vaultsByChain = await getVaultsToMonitorByChain({
+        chains: options.chain,
+        strategyAddress: options.strategyAddress,
+    });
 
     // harvest each chain
     const { fulfilled: successfulReports, rejected: rejectedReports } = splitPromiseResultsByStatus(
