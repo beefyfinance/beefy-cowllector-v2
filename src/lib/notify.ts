@@ -76,25 +76,25 @@ export async function notifyHarvestReport(report: HarvestReport) {
         const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
         const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
             '${address}',
-            stratReport.vault.strategyAddress
+            stratReport.vault.strategyAddress.slice(0, 6) + '...' + stratReport.vault.strategyAddress.slice(-4)
         );
         const stratLink = `[${stratReport.vault.strategyAddress}](<${stratExplorerLink}>)`;
 
         if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
             const errorMsg = get(stratReport.simulation, 'reason.details', 'unknown');
-            errorDetails += `- 🔥 ${vaultLink} simulation failed (${stratLink}): ${errorMsg}\n`;
+            errorDetails += `- simulation 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.decision && stratReport.decision.status === 'rejected') {
             const errorMsg = get(stratReport.decision, 'reason.details', 'unknown');
-            errorDetails += `- 🔥 ${vaultLink} decision error (${stratLink}): ${errorMsg}\n`;
+            errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.decision && stratReport.decision.status === 'fulfilled' && stratReport.decision.value.warning) {
             const errorMsg = stratReport.decision.value.notHarvestingReason;
-            errorDetails += `- ⚠️ ${vaultLink} decision warning (${stratLink}): ${errorMsg}\n`;
+            errorDetails += `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
             const errorMsg = get(stratReport.transaction, 'reason.details', 'unknown');
-            errorDetails += `- 🔥 ${vaultLink} transaction failed (${stratLink}): ${errorMsg}\n`;
+            errorDetails += `- transaction 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
     }
 
