@@ -49,6 +49,13 @@ export async function verifyFoundryContractForExplorer({
     foundryProfile?: string;
 }) {
     const explorerConfig = EXPLORER_CONFIG[chain];
+    if (explorerConfig.type === 'etherscan' && !explorerConfig.apiKey) {
+        throw new Error(`No explorer api key for chain ${chain}, will not be able to verify contract`);
+    }
+    if (explorerConfig.type === 'blockscout' && !explorerConfig.apiUrl.endsWith('/api?')) {
+        throw new Error(`Invalid explorer api url for chain ${chain}, must end with "/api?"`);
+    }
+
     const networkId = getNetworkId(chain);
     const optimizerRuns = 1_000_000; // TODO: pull this from the foundry profile config
 
