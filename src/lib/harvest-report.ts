@@ -5,6 +5,7 @@ import { Chain } from './chain';
 import { Async, TimingData } from '../util/async';
 import { AItem, AKey, AVal, reportOnMultipleAsyncCall, reportOnSingleAsyncCall } from './reports';
 import { CollectorBalance } from './collector-balance';
+import { ReportAsyncStatus } from './report-error-status';
 
 export type HarvestReport = {
     timing: TimingData | null;
@@ -20,8 +21,9 @@ export type HarvestReport = {
         totalStrategies: number;
         harvested: number;
         skipped: number;
-        errors: number;
-        warnings: number;
+        statuses: {
+            [status in ReportAsyncStatus]: number;
+        };
     };
 };
 
@@ -110,8 +112,8 @@ type HarvestReportItem = {
     // summary
     summary: {
         harvested: boolean;
-        error: boolean;
-        warning: boolean;
+        skipped: boolean;
+        status: ReportAsyncStatus;
         estimatedProfitWei: bigint;
     };
 };
@@ -131,8 +133,13 @@ export function createDefaultHarvestReport({ chain }: { chain: Chain }): Harvest
             totalStrategies: 0,
             harvested: 0,
             skipped: 0,
-            errors: 0,
-            warnings: 0,
+            statuses: {
+                error: 0,
+                'not-started': 0,
+                'silent-error': 0,
+                warning: 0,
+                success: 0,
+            },
         },
     };
 }
@@ -147,8 +154,8 @@ export function createDefaultHarvestReportItem({ vault }: { vault: BeefyVault })
 
         summary: {
             harvested: false,
-            error: false,
-            warning: false,
+            skipped: false,
+            status: 'not-started',
             estimatedProfitWei: 0n,
         },
     };

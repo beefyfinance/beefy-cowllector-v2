@@ -24,7 +24,11 @@ export async function notifyHarvestReport(report: HarvestReport) {
         return;
     }
 
-    if (report.summary.harvested === 0 && report.summary.errors === 0 && report.summary.warnings === 0) {
+    if (
+        report.summary.harvested === 0 &&
+        report.summary.statuses.error === 0 &&
+        report.summary.statuses.warning === 0
+    ) {
         logger.info({ msg: 'All strats were skipped, not reporting', data: report.summary });
         if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
             return;
@@ -34,9 +38,9 @@ export async function notifyHarvestReport(report: HarvestReport) {
     logger.info({ msg: 'notifying harvest for report', data: { chain: report.chain } });
 
     let reportLevel: string;
-    if (report.summary.errors > 0) {
+    if (report.summary.statuses.error > 0) {
         reportLevel = '🔥 ERROR';
-    } else if (report.summary.warnings > 0) {
+    } else if (report.summary.statuses.warning > 0) {
         reportLevel = '⚠️ WARNING';
     } else {
         reportLevel = 'ℹ️ INFO';
@@ -44,31 +48,25 @@ export async function notifyHarvestReport(report: HarvestReport) {
 
     const stratCountTableStr = table(
         [
-            ['strategies', 'skipped', 'harvested', 'errors', 'warnings'],
-            [
-                report.summary.totalStrategies,
-                report.summary.skipped,
-                report.summary.harvested,
-                report.summary.errors,
-                report.summary.warnings,
-            ],
+            ['strategies', report.summary.totalStrategies],
+            ['skipped', report.summary.skipped],
+            ['errors', report.summary.statuses.error],
+            ['warnings', report.summary.statuses.warning],
+            ['silent errors', report.summary.statuses['silent-error']],
+            ['harvested', report.summary.harvested],
         ],
         {
             drawHorizontalLine: (lineIndex: number, rowCount: number) => {
                 return lineIndex === 0 || lineIndex === 1 || lineIndex === rowCount - 1 || lineIndex === rowCount;
             },
-            columns: [
-                { alignment: 'right' },
-                { alignment: 'right' },
-                { alignment: 'right' },
-                { alignment: 'right' },
-                { alignment: 'right' },
-            ],
+            columns: [{ alignment: 'right' }, { alignment: 'left' }],
         }
     );
 
     const rolePing =
-        (report.summary.errors > 0 || report.summary.warnings > 0 || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) &&
+        (report.summary.statuses.error > 0 ||
+            report.summary.statuses.warning > 0 ||
+            DISCORD_NOTIFY_UNEVENTFUL_HARVEST) &&
         DISCORD_PING_ROLE_IDS_ON_ERROR
             ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
             : '';
@@ -157,24 +155,24 @@ function getBalanceReportTable(report: HarvestReport | UnwrapReport) {
 
     return table(
         [
-            ['balance of', nativeSymbol, wnativeSymbol, `${nativeSymbol} + ${wnativeSymbol}`],
+            ['', nativeSymbol, wnativeSymbol, `${nativeSymbol} + ${wnativeSymbol}`],
             [
                 'before',
-                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.balanceWei, 18, 8)) || '??',
-                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.wnativeBalanceWei, 18, 8)) || '??',
-                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.aggregatedBalanceWei, 18, 8)) || '??',
+                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.balanceWei, 18, 6)) || '??',
+                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.wnativeBalanceWei, 18, 6)) || '??',
+                asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.aggregatedBalanceWei, 18, 6)) || '??',
             ],
             [
                 'after',
-                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.balanceWei, 18, 8)) || '??',
-                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.wnativeBalanceWei, 18, 8)) || '??',
-                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.aggregatedBalanceWei, 18, 8)) || '??',
+                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.balanceWei, 18, 6)) || '??',
+                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.wnativeBalanceWei, 18, 6)) || '??',
+                asyncResultGet(report.collectorBalanceAfter, b => bigintFormat(b.aggregatedBalanceWei, 18, 6)) || '??',
             ],
             [
                 'profit',
-                bigintFormat(report.summary.nativeGasUsedWei, 18, 8) || '??',
-                bigintFormat(report.summary.wnativeProfitWei, 18, 8) || '??',
-                bigintFormat(report.summary.aggregatedProfitWei, 18, 8) || '??',
+                bigintFormat(report.summary.nativeGasUsedWei, 18, 6) || '??',
+                bigintFormat(report.summary.wnativeProfitWei, 18, 6) || '??',
+                bigintFormat(report.summary.aggregatedProfitWei, 18, 6) || '??',
             ],
         ],
         {
