@@ -38,7 +38,7 @@ type HarvestReportSimulation = Async<{
 }>;
 
 // warn: true will tell the notifier to send a message
-type HarvestReportDecision =
+type HarvestReportDecision = Async<
     | {
           shouldHarvest: false;
           warning: false;
@@ -89,7 +89,8 @@ type HarvestReportDecision =
           hoursSinceLastHarvest: number;
           estimatedGainWei: bigint;
           wouldBeProfitable: boolean;
-      };
+      }
+>;
 
 type HarvestReportTransaction = Async<{
     transactionHash: Hex;

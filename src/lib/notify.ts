@@ -81,21 +81,20 @@ export async function notifyHarvestReport(report: HarvestReport) {
         const stratLink = `[${stratReport.vault.strategyAddress}](<${stratExplorerLink}>)`;
 
         if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
-            errorDetails += `- 🔥 ${vaultLink} simulation failed (${stratLink}): ${get(
-                stratReport.simulation,
-                'reason.details',
-                'unknown'
-            )}\n`;
+            const errorMsg = get(stratReport.simulation, 'reason.details', 'unknown');
+            errorDetails += `- 🔥 ${vaultLink} simulation failed (${stratLink}): ${errorMsg}\n`;
         }
-        if (stratReport.decision && stratReport.decision.warning) {
-            errorDetails += `- ⚠️ ${vaultLink} decision warning (${stratLink}): ${stratReport.decision.notHarvestingReason}\n`;
+        if (stratReport.decision && stratReport.decision.status === 'rejected') {
+            const errorMsg = get(stratReport.decision, 'reason.details', 'unknown');
+            errorDetails += `- 🔥 ${vaultLink} decision error (${stratLink}): ${errorMsg}\n`;
+        }
+        if (stratReport.decision && stratReport.decision.status === 'fulfilled' && stratReport.decision.value.warning) {
+            const errorMsg = stratReport.decision.value.notHarvestingReason;
+            errorDetails += `- ⚠️ ${vaultLink} decision warning (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
-            errorDetails += `- 🔥 ${vaultLink} transaction failed (${stratLink}): ${get(
-                stratReport.transaction,
-                'reason.details',
-                'unknown'
-            )}\n`;
+            const errorMsg = get(stratReport.transaction, 'reason.details', 'unknown');
+            errorDetails += `- 🔥 ${vaultLink} transaction failed (${stratLink}): ${errorMsg}\n`;
         }
     }
 
