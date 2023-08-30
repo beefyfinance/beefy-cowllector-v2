@@ -14,7 +14,9 @@ const logger = rootLogger.child({ module: 'report' });
 export type AItem<TReport> = { report: TReport };
 export type AKey<TReport> = keyof TReport & string;
 export type AVal<TReport, TReportKey> = TReportKey extends AKey<TReport>
-    ? AsyncSuccessType<TReport[TReportKey]>
+    ? TReport[TReportKey] extends Async<any> | null // prevent non async keys to be used
+        ? AsyncSuccessType<TReport[TReportKey]>
+        : never
     : never;
 
 /**
