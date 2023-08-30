@@ -76,9 +76,11 @@ export async function notifyHarvestReport(report: HarvestReport) {
         const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
         const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
             '${address}',
-            stratReport.vault.strategyAddress.slice(0, 6) + '...' + stratReport.vault.strategyAddress.slice(-4)
+            stratReport.vault.strategyAddress
         );
-        const stratLink = `[${stratReport.vault.strategyAddress}](<${stratExplorerLink}>)`;
+        const truncatedAddy =
+            stratReport.vault.strategyAddress.slice(0, 6) + '...' + stratReport.vault.strategyAddress.slice(-4);
+        const stratLink = `[${truncatedAddy}](<${stratExplorerLink}>)`;
 
         if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
             const errorMsg = get(stratReport.simulation, 'reason.details', 'unknown');
