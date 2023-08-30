@@ -192,7 +192,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     },
     moonriver: {
         ...defaultConfig,
-        url: RPC_FORCE_URL || process.env.MOONRIVER_RPC_URL || 'https://rpc.api.moonriver.moonbeam.network',
+        url: RPC_FORCE_URL || process.env.MOONRIVER_RPC_URL || 'https://moonriver.api.onfinality.io/public',
     },
     one: {
         ...defaultConfig,
