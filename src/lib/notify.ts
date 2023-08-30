@@ -14,6 +14,7 @@ import { table } from 'table';
 import { asyncResultGet } from '../util/async';
 import { serializeReport } from './reports';
 import { UnwrapReport } from './unwrap-report';
+import { get } from 'lodash';
 
 const logger = rootLogger.child({ module: 'notify' });
 
@@ -70,18 +71,31 @@ export async function notifyHarvestReport(report: HarvestReport) {
 
     const explorerConfig = EXPLORER_CONFIG[report.chain];
 
-    let warningDetails = '';
-    if (report.summary.statuses.warning > 0) {
-        for (const stratReport of report.details.filter(d => d.summary.status === 'warning')) {
-            if (stratReport.decision && stratReport.decision.warning) {
-                const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
-                const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
-                    '${address}',
-                    stratReport.vault.strategyAddress
-                );
-                const stratLink = `[${stratReport.vault.strategyAddress}](<${stratExplorerLink}>)`;
-                warningDetails += `- ${vaultLink} (${stratLink}): ${stratReport.decision.notHarvestingReason}\n`;
-            }
+    let errorDetails = '';
+    for (const stratReport of report.details.filter(d => ['warning', 'error'].includes(d.summary.status))) {
+        const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
+        const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
+            '${address}',
+            stratReport.vault.strategyAddress
+        );
+        const stratLink = `[${stratReport.vault.strategyAddress}](<${stratExplorerLink}>)`;
+
+        if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
+            errorDetails += `- 🔥 ${vaultLink} simulation failed (${stratLink}): ${get(
+                stratReport.simulation,
+                'reason.details',
+                'unknown'
+            )}\n`;
+        }
+        if (stratReport.decision && stratReport.decision.warning) {
+            errorDetails += `- ⚠️ ${vaultLink} decision warning (${stratLink}): ${stratReport.decision.notHarvestingReason}\n`;
+        }
+        if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
+            errorDetails += `- 🔥 ${vaultLink} transaction failed (${stratLink}): ${get(
+                stratReport.transaction,
+                'reason.details',
+                'unknown'
+            )}\n`;
         }
     }
 
@@ -101,7 +115,7 @@ ${codeSep}
 ${stratCountTableStr}
 ${getBalanceReportTable(report)}
 ${codeSep}
-${warningDetails}
+${errorDetails}
 ${rolePing}`,
     };
 
@@ -143,6 +157,18 @@ export async function notifyUnwrapReport(report: UnwrapReport) {
         reportLevel = 'ℹ️ INFO';
     }
 
+    let errorDetails = '';
+    if (report.unwrapDecision && report.unwrapDecision.status === 'rejected') {
+        errorDetails += `- 🔥 Unwrap decision failed: ${get(report.unwrapDecision, 'reason.details', 'unknown')}\n`;
+    }
+    if (report.unwrapTransaction && report.unwrapTransaction.status === 'rejected') {
+        errorDetails += `- 🔥 Unwrap transaction failed: ${get(
+            report.unwrapTransaction,
+            'reason.details',
+            'unknown'
+        )}\n`;
+    }
+
     const rolePing =
         (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR
             ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
@@ -153,6 +179,7 @@ export async function notifyUnwrapReport(report: UnwrapReport) {
         content: `
 ### Wnative unwrap ${reportLevel} for ${report.chain.toLocaleUpperCase()}
 ${report.summary.unwrapped ? codeSep + getBalanceReportTable(report) + codeSep : ''}  
+${errorDetails}
 ${rolePing}`,
     };
 
