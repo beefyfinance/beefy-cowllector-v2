@@ -107,14 +107,14 @@ export async function aggressivelyWriteContract<
         };
     };
 
-    for (let i = 0; i < rpcConfig.transaction.retries; i++) {
+    for (let i = 0; i < rpcConfig.transaction.totalTries; i++) {
         try {
             logger.trace({ msg: 'Trying to mint', data: { chain, address: args.address, try: i, gasParams } });
             return await mint();
         } catch (err) {
             if (
                 (err instanceof TimeoutError || err instanceof BlockNotFoundError) &&
-                i < rpcConfig.transaction.retries - 1
+                i < rpcConfig.transaction.totalTries - 1
             ) {
                 logger.warn({ msg: 'Simulation timed out', data: { chain, address: args.address } });
                 // increase the gas price for the next transaction

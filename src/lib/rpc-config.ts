@@ -15,12 +15,23 @@ export type RpcConfig = {
     };
     transaction: {
         type: 'legacy' | 'eip1559';
-        retries: number;
+        // @see aggressivelyWriteContract
+        totalTries: number;
         retryGasMultiplier: number;
+        // default gas price multiplier, effective on the first try
         baseFeeMultiplier: number;
-        blockConfirmations: number;
-        timeoutMs: number;
-        pollingIntervalMs?: number;
+        receipt: {
+            // how many blocks to wait for the transaction to be considered mined
+            blockConfirmations: number;
+            // if we detect a transaction not found, retry this many times
+            // this is useful when using an rpc cluster with many nodes and we hit one that is lagging behind
+            notFoundErrorRetryCount: number;
+            notFoundErrorRetryDelayMs: number;
+            // this timeout is used for each wait call
+            receiptTimeoutMs: number;
+            // poll for the receipt every X ms
+            pollingIntervalMs?: number;
+        };
     };
     contracts: {
         harvestLens: Hex | null;

@@ -4,6 +4,7 @@ import { allLogLevels } from '../util/logger-type';
 import type { LogLevels } from '../util/logger-type';
 import type { RpcConfig } from './rpc-config';
 import { Hex } from 'viem';
+import { bigintMultiplyFloat } from '../util/bigint';
 dotenv.config();
 
 const timezone = process.env.TZ;
@@ -35,6 +36,9 @@ export const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_P
 export const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
 export const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
+// 1 ether value in wei
+const ONE_ETHER = 1_000_000_000_000_000_000n;
+
 const defaultBatch: RpcConfig['batch'] = {
     jsonRpc: {
         batchSize: 1,
@@ -54,17 +58,21 @@ const defaultAccount: RpcConfig['account'] = {
 };
 const defaultTransactionConfig: RpcConfig['transaction'] = {
     type: 'eip1559' as const,
-    retries: 3,
+    totalTries: 1, // by default, only try the trx once
     retryGasMultiplier: 1.2, // up gas by 20% on each retry
-    blockConfirmations: 3,
-    timeoutMs: 5 * 60 * 1000,
-    pollingIntervalMs: 5 * 1000,
     baseFeeMultiplier: 1.25, // 25% above base fee
+    receipt: {
+        blockConfirmations: 3,
+        receiptTimeoutMs: 5 * 60 * 1000,
+        notFoundErrorRetryCount: 3,
+        notFoundErrorRetryDelayMs: 15 * 1000,
+        pollingIntervalMs: 30 * 1000,
+    },
 };
 const defaultTimeoutMs: RpcConfig['timeoutMs'] = 60_000; // high timeout because we batch calls
 const defaultUnwrapConfig: RpcConfig['unwrap'] = {
-    // default to 0.001 wnative (18 decimals)
-    triggerAmountWei: 1_000_000_000_000_000n,
+    // default to 0.01 wnative (18 decimals)
+    triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
 };
 const defaultTvLConfig: RpcConfig['tvl'] = {
     minThresholdUsd: 100,
@@ -208,7 +216,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.POLYGON_RPC_URL || 'https://rpc.ankr.com/polygon',
         transaction: {
             ...defaultTransactionConfig,
-            baseFeeMultiplier: 1.7, // polygon is known to stall trx for days when base fee is too low
+            baseFeeMultiplier: 1.5, // polygon is known to stall trx for days when base fee is too low
+            totalTries: 3, // try 3 times
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 2.0), // 2 wmatic
         },
     },
     zkevm: {

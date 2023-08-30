@@ -28,14 +28,14 @@ export function aggressivelyWaitForTransactionReceipt<TChain extends ViemChain |
         () =>
             publicClient.waitForTransactionReceipt({
                 hash: args.hash,
-                confirmations: rpcConfig.transaction.blockConfirmations,
-                timeout: rpcConfig.transaction.timeoutMs,
-                pollingInterval: rpcConfig.transaction.pollingIntervalMs,
+                confirmations: rpcConfig.transaction.receipt.blockConfirmations,
+                timeout: rpcConfig.transaction.receipt.receiptTimeoutMs,
+                pollingInterval: rpcConfig.transaction.receipt.pollingIntervalMs,
             }) as Promise<WaitForTransactionReceiptReturnType<TChain>>,
         {
             // do not retry too much since waitForTransactionReceipt is already retrying a bunch
-            retryCount: 5,
-            delay: 1000,
+            retryCount: rpcConfig.transaction.receipt.notFoundErrorRetryCount,
+            delay: rpcConfig.transaction.receipt.notFoundErrorRetryDelayMs,
             shouldRetry: err => {
                 // we want to retry on BlockNotFoundError
                 // this happens when we use an rpc cluster with many nodes and we hit one that is lagging behind
