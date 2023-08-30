@@ -48,8 +48,19 @@ type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
+          warning: false;
+          notHarvestingReason: 'vault not compatible with lens: missing `harvest(address recipient)` function';
+      }
+    | {
+          shouldHarvest: false;
           warning: true;
           notHarvestingReason: 'harvest would fail';
+      }
+    | {
+          shouldHarvest: false;
+          hoursSinceLastHarvest: number;
+          warning: false;
+          notHarvestingReason: 'estimated call rewards is 0 but this vault have not seen rewards in a long time anyway';
       }
     | {
           shouldHarvest: false;

@@ -76,7 +76,7 @@ export async function harvestChain({
             } = await publicClient.simulateContract({
                 ...harvestLensContract,
                 functionName: 'harvest',
-                args: [item.vault.strategyAddress, wnative],
+                args: [item.vault.strategyAddress, wnative] as const,
                 account: walletAccount,
             });
             const lastHarvestDate = new Date(Number(lastHarvest) * 1000);
@@ -123,6 +123,23 @@ export async function harvestChain({
             }
 
             if (item.simulation.harvestWillSucceed === false) {
+                // this is a temporary fix while we have a more robust solution
+                // TODO: have the lens handle cases where the strat only has an `harvest()` function
+                if (
+                    (chain === 'arbitrum' && item.vault.id === 'sushi-arb-eth-usdc') ||
+                    (chain === 'arbitrum' && item.vault.id === 'sushi-arb-magic-weth') ||
+                    (chain === 'avax' && item.vault.id === 'curve-avax-atricrypto') ||
+                    (chain === 'polygon' && item.vault.id === 'curve-am3crv') ||
+                    (chain === 'polygon' && item.vault.id === 'telxchange-quick-aave-tel')
+                ) {
+                    return {
+                        shouldHarvest: false,
+                        warning: false,
+                        notHarvestingReason:
+                            'vault not compatible with lens: missing `harvest(address recipient)` function',
+                    };
+                }
+
                 return {
                     shouldHarvest: false,
                     warning: true,
@@ -154,15 +171,30 @@ export async function harvestChain({
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                         notHarvestingReason: 'estimated call rewards is 0',
                     };
-                } else {
+                }
+
+                // this is a temporary fix while we have a more robust solution
+                // TODO: properly hide warning like these automatically
+                if (
+                    (chain === 'arbitrum' && item.vault.id === 'curve-arb-f-wsteth') ||
+                    (chain === 'avax' && item.vault.id === 'aavev3-dai.e') ||
+                    (chain === 'polygon' && item.vault.id === 'aavev3-polygon-maticx')
+                ) {
                     return {
                         shouldHarvest: false,
-                        warning: true,
+                        warning: false,
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                         notHarvestingReason:
-                            'estimated call rewards is 0 and vault has not been harvested in a long time',
+                            'estimated call rewards is 0 but this vault have not seen rewards in a long time anyway',
                     };
                 }
+
+                return {
+                    shouldHarvest: false,
+                    warning: true,
+                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                    notHarvestingReason: 'estimated call rewards is 0 and vault has not been harvested in a long time',
+                };
             }
 
             // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
