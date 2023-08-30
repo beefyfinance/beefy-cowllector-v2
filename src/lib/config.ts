@@ -244,115 +244,139 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
 
 type ExplorerConfig =
     | {
+          addressLinkTemplate: string;
           apiUrl: string;
           apiKey: string;
           type: 'etherscan';
       }
     | {
+          addressLinkTemplate: string;
           apiUrl: string;
           type: 'blockscout';
       };
 export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
     arbitrum: {
+        addressLinkTemplate: 'https://arbiscan.io/address/${address}',
         apiUrl: process.env.ARBITRUM_EXPLORER_API_URL || 'https://api.arbiscan.io/api',
         apiKey: process.env.ARBITRUM_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     aurora: {
+        addressLinkTemplate: 'https://explorer.mainnet.aurora.dev/address/${address}',
         apiUrl: process.env.AURORA_EXPLORER_API_URL || 'https://explorer.mainnet.aurora.dev/api',
         apiKey: process.env.AURORA_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     avax: {
+        addressLinkTemplate: 'https://snowtrace.io/address/${address}',
         apiUrl: process.env.AVAX_EXPLORER_API_URL || 'https://api.snowtrace.io/api',
         apiKey: process.env.AVAX_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     base: {
+        addressLinkTemplate: 'https://basescan.org/address/${address}',
         apiUrl: process.env.BASE_EXPLORER_API_URL || 'https://api.basescan.org/api',
         apiKey: process.env.BASE_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     bsc: {
+        addressLinkTemplate: 'https://bscscan.com/address/${address}',
         apiUrl: process.env.BSC_EXPLORER_API_URL || 'https://api.bscscan.com/api',
         apiKey: process.env.BSC_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     canto: {
+        addressLinkTemplate: 'https://tuber.build/address/${address}',
         apiUrl: process.env.CANTO_EXPLORER_API_URL || 'https://tuber.build/api?',
         type: 'blockscout',
     },
     celo: {
+        addressLinkTemplate: 'https://celoscan.io/address/${address}',
         apiUrl: process.env.CELO_EXPLORER_API_URL || 'https://api.celoscan.io/api/',
         apiKey: process.env.CELO_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     cronos: {
+        addressLinkTemplate: 'https://cronoscan.com/address/${address}',
         apiUrl: process.env.CRONOS_EXPLORER_API_URL || 'https://api.cronoscan.com/api',
         apiKey: process.env.CRONOS_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     emerald: {
-        apiUrl: process.env.EMERALD_EXPLORER_API_URL || 'https://explorer.emerald.oasis.doorgod.io/api',
+        addressLinkTemplate: 'https://explorer.emerald.oasis.dev/address/${address}',
+        apiUrl: process.env.EMERALD_EXPLORER_API_URL || 'https://explorer.emerald.oasis.dev/api?',
         type: 'blockscout',
     },
     ethereum: {
+        addressLinkTemplate: 'https://etherscan.io/address/${address}',
         apiUrl: process.env.ETHEREUM_EXPLORER_API_URL || 'https://api.etherscan.io/api',
         apiKey: process.env.ETHEREUM_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     fantom: {
+        addressLinkTemplate: 'https://ftmscan.com/address/${address}',
         apiUrl: process.env.FANTOM_EXPLORER_API_URL || 'https://api.ftmscan.com/api',
         apiKey: process.env.FANTOM_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     fuse: {
-        apiUrl: process.env.FUSE_EXPLORER_API_URL || 'https://explorer.fuse.io/api',
+        addressLinkTemplate: 'https://explorer.fuse.io/address/${address}',
+        apiUrl: process.env.FUSE_EXPLORER_API_URL || 'https://explorer.fuse.io/api?',
         type: 'blockscout',
     },
     heco: {
-        apiUrl: process.env.HECO_EXPLORER_API_URL || 'https://api.hecoinfo.com/api',
+        addressLinkTemplate: 'https://hecoinfo.com/address/${address}',
+        apiUrl: process.env.HECO_EXPLORER_API_URL || 'https://api.hecoinfo.com/api?',
         type: 'blockscout',
     },
     kava: {
+        addressLinkTemplate: 'https://kavascan.com/address/${address}',
         apiUrl: process.env.KAVA_EXPLORER_API_URL || 'https://kavascan.com/api?',
         type: 'blockscout',
     },
     metis: {
+        addressLinkTemplate: 'https://andromeda-explorer.metis.io/address/${address}',
         apiUrl: process.env.METIS_EXPLORER_API_URL || 'https://andromeda-explorer.metis.io/api?',
         type: 'blockscout',
     },
     moonbeam: {
+        addressLinkTemplate: 'https://moonbeam.moonscan.io/address/${address}',
         apiUrl: process.env.MOONBEAM_EXPLORER_API_URL || 'https://api-moonbeam.moonscan.io/api',
         apiKey: process.env.MOONBEAM_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     moonriver: {
+        addressLinkTemplate: 'https://moonriver.moonscan.io/address/address/${address}',
         apiUrl: process.env.MOONRIVER_EXPLORER_API_URL || 'https://api-moonriver.moonscan.io/api',
         apiKey: process.env.MOONRIVER_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     one: {
-        apiUrl: process.env.ONE_EXPLORER_API_URL || 'https://ctrver.t.hmny.io/verify',
+        addressLinkTemplate: 'https://explorer.harmony.one/address/${address}',
+        apiUrl: process.env.ONE_EXPLORER_API_URL || 'https://explorer.harmony.one/api?',
         type: 'blockscout',
     },
     optimism: {
+        addressLinkTemplate: 'https://optimistic.etherscan.io/address/${address}',
         apiUrl: process.env.OPTIMISM_EXPLORER_API_URL || 'https://api-optimistic.etherscan.io/api',
         apiKey: process.env.OPTIMISM_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     polygon: {
+        addressLinkTemplate: 'https://polygonscan.com/address/${address}',
         apiUrl: process.env.POLYGON_EXPLORER_API_URL || 'https://api.polygonscan.com/api',
         apiKey: process.env.POLYGON_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zkevm: {
+        addressLinkTemplate: 'https://zkevm.polygonscan.com/address/${address}',
         apiUrl: process.env.ZKEVM_EXPLORER_API_URL || 'https://api-zkevm.polygonscan.com/api',
         apiKey: process.env.ZKEVM_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zksync: {
-        apiUrl: process.env.ZKSYNC_EXPLORER_API_URL || 'https://explorer.zksync.io/',
+        addressLinkTemplate: 'https://explorer.zksync.io/address/${address}',
+        apiUrl: process.env.ZKSYNC_EXPLORER_API_URL || 'https://explorer.zksync.io/api',
         apiKey: process.env.ZKSYNC_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },

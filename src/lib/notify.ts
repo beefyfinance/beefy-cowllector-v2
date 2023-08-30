@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { HarvestReport } from './harvest-report';
-import { DISCORD_PING_ROLE_IDS_ON_ERROR, DISCORD_WEBHOOK_URL, DISCORD_NOTIFY_UNEVENTFUL_HARVEST } from './config';
+import {
+    DISCORD_PING_ROLE_IDS_ON_ERROR,
+    DISCORD_WEBHOOK_URL,
+    DISCORD_NOTIFY_UNEVENTFUL_HARVEST,
+    EXPLORER_CONFIG,
+} from './config';
 import { rootLogger } from '../util/logger';
 import { Blob, File } from 'buffer';
 import { bigintFormat } from '../util/bigint';
@@ -63,6 +68,23 @@ export async function notifyHarvestReport(report: HarvestReport) {
         }
     );
 
+    const explorerConfig = EXPLORER_CONFIG[report.chain];
+
+    let warningDetails = '';
+    if (report.summary.statuses.warning > 0) {
+        for (const stratReport of report.details.filter(d => d.summary.status === 'warning')) {
+            if (stratReport.decision && stratReport.decision.warning) {
+                const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
+                const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
+                    '${address}',
+                    stratReport.vault.strategyAddress
+                );
+                const stratLink = `[${stratReport.vault.strategyAddress}](<${stratExplorerLink}>)`;
+                warningDetails += `- ${vaultLink} (${stratLink}): ${stratReport.decision.notHarvestingReason}\n`;
+            }
+        }
+    }
+
     const rolePing =
         (report.summary.statuses.error > 0 ||
             report.summary.statuses.warning > 0 ||
@@ -79,6 +101,7 @@ ${codeSep}
 ${stratCountTableStr}
 ${getBalanceReportTable(report)}
 ${codeSep}
+${warningDetails}
 ${rolePing}`,
     };
 
