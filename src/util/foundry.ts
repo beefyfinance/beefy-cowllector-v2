@@ -48,11 +48,24 @@ export async function verifyFoundryContractForExplorer({
     chain: Chain;
     foundryProfile?: string;
 }) {
-    const { apiKey, apiUrl, type: explorerType } = EXPLORER_CONFIG[chain];
+    const explorerConfig = EXPLORER_CONFIG[chain];
     const networkId = getNetworkId(chain);
     const optimizerRuns = 1_000_000; // TODO: pull this from the foundry profile config
 
-    const cmd = `FOUNDRY_PROFILE=${foundryProfile} forge verify-contract --chain-id ${networkId} --num-of-optimizations ${optimizerRuns} --verifier ${explorerType} --verifier-url ${apiUrl} --etherscan-api-key ${apiKey} --watch ${contractAddress} ${contractName}`;
+    const cmdOpts = [
+        `--chain-id ${networkId}`,
+        `--num-of-optimizations ${optimizerRuns}`,
+        `--verifier ${explorerConfig.type}`,
+        `--verifier-url '${explorerConfig.apiUrl}'`,
+        explorerConfig.type === 'etherscan' ? `--etherscan-api-key '${explorerConfig.apiKey}'` : null,
+        `--watch ${contractAddress}`,
+        contractName,
+    ]
+        .filter(Boolean)
+        .join(' ');
+
+    const cmd = `FOUNDRY_PROFILE=${foundryProfile} forge verify-contract ${cmdOpts}`;
+
     const res = await execAsync(cmd);
     if (res.stderr) {
         throw new Error(`Failed to verify ${contractName}: ${res.stderr}`);

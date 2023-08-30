@@ -45,9 +45,12 @@ async function main() {
         chain: argv.chain,
         salt: argv.salt as Hex,
     };
-    const { apiKey: explorerApiKey } = EXPLORER_CONFIG[options.chain];
-    if (!explorerApiKey) {
+    const explorerConfig = EXPLORER_CONFIG[options.chain];
+    if (explorerConfig.type === 'etherscan' && !explorerConfig.apiKey) {
         throw new Error(`No explorer api key for chain ${options.chain}, will not be able to verify contract`);
+    }
+    if (explorerConfig.type === 'blockscout' && !explorerConfig.apiUrl.endsWith('/api?')) {
+        throw new Error(`Invalid explorer api url for chain ${options.chain}, must end with "/api?"`);
     }
 
     const rpcConfig = RPC_CONFIG[options.chain];
