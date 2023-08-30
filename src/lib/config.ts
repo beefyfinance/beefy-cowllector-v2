@@ -319,7 +319,7 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         type: 'blockscout',
     },
     metis: {
-        apiUrl: process.env.METIS_EXPLORER_API_URL || 'https://explorer.metis.io/api',
+        apiUrl: process.env.METIS_EXPLORER_API_URL || 'https://andromeda-explorer.metis.io/api?',
         type: 'blockscout',
     },
     moonbeam: {
