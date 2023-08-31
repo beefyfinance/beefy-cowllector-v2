@@ -137,7 +137,7 @@ export async function harvestChain({
                 ) {
                     return {
                         shouldHarvest: false,
-                        level: 'notice',
+                        level: 'info',
                         notHarvestingReason:
                             'vault not compatible with lens: missing `harvest(address recipient)` function',
                     };
@@ -146,7 +146,7 @@ export async function harvestChain({
                 if (item.vault.platformId === 'gamma') {
                     return {
                         shouldHarvest: false,
-                        level: 'notice',
+                        level: 'info',
                         notHarvestingReason:
                             'harvest would fail but it is a gamma vault so it might just be out of range',
                     };

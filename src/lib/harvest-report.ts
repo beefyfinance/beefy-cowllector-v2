@@ -47,12 +47,12 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
-          level: 'notice';
+          level: 'info';
           notHarvestingReason: 'vault not compatible with lens: missing `harvest(address recipient)` function';
       }
     | {
           shouldHarvest: false;
-          level: 'notice';
+          level: 'info';
           notHarvestingReason: 'harvest would fail but it is a gamma vault so it might just be out of range';
       }
     | {
