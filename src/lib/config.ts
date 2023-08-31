@@ -37,6 +37,11 @@ export const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVES
 export const UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5');
 export const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
+// some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
+export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = process.env.VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS
+    ? process.env.VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS.split(',')
+    : ['curve-arb-f-wsteth', 'aavev3-dai.e', 'aavev3-polygon-maticx'];
+
 // 1 ether value in wei
 const ONE_ETHER = 1_000_000_000_000_000_000n;
 

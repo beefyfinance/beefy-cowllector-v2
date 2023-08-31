@@ -7,6 +7,7 @@ import {
     HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
     HARVEST_GAS_PRICE_MULTIPLIER,
     RPC_CONFIG,
+    VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
 } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport } from './gas';
@@ -203,19 +204,12 @@ export async function harvestChain({
                     };
                 }
 
-                // this is a temporary fix while we have a more robust solution
-                // TODO: properly hide warning like these automatically
-                if (
-                    (chain === 'arbitrum' && item.vault.id === 'curve-arb-f-wsteth') ||
-                    (chain === 'avax' && item.vault.id === 'aavev3-dai.e') ||
-                    (chain === 'polygon' && item.vault.id === 'aavev3-polygon-maticx')
-                ) {
+                if (VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS.includes(item.vault.id)) {
                     return {
                         shouldHarvest: false,
-                        level: 'notice',
+                        level: 'info',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
-                        notHarvestingReason:
-                            'estimated call rewards is 0 but this vault have not seen rewards in a long time anyway',
+                        notHarvestingReason: 'estimated call rewards is 0, but this is ok for this vault',
                     };
                 }
 
