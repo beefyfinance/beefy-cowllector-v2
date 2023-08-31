@@ -213,7 +213,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     },
     moonbeam: {
         ...defaultConfig,
-        url: RPC_FORCE_URL || process.env.MOONBEAM_RPC_URL || 'https://rpc.testnet.moonbeam.network',
+        url: RPC_FORCE_URL || process.env.MOONBEAM_RPC_URL || 'https://rpc.ankr.com/moonbeam',
     },
     moonriver: {
         ...defaultConfig,

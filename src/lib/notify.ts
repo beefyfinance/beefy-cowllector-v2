@@ -100,7 +100,9 @@ export async function notifyHarvestReport(report: HarvestReport) {
                 const errorMsg =
                     stratReport.decision.value.notHarvestingReason +
                     (stratReport.decision.value.notHarvestingReason === 'harvest would fail'
-                        ? ` (${extractErrorMessage(stratReport.decision.value.harvestError)})`
+                        ? ` (block: ${stratReport.decision.value.blockNumber.toString()}, data: ${
+                              stratReport.decision.value.harvestReturnData
+                          })`
                         : '');
                 errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
             }

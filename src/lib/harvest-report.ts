@@ -60,13 +60,9 @@ export type HarvestReportDecision = Async<
     | {
           shouldHarvest: false;
           level: 'error';
-          notHarvestingReason: 'lens simulation failed but harvest simulation succeeded';
-      }
-    | {
-          shouldHarvest: false;
-          level: 'error';
           notHarvestingReason: 'harvest would fail';
-          harvestError: Error;
+          harvestReturnData: Hex;
+          blockNumber: bigint;
       }
     | {
           shouldHarvest: false;
