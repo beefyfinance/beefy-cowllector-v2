@@ -25,7 +25,7 @@ async function main() {
                 choices: allChainIds,
                 alias: 'c',
                 demand: true,
-                describe: 'show wnative token for this chain',
+                describe: 'deploy the lens contract on the specified chain',
             },
             salt: {
                 type: 'string',
@@ -42,34 +42,38 @@ async function main() {
         }).argv;
 
     const options: CmdOptions = {
-        chain: argv.chain,
+        chain: argv.chain as Chain,
         salt: argv.salt as Hex,
     };
-    const explorerConfig = EXPLORER_CONFIG[options.chain];
+
+    logger.info({ msg: 'Deploying lens contract', data: { options } });
+
+    logger.debug({ msg: 'Building lens contract' });
+    const bytecode = await getFoundryContractOptimizedBytecode('BeefyHarvestLens');
+    const { chain, salt } = options;
+
+    const explorerConfig = EXPLORER_CONFIG[chain];
     if (explorerConfig.type === 'etherscan' && !explorerConfig.apiKey) {
-        throw new Error(`No explorer api key for chain ${options.chain}, will not be able to verify contract`);
+        throw new Error(`No explorer api key for chain ${chain}, will not be able to verify contract`);
     }
     if (explorerConfig.type === 'blockscout' && !explorerConfig.apiUrl.endsWith('/api?')) {
-        throw new Error(`Invalid explorer api url for chain ${options.chain}, must end with "/api?"`);
+        throw new Error(`Invalid explorer api url for chain ${chain}, must end with "/api?"`);
     }
 
-    const rpcConfig = RPC_CONFIG[options.chain];
+    const rpcConfig = RPC_CONFIG[chain];
     if (!rpcConfig.contracts.deployer) {
-        throw new Error(`No deployer contract address for chain ${options.chain}`);
+        throw new Error(`No deployer contract address for chain ${chain}`);
     }
-    const publicClient = getReadOnlyRpcClient({ chain: options.chain });
-    const walletClient = getWalletClient({ chain: options.chain });
-    const walletAccount = getWalletAccount({ chain: options.chain });
+    const publicClient = getReadOnlyRpcClient({ chain: chain });
+    const walletClient = getWalletClient({ chain: chain });
+    const walletAccount = getWalletAccount({ chain: chain });
 
-    // build
-    const bytecode = await getFoundryContractOptimizedBytecode('BeefyHarvestLens');
-
-    // deploy
+    logger.info({ msg: 'Deploying lens contract', data: { chain, salt, bytecode } });
     const { request: deployRequest, result: lensAddress } = await publicClient.simulateContract({
         abi: BeefyContractDeployerABI,
         address: rpcConfig.contracts.deployer,
         functionName: 'deploy',
-        args: [options.salt, bytecode],
+        args: [salt, bytecode],
         account: walletAccount,
     });
     const deployTransaction = await walletClient.writeContract(deployRequest);
@@ -77,12 +81,13 @@ async function main() {
     const deployTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({ hash: deployTransaction });
     logger.info({ msg: 'Lens contract deployed at trx', data: { deployTransaction, lensAddress, deployTrxReceipt } });
 
-    // verify
+    logger.debug({ msg: 'Verifying lens contract', data: { chain, lensAddress } });
     await verifyFoundryContractForExplorer({
-        chain: options.chain,
+        chain: chain,
         contractAddress: lensAddress,
         contractName: 'BeefyHarvestLens',
     });
+    logger.info({ msg: 'Lens contract verified', data: { chain, lensAddress } });
 }
 
 runMain(main);

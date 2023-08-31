@@ -67,15 +67,23 @@ export async function verifyFoundryContractForExplorer({
         explorerConfig.type === 'etherscan' ? `--etherscan-api-key '${explorerConfig.apiKey}'` : null,
         `--watch ${contractAddress}`,
         contractName,
+        '2>&1;', // end the foundry command and make sure to pipe stderr to stdout
+        'echo $? >&2', // echo the exit code of the foundry command to stderr
     ]
         .filter(Boolean)
         .join(' ');
 
     const cmd = `FOUNDRY_PROFILE=${foundryProfile} forge verify-contract ${cmdOpts}`;
+    logger.debug({ msg: 'Verifying contract', data: { cmd } });
 
     const res = await execAsync(cmd);
-    if (res.stderr) {
+    logger.trace({ msg: 'Foundry verify-contract output', data: res });
+    logger.debug(res.stdout);
+
+    const returnCode = res.stderr.trim();
+    if (returnCode !== '0') {
         throw new Error(`Failed to verify ${contractName}: ${res.stderr}`);
+    } else {
+        logger.info({ msg: 'Successfully verified contract', data: { contractName, contractAddress } });
     }
-    logger.info(res.stdout);
 }

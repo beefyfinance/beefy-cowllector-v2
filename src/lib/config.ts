@@ -62,7 +62,7 @@ const defaultBatch: RpcConfig['batch'] = {
     },
 };
 const defaultContracts: RpcConfig['contracts'] = {
-    harvestLens: '0x33e6ca0f9CDdE689B742ceaa168de74Ea1f984E8',
+    harvestLens: '0x2fD8E72e488d6D2Bc770Cf6F74A5d60E44516aaD',
     deployer: '0xcc536552A6214d6667fBC3EC38965F7f556A6391',
 };
 const defaultAccount: RpcConfig['account'] = {

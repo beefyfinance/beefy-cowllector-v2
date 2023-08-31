@@ -75,7 +75,7 @@ export async function harvestChain({
         'parallel',
         async item => {
             const {
-                result: { callReward, gasUsed, lastHarvest, paused, success },
+                result: { callReward, gasUsed, lastHarvest, paused, success, blockNumber, harvestResult },
             } = await publicClient.simulateContract({
                 ...harvestLensContract,
                 functionName: 'harvest',
@@ -92,6 +92,8 @@ export async function harvestChain({
                 hoursSinceLastHarvest,
                 isLastHarvestRecent,
                 paused,
+                blockNumber,
+                harvestResultData: harvestResult,
                 gas: createGasEstimationReport({
                     rawGasPrice,
                     rawGasAmountEstimation: gasUsed,

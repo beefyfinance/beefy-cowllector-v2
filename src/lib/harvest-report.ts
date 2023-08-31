@@ -35,6 +35,8 @@ type HarvestReportSimulation = Async<{
     hoursSinceLastHarvest: number;
     isLastHarvestRecent: boolean;
     paused: boolean;
+    blockNumber: bigint;
+    harvestResultData: Hex;
 }>;
 
 export type HarvestReportDecision = Async<
