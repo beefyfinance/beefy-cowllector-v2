@@ -1,7 +1,15 @@
 import { get } from 'lodash';
 
 export function extractErrorMessage(e: any): string {
-    const keys = ['reason.details', 'reason.shortMessage', 'reason.message', 'message', 'reason', 'details'];
+    const keys = [
+        'reason.details',
+        'reason.shortMessage',
+        'reason.message',
+        'shortMessage',
+        'message',
+        'reason',
+        'details',
+    ];
     let errorMsg: string | undefined;
 
     for (const key of keys) {
