@@ -52,6 +52,8 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.lastHarvest, 123456);
         assertEq(res.paused, false);
         assertEq(res.gasUsed, 0);
+        assertEq(res.blockNumber, block.number);
+        assertEq(res.harvestResult, abi.encodeWithSignature("Error(string)", "revertOnHarvest"));
         assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
@@ -65,6 +67,8 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.paused, false);
         assertGt(res.gasUsed, 20000);
         assertLt(res.gasUsed, 40000);
+        assertEq(res.blockNumber, block.number);
+        assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 
@@ -80,6 +84,8 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.paused, false);
         assertGt(res.gasUsed, 20000);
         assertLt(res.gasUsed, 40000);
+        assertEq(res.blockNumber, block.number);
+        assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 1 ether);
     }
 
@@ -94,6 +100,8 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.lastHarvest, 123456);
         assertEq(res.paused, true);
         assertEq(res.gasUsed, 0);
+        assertEq(res.blockNumber, block.number);
+        assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
@@ -109,6 +117,8 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.paused, false);
         assertGt(res.gasUsed, 20000);
         assertLt(res.gasUsed, 40000);
+        assertEq(res.blockNumber, block.number);
+        assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 
@@ -124,6 +134,8 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.paused, false);
         assertGt(res.gasUsed, 1000);
         assertLt(res.gasUsed, 20000);
+        assertEq(res.blockNumber, block.number);
+        assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
@@ -139,6 +151,8 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.paused, false);
         assertGt(res.gasUsed, 20000);
         assertLt(res.gasUsed, 40000);
+        assertEq(res.blockNumber, block.number);
+        assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 }
