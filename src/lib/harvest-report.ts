@@ -78,7 +78,7 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
-          level: 'notice';
+          level: 'info';
           hoursSinceLastHarvest: number;
           notHarvestingReason: 'estimated call rewards is 0, but vault harvested recently';
       }

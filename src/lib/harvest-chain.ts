@@ -198,7 +198,7 @@ export async function harvestChain({
                 if (item.simulation.isLastHarvestRecent) {
                     return {
                         shouldHarvest: false,
-                        level: 'notice',
+                        level: 'info',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                         notHarvestingReason: 'estimated call rewards is 0, but vault harvested recently',
                     };
