@@ -10,8 +10,8 @@
     },
     "scripts": {
         "test": "yarn --silent test:all",
-        "heroku:harvest": "node ./dist/script/harvest.js -c arbitrum -c avax -c base -c bsc -c canto -c cronos -c kava -c metis -c moonriver -c optimism -c polygon -c zkevm",
-        "heroku:unwrap": "node ./dist/script/unwrap.js   -c arbitrum -c avax -c base -c bsc -c canto -c cronos -c kava -c metis -c moonriver -c optimism -c polygon -c zkevm",
+        "heroku:harvest": "node ./dist/script/harvest.js -c arbitrum -c avax -c base -c bsc -c canto -c cronos -c fuse -c kava -c metis -c moonriver -c optimism -c polygon -c zkevm",
+        "heroku:unwrap": "node ./dist/script/unwrap.js   -c arbitrum -c avax -c base -c bsc -c canto -c cronos -c fuse -c kava -c metis -c moonriver -c optimism -c polygon -c zkevm",
         "precommit": "yarn --silent lint:format && yarn --silent test",
         "build": "tsc",
         "lint:format": "yarn --silent lint:format:solidity && yarn --silent lint:format:typescript",
