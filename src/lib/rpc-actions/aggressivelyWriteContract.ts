@@ -70,9 +70,9 @@ export async function aggressivelyWriteContract<
 
     const mint = async () => {
         const { request, result: simulationResult } = await publicClient.simulateContract({
-            ...(args as any), // TODO: fix typings
-            ...gasParams,
             nonce,
+            ...gasParams,
+            ...(args as any), // TODO: fix typings
         });
         logger.trace({ msg: 'Simulation ok', data: { chain, address: args.address, request } });
         const transactionHash = await walletClient.writeContract(request as any); // TODO: fix typings
