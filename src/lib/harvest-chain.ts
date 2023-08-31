@@ -8,6 +8,7 @@ import {
     HARVEST_GAS_PRICE_MULTIPLIER,
     RPC_CONFIG,
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
+    PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
 } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport } from './gas';
@@ -210,6 +211,19 @@ export async function harvestChain({
                         level: 'info',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                         notHarvestingReason: 'estimated call rewards is 0, but this is ok for this vault',
+                    };
+                }
+
+                if (
+                    PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.platformId) &&
+                    item.simulation.hoursSinceLastHarvest < 24 * 7 // give them a week before we get alerted
+                ) {
+                    return {
+                        shouldHarvest: false,
+                        level: 'notice',
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        notHarvestingReason:
+                            'estimated call rewards is 0, but this platform is notoriously slow to refill rewards',
                     };
                 }
 

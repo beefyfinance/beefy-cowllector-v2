@@ -42,6 +42,12 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = process.env.VAULT_ID
     ? process.env.VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS.split(',')
     : ['curve-arb-f-wsteth', 'aavev3-dai.e', 'aavev3-polygon-maticx'];
 
+// those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
+export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = process.env
+    .PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS
+    ? process.env.PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.split(',')
+    : ['curve', 'balancer'];
+
 // 1 ether value in wei
 const ONE_ETHER = 1_000_000_000_000_000_000n;
 
