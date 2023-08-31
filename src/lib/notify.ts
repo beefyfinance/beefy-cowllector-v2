@@ -57,15 +57,21 @@ export async function notifyHarvestReport(report: HarvestReport) {
         [
             ['strategies', report.summary.totalStrategies],
             ['skipped', report.summary.skipped],
-            ['errors', report.summary.statuses.error],
-            ['warnings', report.summary.statuses.warning],
             ['notices', report.summary.statuses.notice],
             ['info', report.summary.statuses.info],
+            ['warnings', report.summary.statuses.warning],
+            ['errors', report.summary.statuses.error],
             ['harvested', report.summary.harvested],
         ],
         {
             drawHorizontalLine: (lineIndex: number, rowCount: number) => {
-                return lineIndex === 0 || lineIndex === 1 || lineIndex === rowCount - 1 || lineIndex === rowCount;
+                return (
+                    lineIndex === 0 ||
+                    lineIndex === 1 ||
+                    lineIndex === rowCount - 1 ||
+                    lineIndex === rowCount ||
+                    lineIndex === rowCount - 3
+                );
             },
             columns: [{ alignment: 'right' }, { alignment: 'left' }],
         }
