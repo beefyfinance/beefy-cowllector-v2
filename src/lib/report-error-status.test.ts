@@ -18,22 +18,24 @@ describe('getReportAsyncStatus', () => {
             'warning'
         );
     });
+    it('should warn when an async report is in success and has level key', () => {
+        expect(getReportAsyncStatus({ chain }, { status: 'fulfilled', value: { level: 'notice' }, timing })).toEqual(
+            'notice'
+        );
+        expect(getReportAsyncStatus({ chain }, { status: 'fulfilled', value: { level: 'info' }, timing })).toEqual(
+            'info'
+        );
+    });
     it('should return error when an async report is in rejected', () => {
         expect(getReportAsyncStatus({ chain }, { status: 'rejected', reason: 'some error', timing })).toEqual('error');
     });
-    it('should return silent-error when an async report is in rejected with a specific error and the chain is zkevm', () => {
+    it('should return notice when an async report is in rejected with a specific error and the chain is zkevm', () => {
         expect(
             getReportAsyncStatus(
                 { chain: 'zkevm' },
                 { status: 'rejected', reason: { details: 'failed to execute the unsigned transaction' }, timing }
             )
-        ).toEqual('silent-error');
-    });
-    it('should warn when a report is not async and has a warning', () => {
-        expect(getReportAsyncStatus({ chain }, { warning: true })).toEqual('warning');
-    });
-    it('should return success when a report is not async and has no warning', () => {
-        expect(getReportAsyncStatus({ chain }, {})).toEqual('success');
+        ).toEqual('notice');
     });
 });
 
@@ -41,28 +43,41 @@ describe('mergeReportAsyncStatus', () => {
     it('should return error if one of the status is error', () => {
         expect(mergeReportAsyncStatus('error', 'success')).toEqual('error');
         expect(mergeReportAsyncStatus('success', 'error')).toEqual('error');
-        expect(mergeReportAsyncStatus('error', 'silent-error')).toEqual('error');
-        expect(mergeReportAsyncStatus('silent-error', 'error')).toEqual('error');
         expect(mergeReportAsyncStatus('error', 'warning')).toEqual('error');
         expect(mergeReportAsyncStatus('warning', 'error')).toEqual('error');
+        expect(mergeReportAsyncStatus('error', 'notice')).toEqual('error');
+        expect(mergeReportAsyncStatus('notice', 'error')).toEqual('error');
+        expect(mergeReportAsyncStatus('error', 'info')).toEqual('error');
+        expect(mergeReportAsyncStatus('info', 'error')).toEqual('error');
         expect(mergeReportAsyncStatus('error', 'not-started')).toEqual('error');
         expect(mergeReportAsyncStatus('not-started', 'error')).toEqual('error');
-    });
-
-    it('should return silent-error if one of the status is silent-error but none is in error', () => {
-        expect(mergeReportAsyncStatus('silent-error', 'success')).toEqual('silent-error');
-        expect(mergeReportAsyncStatus('success', 'silent-error')).toEqual('silent-error');
-        expect(mergeReportAsyncStatus('silent-error', 'warning')).toEqual('silent-error');
-        expect(mergeReportAsyncStatus('warning', 'silent-error')).toEqual('silent-error');
-        expect(mergeReportAsyncStatus('silent-error', 'not-started')).toEqual('silent-error');
-        expect(mergeReportAsyncStatus('not-started', 'silent-error')).toEqual('silent-error');
     });
 
     it('should return warning if one of the status is warning but none is in error or silent-error', () => {
         expect(mergeReportAsyncStatus('warning', 'success')).toEqual('warning');
         expect(mergeReportAsyncStatus('success', 'warning')).toEqual('warning');
+        expect(mergeReportAsyncStatus('warning', 'notice')).toEqual('warning');
+        expect(mergeReportAsyncStatus('notice', 'warning')).toEqual('warning');
+        expect(mergeReportAsyncStatus('warning', 'info')).toEqual('warning');
+        expect(mergeReportAsyncStatus('info', 'warning')).toEqual('warning');
         expect(mergeReportAsyncStatus('warning', 'not-started')).toEqual('warning');
         expect(mergeReportAsyncStatus('not-started', 'warning')).toEqual('warning');
+    });
+
+    it('should return notice if one of the status is notice but none is in error, silent-error or warning', () => {
+        expect(mergeReportAsyncStatus('notice', 'success')).toEqual('notice');
+        expect(mergeReportAsyncStatus('success', 'notice')).toEqual('notice');
+        expect(mergeReportAsyncStatus('notice', 'info')).toEqual('notice');
+        expect(mergeReportAsyncStatus('info', 'notice')).toEqual('notice');
+        expect(mergeReportAsyncStatus('notice', 'not-started')).toEqual('notice');
+        expect(mergeReportAsyncStatus('not-started', 'notice')).toEqual('notice');
+    });
+
+    it('should return info if one of the status is info but none is in error, silent-error, warning or notice', () => {
+        expect(mergeReportAsyncStatus('info', 'success')).toEqual('info');
+        expect(mergeReportAsyncStatus('success', 'info')).toEqual('info');
+        expect(mergeReportAsyncStatus('info', 'not-started')).toEqual('info');
+        expect(mergeReportAsyncStatus('not-started', 'info')).toEqual('info');
     });
 
     it('should return success if none of the status is in error, silent-error or warning', () => {
@@ -93,12 +108,5 @@ describe('getMergedReportAsyncStatus', () => {
                 { status: 'fulfilled', value: { warning: true }, timing },
             ])
         ).toEqual('error');
-        expect(
-            getMergedReportAsyncStatus({ chain }, [
-                { status: 'fulfilled', value: { ok: true }, timing },
-                { ok: true },
-                { warning: true },
-            ])
-        ).toEqual('warning');
     });
 });

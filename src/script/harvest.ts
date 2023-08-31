@@ -11,8 +11,11 @@ import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyHarvestReport } from '../lib/notify';
 import { DISABLE_COLLECTOR_FOR_CHAINS } from '../lib/config';
-import { ReportAsyncStatus, getMergedReportAsyncStatus, getReportAsyncStatus } from '../lib/report-error-status';
-import { countBy, merge } from 'lodash';
+import {
+    getMergedReportAsyncStatus,
+    getReportAsyncStatus,
+    getReportAsyncStatusCounts,
+} from '../lib/report-error-status';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -105,16 +108,7 @@ async function main() {
                     });
 
                     report.summary = {
-                        statuses: merge(
-                            {
-                                error: 0,
-                                'not-started': 0,
-                                'silent-error': 0,
-                                warning: 0,
-                                success: 0,
-                            },
-                            countBy(report.details, item => item.summary.status)
-                        ) as Record<ReportAsyncStatus, number>,
+                        statuses: getReportAsyncStatusCounts(report.details.map(item => item.summary.status)),
                         aggregatedProfitWei:
                             asyncResultGet(report.collectorBalanceAfter, ba =>
                                 asyncResultGet(

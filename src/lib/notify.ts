@@ -33,7 +33,8 @@ export async function notifyHarvestReport(report: HarvestReport) {
     if (
         report.summary.harvested === 0 &&
         report.summary.statuses.error === 0 &&
-        report.summary.statuses.warning === 0
+        report.summary.statuses.warning === 0 &&
+        report.summary.statuses.notice === 0
     ) {
         logger.info({ msg: 'All strats were skipped, not reporting', data: report.summary });
         if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
@@ -58,7 +59,8 @@ export async function notifyHarvestReport(report: HarvestReport) {
             ['skipped', report.summary.skipped],
             ['errors', report.summary.statuses.error],
             ['warnings', report.summary.statuses.warning],
-            ['silent errors', report.summary.statuses['silent-error']],
+            ['notices', report.summary.statuses.notice],
+            ['info', report.summary.statuses.info],
             ['harvested', report.summary.harvested],
         ],
         {
@@ -72,7 +74,10 @@ export async function notifyHarvestReport(report: HarvestReport) {
     const explorerConfig = EXPLORER_CONFIG[report.chain];
 
     let errorDetails = '';
-    for (const stratReport of report.details.filter(d => ['warning', 'error'].includes(d.summary.status))) {
+    for (const stratReport of report.details) {
+        if (stratReport.summary.status === 'not-started' || stratReport.summary.status === 'success') {
+            continue;
+        }
         const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
         const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
             '${address}',
@@ -90,13 +95,23 @@ export async function notifyHarvestReport(report: HarvestReport) {
             const errorMsg = extractErrorMessage(stratReport.decision);
             errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
-        if (stratReport.decision && stratReport.decision.status === 'fulfilled' && stratReport.decision.value.warning) {
-            const errorMsg =
-                stratReport.decision.value.notHarvestingReason +
-                (stratReport.decision.value.notHarvestingReason === 'harvest would fail'
-                    ? ` (${stratReport.decision.value.harvestError})`
-                    : '');
-            errorDetails += `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
+        if (stratReport.decision && stratReport.decision.status === 'fulfilled') {
+            if (stratReport.decision.value.level === 'error') {
+                const errorMsg =
+                    stratReport.decision.value.notHarvestingReason +
+                    (stratReport.decision.value.notHarvestingReason === 'harvest would fail'
+                        ? ` (${stratReport.decision.value.harvestError})`
+                        : '');
+                errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
+            }
+            if (stratReport.decision.value.level === 'warning') {
+                const errorMsg = stratReport.decision.value.notHarvestingReason;
+                errorDetails += `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
+            }
+            if (stratReport.decision.value.level === 'notice') {
+                const errorMsg = stratReport.decision.value.notHarvestingReason;
+                errorDetails += `- decision ℹ️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
+            }
         }
         if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
             const errorMsg = extractErrorMessage(stratReport.transaction);

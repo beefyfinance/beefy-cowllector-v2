@@ -117,7 +117,7 @@ export async function harvestChain({
             if (item.vault.tvlUsd < rpcConfig.tvl.minThresholdUsd) {
                 return {
                     shouldHarvest: false,
-                    warning: false,
+                    level: 'info',
                     tvlThresholdUsd: rpcConfig.tvl.minThresholdUsd,
                     vaultTvlUsd: item.vault.tvlUsd,
                     notHarvestingReason: 'Tvl do not meet minimum threshold',
@@ -136,7 +136,7 @@ export async function harvestChain({
                 ) {
                     return {
                         shouldHarvest: false,
-                        warning: false,
+                        level: 'notice',
                         notHarvestingReason:
                             'vault not compatible with lens: missing `harvest(address recipient)` function',
                     };
@@ -145,7 +145,7 @@ export async function harvestChain({
                 if (item.vault.platformId === 'gamma') {
                     return {
                         shouldHarvest: false,
-                        warning: false,
+                        level: 'notice',
                         notHarvestingReason:
                             'harvest would fail but it is a gamma vault so it might just be out of range',
                     };
@@ -164,13 +164,13 @@ export async function harvestChain({
                     });
                     return {
                         shouldHarvest: false,
-                        warning: true,
+                        level: 'error',
                         notHarvestingReason: 'lens simulation failed but harvest simulation succeeded',
                     };
                 } catch (e) {
                     return {
                         shouldHarvest: false,
-                        warning: true,
+                        level: 'error',
                         notHarvestingReason: 'harvest would fail',
                         harvestError: extractErrorMessage(e),
                     };
@@ -180,7 +180,7 @@ export async function harvestChain({
             if (item.vault.eol) {
                 return {
                     shouldHarvest: false,
-                    warning: false,
+                    level: 'info',
                     notHarvestingReason: 'vault is eol',
                 };
             }
@@ -188,7 +188,7 @@ export async function harvestChain({
             if (item.simulation.paused) {
                 return {
                     shouldHarvest: false,
-                    warning: false,
+                    level: 'info',
                     notHarvestingReason: 'strategy paused',
                 };
             }
@@ -197,9 +197,9 @@ export async function harvestChain({
                 if (item.simulation.isLastHarvestRecent) {
                     return {
                         shouldHarvest: false,
-                        warning: false,
+                        level: 'notice',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
-                        notHarvestingReason: 'estimated call rewards is 0',
+                        notHarvestingReason: 'estimated call rewards is 0, but vault harvested recently',
                     };
                 }
 
@@ -212,7 +212,7 @@ export async function harvestChain({
                 ) {
                     return {
                         shouldHarvest: false,
-                        warning: false,
+                        level: 'notice',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                         notHarvestingReason:
                             'estimated call rewards is 0 but this vault have not seen rewards in a long time anyway',
@@ -221,7 +221,7 @@ export async function harvestChain({
 
                 return {
                     shouldHarvest: false,
-                    warning: true,
+                    level: 'warning',
                     hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                     notHarvestingReason: 'estimated call rewards is 0 and vault has not been harvested in a long time',
                 };
@@ -239,7 +239,7 @@ export async function harvestChain({
             if (item.simulation.isLastHarvestRecent) {
                 return {
                     shouldHarvest: false,
-                    warning: false,
+                    level: 'info',
                     hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                     wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
                     callRewardsWei: item.simulation.estimatedCallRewardsWei,
@@ -250,7 +250,7 @@ export async function harvestChain({
 
             return {
                 shouldHarvest: true,
-                warning: false,
+                level: 'info',
                 hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                 wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
                 callRewardsWei: item.simulation.estimatedCallRewardsWei,

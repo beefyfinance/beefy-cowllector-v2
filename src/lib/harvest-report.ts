@@ -37,67 +37,66 @@ type HarvestReportSimulation = Async<{
     paused: boolean;
 }>;
 
-// warn: true will tell the notifier to send a message
-type HarvestReportDecision = Async<
+export type HarvestReportDecision = Async<
     | {
           shouldHarvest: false;
-          warning: false;
+          level: 'info';
           tvlThresholdUsd: number;
           vaultTvlUsd: number;
           notHarvestingReason: 'Tvl do not meet minimum threshold';
       }
     | {
           shouldHarvest: false;
-          warning: false;
+          level: 'notice';
           notHarvestingReason: 'vault not compatible with lens: missing `harvest(address recipient)` function';
       }
     | {
           shouldHarvest: false;
-          warning: true;
+          level: 'notice';
+          notHarvestingReason: 'harvest would fail but it is a gamma vault so it might just be out of range';
+      }
+    | {
+          shouldHarvest: false;
+          level: 'error';
           notHarvestingReason: 'lens simulation failed but harvest simulation succeeded';
       }
     | {
           shouldHarvest: false;
-          warning: true;
+          level: 'error';
           notHarvestingReason: 'harvest would fail';
           harvestError: string;
       }
     | {
           shouldHarvest: false;
-          warning: false;
-          notHarvestingReason: 'harvest would fail but it is a gamma vault so it might just be out of range';
+          level: 'info';
+          notHarvestingReason: 'vault is eol';
+      }
+    | {
+          shouldHarvest: false;
+          level: 'info';
+          notHarvestingReason: 'strategy paused';
+      }
+    | {
+          shouldHarvest: false;
+          level: 'notice';
+          hoursSinceLastHarvest: number;
+          notHarvestingReason: 'estimated call rewards is 0, but vault harvested recently';
       }
     | {
           shouldHarvest: false;
           hoursSinceLastHarvest: number;
-          warning: false;
+          level: 'notice';
           notHarvestingReason: 'estimated call rewards is 0 but this vault have not seen rewards in a long time anyway';
       }
     | {
           shouldHarvest: false;
           hoursSinceLastHarvest: number;
-          warning: true;
+          level: 'warning';
           notHarvestingReason: 'estimated call rewards is 0 and vault has not been harvested in a long time';
       }
     | {
           shouldHarvest: false;
-          warning: false;
-          hoursSinceLastHarvest: number;
-          notHarvestingReason: 'estimated call rewards is 0';
-      }
-    | {
-          shouldHarvest: false;
-          warning: false;
-          notHarvestingReason: 'strategy paused';
-      }
-    | {
-          shouldHarvest: false;
-          warning: false;
-          notHarvestingReason: 'vault is eol';
-      }
-    | {
-          shouldHarvest: false;
-          warning: false;
+          level: 'info';
           callRewardsWei: bigint;
           hoursSinceLastHarvest: number;
           estimatedGainWei: bigint;
@@ -106,7 +105,7 @@ type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: true;
-          warning: false;
+          level: 'info';
           callRewardsWei: bigint;
           hoursSinceLastHarvest: number;
           estimatedGainWei: bigint;
@@ -159,8 +158,9 @@ export function createDefaultHarvestReport({ chain }: { chain: Chain }): Harvest
             statuses: {
                 error: 0,
                 'not-started': 0,
-                'silent-error': 0,
+                info: 0,
                 warning: 0,
+                notice: 0,
                 success: 0,
             },
         },
