@@ -7,6 +7,7 @@ import {
     TimeoutError,
     BlockNotFoundError,
     TransactionReceipt,
+    TransactionReceiptNotFoundError,
 } from 'viem';
 import { type AggressivelyWaitForTransactionReceiptReturnType } from './aggressivelyWaitForTransactionReceipt';
 import { rootLogger } from '../../util/logger';
@@ -14,6 +15,7 @@ import { getRpcActionParams } from '../rpc-client';
 import { Chain } from '../chain';
 import { bigintMultiplyFloat } from '../../util/bigint';
 import { RequiredBy } from 'viem/dist/types/types/utils';
+import { cloneDeep } from 'lodash';
 
 export type AggressivelyWriteContractParameters<
     TAbi extends Abi | readonly unknown[],
@@ -96,7 +98,7 @@ export async function aggressivelyWriteContract<
         let receipt: TransactionReceipt;
         try {
             receipt = await Promise.any(
-                allPendingTransactions.map(hash => publicClient.waitForTransactionReceipt({ hash }))
+                allPendingTransactions.map(hash => publicClient.aggressivelyWaitForTransactionReceipt({ hash }))
             );
         } catch (err) {
             if (err instanceof AggregateError) {
@@ -122,11 +124,13 @@ export async function aggressivelyWriteContract<
             return await mint();
         } catch (err) {
             if (
-                (err instanceof TimeoutError || err instanceof BlockNotFoundError) &&
+                (err instanceof TimeoutError ||
+                    err instanceof BlockNotFoundError ||
+                    err instanceof TransactionReceiptNotFoundError) &&
                 i < rpcConfig.transaction.totalTries - 1
             ) {
-                logger.warn({ msg: 'Simulation timed out', data: { chain, address: args.address } });
                 // increase the gas price for the next transaction
+                const previousGasParams = cloneDeep(gasParams);
                 if (gasParams.gasPrice) {
                     gasParams.gasPrice = bigintMultiplyFloat(
                         gasParams.gasPrice,
@@ -139,8 +143,12 @@ export async function aggressivelyWriteContract<
                         rpcConfig.transaction.retryGasMultiplier
                     );
                 }
+                logger.warn({
+                    msg: 'minting failed, retrying',
+                    data: { chain, address: args.address, previousGasParams, nextGasParams: gasParams },
+                });
             } else {
-                logger.warn({ msg: 'Simulation failed', data: { chain, address: args.address, err } });
+                logger.warn({ msg: 'Minting failed, exiting', data: { chain, address: args.address, err } });
                 throw err;
             }
         }
