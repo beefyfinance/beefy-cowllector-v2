@@ -4,10 +4,7 @@ import {
     type Abi,
     type SimulateContractParameters,
     Hex,
-    TimeoutError,
-    BlockNotFoundError,
     TransactionReceipt,
-    TransactionReceiptNotFoundError,
 } from 'viem';
 import { type AggressivelyWaitForTransactionReceiptReturnType } from './aggressivelyWaitForTransactionReceipt';
 import { rootLogger } from '../../util/logger';
@@ -123,12 +120,7 @@ export async function aggressivelyWriteContract<
             logger.trace({ msg: 'Trying to mint', data: { chain, address: args.address, try: i, gasParams } });
             return await mint();
         } catch (err) {
-            if (
-                (err instanceof TimeoutError ||
-                    err instanceof BlockNotFoundError ||
-                    err instanceof TransactionReceiptNotFoundError) &&
-                i < rpcConfig.transaction.totalTries - 1
-            ) {
+            if (i < rpcConfig.transaction.totalTries - 1) {
                 // increase the gas price for the next transaction
                 const previousGasParams = cloneDeep(gasParams);
                 if (gasParams.gasPrice) {
