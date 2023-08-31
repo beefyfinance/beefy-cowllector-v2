@@ -41,6 +41,9 @@ export type RpcConfig = {
         privateKey: Hex;
     };
     unwrap: {
+        // some chains do not need unwrapping
+        // as their native token is also an erc20 contract (mostly metis and celo)
+        enabled: boolean;
         triggerAmountWei: bigint;
     };
     tvl: {

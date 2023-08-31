@@ -71,6 +71,7 @@ const defaultTransactionConfig: RpcConfig['transaction'] = {
 };
 const defaultTimeoutMs: RpcConfig['timeoutMs'] = 60_000; // high timeout because we batch calls
 const defaultUnwrapConfig: RpcConfig['unwrap'] = {
+    enabled: true,
     // default to 0.01 wnative (18 decimals)
     triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
 };
@@ -135,6 +136,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.CELO_RPC_URL || 'https://rpc.ankr.com/celo',
         eol: true,
+        unwrap: {
+            ...defaultUnwrapConfig,
+            // celo's native token is also an erc20 contract
+            enabled: false,
+        },
     },
     cronos: {
         ...defaultConfig,
@@ -184,6 +190,13 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            // https://docs.metis.io/dev/readme/connection-details
+            // > NOTICE: Metis is a native token but also an ERC20 compatible token on Layer 2.
+            // > It is a built-in feature, so there is no need to create a wrapped Metis token
+            enabled: false,
         },
     },
     moonbeam: {

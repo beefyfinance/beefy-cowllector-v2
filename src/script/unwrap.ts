@@ -8,7 +8,7 @@ import { unwrapChain } from '../lib/unwrap-chain';
 import { createDefaultUnwrapReport } from '../lib/unwrap-report';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyUnwrapReport } from '../lib/notify';
-import { DISABLE_COLLECTOR_FOR_CHAINS } from '../lib/config';
+import { DISABLE_COLLECTOR_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -37,6 +37,12 @@ async function main() {
     const { fulfilled: successfulReports, rejected: rejectedReports } = splitPromiseResultsByStatus(
         await Promise.allSettled(
             options.chain
+                .filter(chain => {
+                    if (!RPC_CONFIG[chain].unwrap.enabled) {
+                        logger.debug({ msg: 'Unwrap is disabled for chain', data: { chain } });
+                        return false;
+                    }
+                })
                 .filter(chain => {
                     const isChainDisabled = DISABLE_COLLECTOR_FOR_CHAINS.includes(chain);
                     if (isChainDisabled) {

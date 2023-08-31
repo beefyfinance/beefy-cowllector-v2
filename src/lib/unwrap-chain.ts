@@ -10,6 +10,11 @@ import { getChainWNativeTokenAddress } from './addressbook';
 const logger = rootLogger.child({ module: 'unwrap-wnative' });
 
 export async function unwrapChain({ report, chain }: { report: UnwrapReport; chain: Chain }) {
+    if (!RPC_CONFIG[chain].unwrap.enabled) {
+        logger.debug({ msg: 'Unwrap is disabled for chain', data: { chain } });
+        return report;
+    }
+
     logger.debug({ msg: 'Unwrapping wnative for chain', data: { chain } });
 
     const publicClient = getReadOnlyRpcClient({ chain });
