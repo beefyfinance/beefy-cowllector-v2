@@ -23,7 +23,6 @@ import { fetchCollectorBalance } from './collector-balance';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { getChainWNativeTokenAddress } from './addressbook';
 import { IStrategyABI } from '../abi/IStrategyABI';
-import { extractErrorMessage } from './error-message';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -174,7 +173,7 @@ export async function harvestChain({
                         shouldHarvest: false,
                         level: 'error',
                         notHarvestingReason: 'harvest would fail',
-                        harvestError: extractErrorMessage(e),
+                        harvestError: e as Error,
                     };
                 }
             }

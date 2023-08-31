@@ -64,7 +64,7 @@ export type HarvestReportDecision = Async<
           shouldHarvest: false;
           level: 'error';
           notHarvestingReason: 'harvest would fail';
-          harvestError: string;
+          harvestError: Error;
       }
     | {
           shouldHarvest: false;
