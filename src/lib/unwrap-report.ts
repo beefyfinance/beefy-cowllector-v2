@@ -30,6 +30,8 @@ export type UnwrapReport = {
         effectiveGasPrice: bigint;
         balanceBeforeWei: bigint;
         unwrappedAmount: bigint;
+        rawGasEstimation: bigint;
+        gasLimit: bigint;
     }> | null;
     summary: {
         success: boolean;

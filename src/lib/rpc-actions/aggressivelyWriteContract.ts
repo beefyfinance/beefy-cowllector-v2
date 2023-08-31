@@ -13,13 +13,14 @@ import { rootLogger } from '../../util/logger';
 import { getRpcActionParams } from '../rpc-client';
 import { Chain } from '../chain';
 import { bigintMultiplyFloat } from '../../util/bigint';
+import { RequiredBy } from 'viem/dist/types/types/utils';
 
 export type AggressivelyWriteContractParameters<
     TAbi extends Abi | readonly unknown[],
     TFunctionName extends string,
     TChain extends ViemChain | undefined,
     TChainOverride extends ViemChain | undefined,
-> = SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>;
+> = RequiredBy<SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>, 'gas'>;
 
 // we return the simulation result and the transaction receipt and hash
 export type AggressivelyWriteContractReturnType<
@@ -54,6 +55,14 @@ export async function aggressivelyWriteContract<
     { chain }: { chain: Chain },
     args: AggressivelyWriteContractParameters<TAbi, TFunctionName, TChain, TChainOverride>
 ): Promise<AggressivelyWriteContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>> {
+    if (!args.gas) {
+        // setting a gas limit is mandatory since the viem default is too low for larger protocols
+        // and simulation will fail if we don't set it because the default gas parameter is very high
+        // for simulations so rpcs will check the total price of the transaction and fail if it's too high
+        // (which is the case if we don't set a gas limit)
+        throw new Error('Gas parameter is mandatory');
+    }
+
     const { publicClient, walletClient, walletAccount, rpcConfig } = getRpcActionParams({ chain });
     const nonce = await publicClient.getTransactionCount({
         address: walletAccount.address,

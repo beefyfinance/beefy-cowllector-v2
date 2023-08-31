@@ -1,11 +1,12 @@
 import type { Chain } from './chain';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
-import { RPC_CONFIG } from './config';
+import { RPC_CONFIG, UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER } from './config';
 import { rootLogger } from '../util/logger';
 import { UnwrapReport, reportOnSingleUnwrapAsyncCall } from './unwrap-report';
 import { fetchCollectorBalance } from './collector-balance';
 import { WETHABI } from '../abi/WETHABI';
 import { getChainWNativeTokenAddress } from './addressbook';
+import { bigintMultiplyFloat } from '../util/bigint';
 
 const logger = rootLogger.child({ module: 'unwrap-wnative' });
 
@@ -21,6 +22,7 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
     const walletClient = getWalletClient({ chain });
     const walletAccount = getWalletAccount({ chain });
     const rpcConfig = RPC_CONFIG[chain];
+    const wnative = getChainWNativeTokenAddress(chain);
 
     // ======================
     // get some context first
@@ -67,13 +69,24 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
         logger.trace({ msg: 'Fetching total gas before', data: { chain, strat: item } });
         const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
 
-        logger.trace({ msg: 'Unwrapping wnative', data: { chain, strat: item } });
-        const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
+        logger.info({ msg: 'Estimating gas for unwrap call', data: { chain, strat: item } });
+        const rawGasEstimation = await publicClient.estimateContractGas({
             abi: WETHABI,
-            address: getChainWNativeTokenAddress(chain),
+            address: wnative,
             functionName: 'withdraw',
             args: [item.unwrapDecision.actualAmount],
             account: walletAccount,
+        });
+        const gasLimit = bigintMultiplyFloat(rawGasEstimation, UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER);
+
+        logger.trace({ msg: 'Unwrapping wnative', data: { chain, strat: item } });
+        const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
+            abi: WETHABI,
+            address: wnative,
+            functionName: 'withdraw',
+            args: [item.unwrapDecision.actualAmount],
+            account: walletAccount,
+            gas: gasLimit,
         });
         logger.debug({
             msg: 'Got transaction receipt',
@@ -83,6 +96,8 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
         logger.info({ msg: 'Unwrapped wnative', data: { chain, strat: item, transactionHash, transactionReceipt } });
         return {
             transactionHash,
+            rawGasEstimation,
+            gasLimit,
             blockNumber: transactionReceipt.blockNumber,
             gasUsed: transactionReceipt.gasUsed,
             effectiveGasPrice: transactionReceipt.effectiveGasPrice,
