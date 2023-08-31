@@ -38,10 +38,11 @@ async function main() {
         await Promise.allSettled(
             options.chain
                 .filter(chain => {
-                    if (!RPC_CONFIG[chain].unwrap.enabled) {
+                    const isChainDisabled = !RPC_CONFIG[chain].unwrap.enabled;
+                    if (isChainDisabled) {
                         logger.debug({ msg: 'Unwrap is disabled for chain', data: { chain } });
-                        return false;
                     }
+                    return !isChainDisabled;
                 })
                 .filter(chain => {
                     const isChainDisabled = DISABLE_COLLECTOR_FOR_CHAINS.includes(chain);
