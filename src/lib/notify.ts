@@ -91,7 +91,11 @@ export async function notifyHarvestReport(report: HarvestReport) {
             errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.decision && stratReport.decision.status === 'fulfilled' && stratReport.decision.value.warning) {
-            const errorMsg = stratReport.decision.value.notHarvestingReason;
+            const errorMsg =
+                stratReport.decision.value.notHarvestingReason +
+                (stratReport.decision.value.notHarvestingReason === 'harvest would fail'
+                    ? ` (${stratReport.decision.value.harvestError})`
+                    : '');
             errorDetails += `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
         }
         if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
@@ -202,7 +206,7 @@ function getBalanceReportTable(report: HarvestReport | UnwrapReport) {
 
     return table(
         [
-            ['', nativeSymbol, wnativeSymbol, `${nativeSymbol} + ${wnativeSymbol}`],
+            ['', nativeSymbol, wnativeSymbol, `sum`],
             [
                 'before',
                 asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.balanceWei, 18, 6)) || '??',

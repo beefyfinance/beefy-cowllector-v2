@@ -9,6 +9,7 @@ import { RPC_CONFIG } from '../lib/config';
 import { getReadOnlyRpcClient, getWalletAccount } from '../lib/rpc-client';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import { getChainWNativeTokenAddress } from '../lib/addressbook';
+import { IStrategyABI } from '../abi/IStrategyABI';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -59,15 +60,40 @@ async function main() {
     }
 
     const harvestLensContract = { abi: BeefyHarvestLensABI, address: rpcConfig.contracts.harvestLens };
+    const strategyContract = { abi: IStrategyABI, address: vault.strategyAddress };
 
-    const { result } = await publicClient.simulateContract({
-        ...harvestLensContract,
-        functionName: 'harvest',
-        args: [vault.strategyAddress, wnative],
-        account: walletAccount,
-    });
+    const res = await Promise.allSettled([
+        publicClient
+            .simulateContract({
+                ...harvestLensContract,
+                functionName: 'harvest',
+                args: [vault.strategyAddress, wnative],
+                account: walletAccount,
+            })
+            .then(res => {
+                // @ts-ignore
+                res.request.abi = 'BeefyHarvestLensABI';
+                // @ts-ignore
+                res.request.account = walletAccount.address;
+                return res;
+            }),
+        publicClient
+            .simulateContract({
+                ...strategyContract,
+                functionName: 'harvest',
+                args: [walletAccount.address],
+                account: walletAccount,
+            })
+            .then(res => {
+                // @ts-ignore
+                res.request.abi = 'IStrategyABI';
+                // @ts-ignore
+                res.request.account = walletAccount.address;
+                return res;
+            }),
+    ]);
 
-    console.dir({ args: [vault.strategyAddress, wnative], result }, { depth: null });
+    console.dir(res, { depth: null });
 }
 
 runMain(main);

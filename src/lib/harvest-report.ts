@@ -54,7 +54,13 @@ type HarvestReportDecision = Async<
     | {
           shouldHarvest: false;
           warning: true;
+          notHarvestingReason: 'lens simulation failed but harvest simulation succeeded';
+      }
+    | {
+          shouldHarvest: false;
+          warning: true;
           notHarvestingReason: 'harvest would fail';
+          harvestError: string;
       }
     | {
           shouldHarvest: false;

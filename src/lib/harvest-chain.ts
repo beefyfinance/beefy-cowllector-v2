@@ -20,6 +20,8 @@ import { UnsupportedChainError } from './harvest-errors';
 import { fetchCollectorBalance } from './collector-balance';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { getChainWNativeTokenAddress } from './addressbook';
+import { IStrategyABI } from '../abi/IStrategyABI';
+import { extractErrorMessage } from './error-message';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -149,11 +151,30 @@ export async function harvestChain({
                     };
                 }
 
-                return {
-                    shouldHarvest: false,
-                    warning: true,
-                    notHarvestingReason: 'harvest would fail',
-                };
+                // here we know that the harvest will fail but we don't know why
+                // since the lens doesn't tell us
+                // so we simulate the harvest directly to get the revert reason
+                try {
+                    await publicClient.simulateContract({
+                        abi: IStrategyABI,
+                        address: item.vault.strategyAddress,
+                        functionName: 'harvest',
+                        args: [walletAccount.address],
+                        account: walletAccount,
+                    });
+                    return {
+                        shouldHarvest: false,
+                        warning: true,
+                        notHarvestingReason: 'lens simulation failed but harvest simulation succeeded',
+                    };
+                } catch (e) {
+                    return {
+                        shouldHarvest: false,
+                        warning: true,
+                        notHarvestingReason: 'harvest would fail',
+                        harvestError: extractErrorMessage(e),
+                    };
+                }
             }
 
             if (item.vault.eol) {
