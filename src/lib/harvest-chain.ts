@@ -155,6 +155,17 @@ export async function harvestChain({
                     };
                 }
 
+                // https://dashboard.tenderly.co/clemToune/project/simulator/a9d6a3ee-cb3c-4e4f-b4ab-04192a05d934
+                if (chain === 'bsc' && item.vault.id === 'ellipsis-2brl') {
+                    return {
+                        shouldHarvest: false,
+                        level: 'notice',
+                        harvestReturnData: item.simulation.harvestResultData,
+                        blockNumber: item.simulation.blockNumber,
+                        notHarvestingReason: 'Vault has a bug that makes it fail to harvest?',
+                    };
+                }
+
                 return {
                     shouldHarvest: false,
                     level: 'error',

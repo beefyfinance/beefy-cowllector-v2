@@ -59,6 +59,13 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
+          level: 'notice';
+          harvestReturnData: Hex;
+          blockNumber: bigint;
+          notHarvestingReason: 'Vault has a bug that makes it fail to harvest?';
+      }
+    | {
+          shouldHarvest: false;
           level: 'error';
           notHarvestingReason: 'harvest would fail';
           harvestReturnData: Hex;
