@@ -134,7 +134,9 @@ export async function harvestChain({
                     (chain === 'arbitrum' && item.vault.id === 'sushi-arb-magic-weth') ||
                     (chain === 'avax' && item.vault.id === 'curve-avax-atricrypto') ||
                     (chain === 'polygon' && item.vault.id === 'curve-am3crv') ||
-                    (chain === 'polygon' && item.vault.id === 'telxchange-quick-aave-tel')
+                    (chain === 'polygon' && item.vault.id === 'telxchange-quick-aave-tel') ||
+                    (chain === 'bsc' && item.vault.id === 'nfty-nfty') ||
+                    (chain === 'bsc' && item.vault.id === 'yel-yel-wbnb')
                 ) {
                     return {
                         shouldHarvest: false,
