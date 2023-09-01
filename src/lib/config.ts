@@ -40,7 +40,7 @@ export const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVES
 // some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
 export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = process.env.VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS
     ? process.env.VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS.split(',')
-    : ['curve-arb-f-wsteth', 'aavev3-dai.e', 'aavev3-polygon-maticx'];
+    : ['curve-arb-f-wsteth', 'aavev3-dai.e', 'aavev3-polygon-maticx', 'thena-bnbx-wbnb'];
 
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
 export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = process.env
