@@ -77,11 +77,19 @@ export async function aggressivelyWriteContract<
     const allPendingTransactions: Hex[] = [];
 
     const mint = async () => {
+        // there is no impact on setting the nonce or not for the simulation
+        // but setting the nonce makes moonriver very very unhappy, so we don't set it for the simulation
+        // curl https://moonriver.api.onfinality.io/public -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","id":1,"method":"eth_call","params":[{"from":"0x03d9964f4D93a24B58c0Fc3a8Df3474b59Ba8557","data":"0x0e5c011e00000000000000000000000003d9964f4d93a24b58c0fc3a8df3474b59ba8557","gas":"0x307aaa","maxFeePerGas":"0x6fc23ac0","maxPriorityFeePerGas":"0xF","nonce":"0x4","to":"0x536666f9F135d69FF86F3F8F210b98a0d441f253"},"latest"]}'
+        // -> {"jsonrpc":"2.0","error":{"code":-32603,"message":"execution fatal: Module(ModuleError { index: 51, error: [5, 0, 0, 0], message: None })"},"id":1}
+        // curl https://moonriver.api.onfinality.io/public -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","id":1,"method":"eth_call","params":[{"from":"0x03d9964f4D93a24B58c0Fc3a8Df3474b59Ba8557","data":"0x0e5c011e00000000000000000000000003d9964f4d93a24b58c0fc3a8df3474b59ba8557","gas":"0x307aaa","maxFeePerGas":"0x6fc23ac0","maxPriorityFeePerGas":"0xF","to":"0x536666f9F135d69FF86F3F8F210b98a0d441f253"},"latest"]}'
+        // -> {"jsonrpc":"2.0","result":"0x","id":1}
         const { request, result: simulationResult } = await publicClient.simulateContract({
-            nonce,
             ...gasParams,
             ...(args as any), // TODO: fix typings
         });
+        // but make sure to set the nonce for the actual transaction
+        request.nonce = nonce;
+
         logger.trace({ msg: 'Simulation ok', data: { chain, address: args.address, request } });
         const transactionHash = await walletClient.writeContract(request as any); // TODO: fix typings
         logger.debug({ msg: 'Harvested strat', data: { chain, transactionHash } });
