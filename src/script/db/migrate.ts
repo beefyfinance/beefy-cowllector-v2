@@ -6,4 +6,4 @@ async function main() {
     await db_migrate();
 }
 
-runMain(withDbClient(main, { appName: 'cowllector_migrate', connectTimeoutMs: 10_000 }));
+runMain(withDbClient(main, { appName: 'cowllector-db-migrate', connectTimeoutMs: 10_000 }));

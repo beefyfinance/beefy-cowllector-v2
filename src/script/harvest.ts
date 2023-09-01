@@ -16,6 +16,8 @@ import {
     getReportAsyncStatus,
     getReportAsyncStatusCounts,
 } from '../lib/report-error-status';
+import { withDbClient } from '../lib/db/utils';
+import { insertHarvestReports } from '../lib/db/db-report';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -135,6 +137,8 @@ async function main() {
 
                     await notifyHarvestReport(report);
 
+                    await insertHarvestReports([report]);
+
                     return report;
                 })
         )
@@ -156,4 +160,4 @@ async function main() {
     }
 }
 
-runMain(main);
+runMain(withDbClient(main, { appName: 'cowllector-harvest' }));

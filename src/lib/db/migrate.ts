@@ -1,5 +1,6 @@
 import { rootLogger } from '../../util/logger';
 import { allChainIds } from '../chain';
+import { RPC_CONFIG } from '../config';
 import { db_query, typeExists } from './utils';
 
 const logger = rootLogger.child({ module: 'db', component: 'migrate' });
@@ -160,12 +161,41 @@ export async function db_migrate() {
       );
     `);
 
-    /*
+    await db_query(
+        `
+      CREATE OR REPLACE VIEW chain AS (
+        SELECT 
+          c.chain::chain_enum,
+          c.eol
+        FROM (values %L) as c(chain, eol)
+      );
+    `,
+        [allChainIds.map(c => [c, RPC_CONFIG[c].eol])]
+    );
+
     await db_query(`
       CREATE OR REPLACE VIEW vault AS (
-        SELECT v.*
-        FROM 
-          */
+        with vault_jsonb as (
+          SELECT jsonb_path_query(r.report_content, '$.details[*].vault') as vault
+          FROM last_harvest_report_by_chain r
+        )
+        select distinct(id)
+          id, 
+          eol, 
+          chain, 
+          hexstr_to_bytea("strategyAddress") as strategy_address, 
+          "platformId" as platform_id,
+          "tvlUsd" as tvl_usd
+        from vault_jsonb, jsonb_to_record(vault) as vault(
+          id character varying,
+          eol boolean,
+          chain chain_enum,
+          "strategyAddress" character varying,
+          "platformId" character varying,
+          "tvlUsd" double precision
+        )
+      );
+    `);
 
     logger.info({ msg: 'Migrate done' });
 }

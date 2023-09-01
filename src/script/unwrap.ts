@@ -9,6 +9,7 @@ import { createDefaultUnwrapReport } from '../lib/unwrap-report';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyUnwrapReport } from '../lib/notify';
 import { DISABLE_COLLECTOR_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
+import { withDbClient } from '../lib/db/utils';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -113,4 +114,4 @@ async function main() {
     }
 }
 
-runMain(main);
+runMain(withDbClient(main, { appName: 'cowllector-unwrap' }));

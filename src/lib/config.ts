@@ -35,6 +35,7 @@ export const DISCORD_NOTIFY_UNEVENTFUL_HARVEST = process.env.DISCORD_NOTIFY_UNEV
 export const DISCORD_PING_ROLE_IDS_ON_ERROR = process.env.DISCORD_PING_ROLE_IDS_ON_ERROR
     ? process.env.DISCORD_PING_ROLE_IDS_ON_ERROR.split(',')
     : [];
+export const DB_REPORTS_RETENTION_IN_DAYS = parseInt(process.env.DB_REPORTS_RETENTION_IN_DAYS || '14', 10);
 
 const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
 const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
