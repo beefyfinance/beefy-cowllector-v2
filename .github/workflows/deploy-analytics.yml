@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Analytics to Heroku
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - deploy-analytics-dev
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
