@@ -256,6 +256,14 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     moonriver: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MOONRIVER_RPC_URL || 'https://moonriver.api.onfinality.io/public',
+        transaction: {
+            ...defaultTransactionConfig,
+            baseFeeMultiplier: 1.5, // moonriver is known to stall trx for days when base fee is too low
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                blockConfirmations: 1, // we don't need to wait for 3 confirmations on moonriver
+            },
+        },
     },
     one: {
         ...defaultConfig,
