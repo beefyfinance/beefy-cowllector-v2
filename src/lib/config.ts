@@ -68,7 +68,9 @@ export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG = process.env.VAULT_IDS_WITH_A_K
           // curl https://rpc.ankr.com/moonbeam -X POST -H "Content-Type: application/json" \
           // --data '{"id":1, "jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x03d9964f4D93a24B58c0Fc3a8Df3474b59Ba8557","data":"0x0e5c011e00000000000000000000000003d9964f4d93a24b58c0fc3a8df3474b59ba8557","gas":"0x307aaa","maxFeePerGas":"0x6fc23ac0","maxPriorityFeePerGas":"0x0","nonce":"0x4","to":"0x536666f9F135d69FF86F3F8F210b98a0d441f253"},"latest"]}'
           // =====> {"jsonrpc":"2.0","error":{"code":-32603,"message":"execution fatal: Module(ModuleError { index: 51, error: [5, 0, 0, 0], message: None })"},"id":1}
+          // might be more of the same issue as above with native contracts
           'solarbeam-wstksm-xcksm',
+          'solarbeam-xckbtc-wbtc',
 
           // harvest would fail (block: 18041014, data:       0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000014b00000000000000000000000000000000000000000000000000000000000000)
           // abi.encodeWithSignature('Error(string)', 'K') -> 0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000014b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
