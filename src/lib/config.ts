@@ -60,6 +60,9 @@ export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG = process.env.VAULT_IDS_WITH_A_K
           // https://moonbeam.moonscan.io/tx/0x05685e1e673e09322c9b554cd899ed615eb86a1b330eec8d5eba6ca3809b1710
           // https://dashboard.tenderly.co/tx/moonbeam/0x05685e1e673e09322c9b554cd899ed615eb86a1b330eec8d5eba6ca3809b1710
           // looks like xcUSDT has some kind of weirdness to it but can't find the code https://moonbeam.moonscan.io/address/0xFFFFFFfFea09FB06d082fd1275CD48b191cbCD1d
+          // EDIT:
+          // - this is a native contract https://docs.moonbeam.network/builders/interoperability/xcm/xc20/overview/
+          // - it seems like those native contracts do not support simulating calls
           'moonwell-xcusdt',
 
           // curl https://rpc.ankr.com/moonbeam -X POST -H "Content-Type: application/json" \
