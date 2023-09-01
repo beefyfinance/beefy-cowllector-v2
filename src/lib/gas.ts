@@ -1,5 +1,4 @@
 import { bigintMultiplyFloat } from '../util/bigint';
-import { HARVEST_GAS_PRICE_MULTIPLIER } from './config';
 
 export type GasEstimationReport = {
     // input values
@@ -18,7 +17,7 @@ export function createGasEstimationReport({
     rawGasPrice,
     estimatedCallRewardsWei,
     rawGasAmountEstimation,
-    gasPriceMultiplier = HARVEST_GAS_PRICE_MULTIPLIER,
+    gasPriceMultiplier,
 }: {
     // current network gas price in wei
     rawGasPrice: bigint; // in wei
@@ -27,7 +26,7 @@ export function createGasEstimationReport({
     // estimation of the call rewards in wei
     estimatedCallRewardsWei: bigint; // in wei
     // multiply the gas price by some value to overestimate the gas cost
-    gasPriceMultiplier?: number;
+    gasPriceMultiplier: number;
 }): GasEstimationReport {
     const gasPrice = bigintMultiplyFloat(rawGasPrice, gasPriceMultiplier);
     const transactionCostEstimationWei = rawGasAmountEstimation * gasPrice;

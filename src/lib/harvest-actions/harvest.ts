@@ -5,7 +5,6 @@ import { NotEnoughRemainingGasError } from '../harvest-errors';
 import { Chain } from '../chain';
 import { getRpcActionParams } from '../rpc-client';
 import { bigintMultiplyFloat } from '../../util/bigint';
-import { HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER } from '../config';
 
 const logger = rootLogger.child({ module: 'harvest-actions' });
 
@@ -27,11 +26,14 @@ export async function harvest(
     { chain }: { chain: Chain },
     { strategyAddress, transactionCostEstimationWei, transactionGasLimit }: HarvestParameters
 ): Promise<HarvestReturnType> {
-    const { publicClient, walletClient, walletAccount } = getRpcActionParams({ chain });
+    const { publicClient, walletClient, walletAccount, rpcConfig } = getRpcActionParams({ chain });
 
     logger.trace({ msg: 'Checking if we have enough gas to harvest', data: { chain, strategyAddress } });
     const balanceBeforeWei = await publicClient.getBalance({ address: walletAccount.address });
-    if (balanceBeforeWei < bigintMultiplyFloat(transactionCostEstimationWei, HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER)) {
+    if (
+        balanceBeforeWei <
+        bigintMultiplyFloat(transactionCostEstimationWei, rpcConfig.harvest.balanceCheck.minWalletThreshold)
+    ) {
         logger.info({ msg: 'Not enough gas to harvest', data: { chain, balanceBeforeWei, strategyAddress } });
         const error = new NotEnoughRemainingGasError({
             chain,

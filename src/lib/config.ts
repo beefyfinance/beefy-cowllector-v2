@@ -31,11 +31,12 @@ export const DISCORD_NOTIFY_UNEVENTFUL_HARVEST = process.env.DISCORD_NOTIFY_UNEV
 export const DISCORD_PING_ROLE_IDS_ON_ERROR = process.env.DISCORD_PING_ROLE_IDS_ON_ERROR
     ? process.env.DISCORD_PING_ROLE_IDS_ON_ERROR.split(',')
     : [];
-export const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
-export const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
-export const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
-export const UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5');
-export const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
+
+const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
+const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
+const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
+const UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5');
+const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
 // some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
 export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = process.env.VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS
@@ -131,20 +132,29 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
     enabled: true,
     // default to 0.01 wnative (18 decimals)
     triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+    balanceCheck: {
+        minWalletThreshold: UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER,
+    },
 };
-const defaultTvLConfig: RpcConfig['tvl'] = {
-    minThresholdUsd: 100,
+const defaultHarvestConfig: RpcConfig['harvest'] = {
+    minTvlThresholdUsd: 100,
+    targetTimeBetweenHarvestsMs: HARVEST_AT_LEAST_EVERY_HOURS * 60 * 60 * 1000,
+    balanceCheck: {
+        gasLimitMultiplier: HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
+        gasPriceMultiplier: HARVEST_GAS_PRICE_MULTIPLIER,
+        minWalletThreshold: HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER,
+    },
 };
 const defaultConfig: RpcConfig = {
     eol: false,
     url: 'changeme',
+    harvest: defaultHarvestConfig,
     timeoutMs: defaultTimeoutMs,
     batch: defaultBatch,
     contracts: defaultContracts,
     account: defaultAccount,
     transaction: defaultTransactionConfig,
     unwrap: defaultUnwrapConfig,
-    tvl: defaultTvLConfig,
 };
 
 export const RPC_CONFIG: Record<Chain, RpcConfig> = {
@@ -183,9 +193,9 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'legacy',
         },
-        tvl: {
-            ...defaultTvLConfig,
-            minThresholdUsd: 10_000,
+        harvest: {
+            ...defaultHarvestConfig,
+            minTvlThresholdUsd: 10_000,
         },
     },
     canto: {

@@ -40,13 +40,41 @@ export type RpcConfig = {
     account: {
         privateKey: Hex;
     };
+    harvest: {
+        // we try to harvest at most every X ms (24h by default)
+        targetTimeBetweenHarvestsMs: number;
+
+        // We only harvest if the vault tvl is above this threshold
+        minTvlThresholdUsd: number;
+
+        // these parameters are used to know if we have enough gas to send a transaction
+        balanceCheck: {
+            // by how much we should multiply our given gas price
+            // we need to set this high enough to be sure that any fluctuation in the gas price
+            // will not make us send a transaction bound to fail
+            gasPriceMultiplier: number;
+            // how much gas to add to the estimation, in percentage
+            gasLimitMultiplier: number;
+            // how much gas we need to have in our wallet to send a transaction
+            // on the basis of the current transaction estimated total cost
+            // setting this to 2 means that we need to have 2 times the estimated cost in our wallet
+            minWalletThreshold: number;
+        };
+    };
     unwrap: {
         // some chains do not need unwrapping
         // as their native token is also an erc20 contract (mostly metis and celo)
         enabled: boolean;
+
+        // we try to unwrap if the amount of wrapped tokens is above this threshold
         triggerAmountWei: bigint;
-    };
-    tvl: {
-        minThresholdUsd: number;
+
+        // these parameters are used to know if we have enough gas to send a transaction
+        balanceCheck: {
+            // how much gas we need to have in our wallet to send a transaction
+            // on the basis of the current transaction estimated total cost
+            // setting this to 2 means that we need to have 2 times the estimated cost in our wallet
+            minWalletThreshold: number;
+        };
     };
 };

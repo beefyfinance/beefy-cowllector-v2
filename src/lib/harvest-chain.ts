@@ -3,9 +3,6 @@ import type { BeefyVault } from './vault';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import {
-    HARVEST_AT_LEAST_EVERY_HOURS,
-    HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
-    HARVEST_GAS_PRICE_MULTIPLIER,
     RPC_CONFIG,
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
     PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
@@ -84,13 +81,13 @@ export async function harvestChain({
                 account: walletAccount,
             });
             const lastHarvestDate = new Date(Number(lastHarvest) * 1000);
-            const hoursSinceLastHarvest = (now.getTime() - lastHarvestDate.getTime()) / 1000 / 60 / 60;
-            const isLastHarvestRecent = hoursSinceLastHarvest < HARVEST_AT_LEAST_EVERY_HOURS;
+            const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
+            const isLastHarvestRecent = timeSinceLastHarvestMs < rpcConfig.harvest.targetTimeBetweenHarvestsMs;
             return {
                 estimatedCallRewardsWei: callReward,
                 harvestWillSucceed: success,
                 lastHarvest: lastHarvestDate,
-                hoursSinceLastHarvest,
+                hoursSinceLastHarvest: timeSinceLastHarvestMs / 1000 / 60 / 60,
                 isLastHarvestRecent,
                 paused,
                 blockNumber,
@@ -99,7 +96,7 @@ export async function harvestChain({
                     rawGasPrice,
                     rawGasAmountEstimation: gasUsed,
                     estimatedCallRewardsWei: callReward,
-                    gasPriceMultiplier: HARVEST_GAS_PRICE_MULTIPLIER,
+                    gasPriceMultiplier: rpcConfig.harvest.balanceCheck.gasPriceMultiplier,
                 }),
             };
         }
@@ -118,11 +115,11 @@ export async function harvestChain({
         'decision',
         'parallel',
         async item => {
-            if (item.vault.tvlUsd < rpcConfig.tvl.minThresholdUsd) {
+            if (item.vault.tvlUsd < rpcConfig.harvest.minTvlThresholdUsd) {
                 return {
                     shouldHarvest: false,
                     level: 'info',
-                    tvlThresholdUsd: rpcConfig.tvl.minThresholdUsd,
+                    tvlThresholdUsd: rpcConfig.harvest.minTvlThresholdUsd,
                     vaultTvlUsd: item.vault.tvlUsd,
                     notHarvestingReason: 'Tvl do not meet minimum threshold',
                 };
@@ -266,7 +263,7 @@ export async function harvestChain({
             transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
             transactionGasLimit: bigintMultiplyFloat(
                 item.simulation.gas.rawGasAmountEstimation,
-                HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER
+                rpcConfig.harvest.balanceCheck.gasLimitMultiplier
             ),
         });
 

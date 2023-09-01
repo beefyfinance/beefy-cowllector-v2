@@ -1,6 +1,6 @@
 import type { Chain } from './chain';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
-import { RPC_CONFIG, UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER } from './config';
+import { RPC_CONFIG } from './config';
 import { rootLogger } from '../util/logger';
 import { UnwrapReport, reportOnSingleUnwrapAsyncCall } from './unwrap-report';
 import { fetchCollectorBalance } from './collector-balance';
@@ -77,7 +77,7 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
             args: [item.unwrapDecision.actualAmount],
             account: walletAccount,
         });
-        const gasLimit = bigintMultiplyFloat(rawGasEstimation, UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER);
+        const gasLimit = bigintMultiplyFloat(rawGasEstimation, rpcConfig.unwrap.balanceCheck.minWalletThreshold);
 
         logger.trace({ msg: 'Unwrapping wnative', data: { chain, strat: item } });
         const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
