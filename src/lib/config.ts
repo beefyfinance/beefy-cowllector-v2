@@ -250,6 +250,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             baseFeeMultiplier: 1.5, // polygon is known to stall trx for days when base fee is too low
             totalTries: 3, // try 3 times
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                blockConfirmations: 1, // we don't need to wait for 3 confirmations on polygon
+            },
         },
         unwrap: {
             ...defaultUnwrapConfig,
