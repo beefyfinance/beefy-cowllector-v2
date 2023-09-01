@@ -16,28 +16,36 @@ const logger = rootLogger.child({ module: 'harvest-main' });
 type CmdOptions = {
     chain: Chain;
     strategyAddress: Hex;
+    blockNumber: bigint | null;
 };
 
 async function main() {
     const argv = await yargs.usage('$0 <cmd> [args]').options({
         chain: {
             type: 'string',
-            choices: [...allChainIds],
+            choices: allChainIds,
             alias: 'c',
             demand: true,
-            describe: 'only harest these chains. eol chains will be ignored',
+            describe: 'Run lens for this chain',
         },
         'strategy-address': {
             type: 'string',
             demand: true,
             alias: 'a',
-            describe: 'only harvest for this strategy address',
+            describe: 'Run lens for this strategy address',
+        },
+        'block-number': {
+            type: 'string',
+            demand: false,
+            alias: 'b',
+            describe: 'Run lens for this block number, default is latest',
         },
     }).argv;
 
     const options: CmdOptions = {
         chain: argv.chain as Chain,
         strategyAddress: argv['strategy-address'] as Hex,
+        blockNumber: argv['block-number'] ? BigInt(argv['block-number']) : null,
     };
     logger.trace({ msg: 'running with options', data: options });
 
@@ -69,6 +77,7 @@ async function main() {
                 functionName: 'harvest',
                 args: [vault.strategyAddress, wnative],
                 account: walletAccount,
+                blockNumber: options.blockNumber || undefined,
             })
             .then(res => {
                 // @ts-ignore
@@ -83,6 +92,7 @@ async function main() {
                 functionName: 'harvest',
                 args: [walletAccount.address],
                 account: walletAccount,
+                blockNumber: options.blockNumber || undefined,
             })
             .then(res => {
                 // @ts-ignore
