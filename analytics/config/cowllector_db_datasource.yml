@@ -7,15 +7,19 @@ datasources:
   - name: Beefy Cowllector DB
     type: postgres
     access: proxy
-    url: ${DATABASE_URL}
+    url: ${PG_HOSTNAME}:${PG_PORT}
+    user: ${PG_USERNAME}
+    database: ${PG_DATABASE}
     isDefault: true
     jsonData:
       postgresVersion: 1500
-      sslmode: "disable"
+      sslmode: "require"
       timeInterval: "15m"
       timescaledb: false
       tlsAuth: false
       tlsAuthWithCACert: false
       tlsConfigurationMethod: "file-path"
       tlsSkipVerify: true
+    secureJsonData:
+      password: ${PG_PASSWORD}
     editable: false
