@@ -119,6 +119,13 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     avax: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.AVAX_RPC_URL || 'https://rpc.ankr.com/avalanche',
+        transaction: {
+            ...defaultTransactionConfig,
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                blockConfirmations: 1, // reduces the amount of TransactionReceiptNotFoundError we get
+            },
+        },
     },
     base: {
         ...defaultConfig,
