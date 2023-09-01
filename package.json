@@ -14,6 +14,7 @@
         "heroku:unwrap": "node ./dist/script/unwrap.js   -c arbitrum -c avax -c base -c bsc -c canto -c cronos -c fantom -c fuse -c kava -c metis -c moonriver -c moonbeam -c optimism -c polygon -c zkevm -c zksync",
         "precommit": "yarn --silent lint:format && yarn --silent test",
         "build": "tsc",
+        "deploy": "git checkout prod && git rebase main && git push && git checkout -",
         "lint:format": "yarn --silent lint:format:solidity && yarn --silent lint:format:typescript",
         "lint:format:solidity": "forge fmt",
         "lint:format:typescript": "prettier ./src --write --no-color --log-level silent",
