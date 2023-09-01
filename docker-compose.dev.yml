@@ -1,0 +1,20 @@
+version: "3.9" # optional since v1.27.0
+
+services:
+  postgres:
+    image: postgres:15.4 # use heroku's version
+    volumes:
+      - pg_data:/pgdata
+    stop_signal: SIGINT
+    ports:
+      - "5432:5432"
+    environment:
+      TZ: "UTC"
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: beefy_cowllector
+      POSTGRES_PASSWORD: beefy_cowllector
+      POSTGRES_DB: beefy_cowllector
+      PGDATA: /pgdata
+
+volumes:
+  pg_data: {}

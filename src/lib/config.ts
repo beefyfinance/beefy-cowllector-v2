@@ -18,8 +18,12 @@ const log_level = process.env.LOG_LEVEL || 'info';
 if (!allLogLevels.includes(log_level as LogLevels)) {
     throw new Error(`Invalid log level ${log_level}`);
 }
-
 export const LOG_LEVEL: LogLevels = log_level as LogLevels;
+
+export const DATABASE_URL: string = process.env.DATABASE_URL || '';
+if (DATABASE_URL === '') {
+    throw new Error('Please set DATABASE_URL in your .env file or command line');
+}
 
 const RPC_FORCE_URL = process.env.RPC_FORCE_URL || null;
 const PRIVATE_KEY = (process.env.PRIVATE_KEY || null) as Hex | null;

@@ -1,3 +1,4 @@
+import { get, isString } from 'lodash';
 import { Prettify } from 'viem/dist/types/types/utils';
 
 export function sleep(ms: number) {
@@ -74,4 +75,41 @@ export function withRetry<TData>(
         };
         attemptRetry();
     });
+}
+
+export class ConnectionTimeoutError extends Error {
+    constructor(
+        public readonly timeoutMs: number,
+        public readonly previousError?: any
+    ) {
+        super(`Timeout after ${timeoutMs}ms`);
+    }
+}
+
+export function withTimeout<TRes>(fn: () => Promise<TRes>, timeoutMs: number) {
+    return new Promise<TRes>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new ConnectionTimeoutError(timeoutMs));
+        }, timeoutMs);
+        fn()
+            .then(res => {
+                clearTimeout(timeout);
+                resolve(res);
+            })
+            .catch(error => {
+                clearTimeout(timeout);
+                reject(error);
+            });
+    });
+}
+
+export function isConnectionTimeoutError(err: any) {
+    if (err instanceof ConnectionTimeoutError) {
+        return true;
+    }
+    const msg = get(err, 'message', '');
+    if (isString(msg) && msg.toLocaleLowerCase().includes('connection terminated')) {
+        return true;
+    }
+    return false;
 }
