@@ -264,10 +264,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     zksync: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKSYNC_RPC_URL || 'https://rpc.ankr.com/zksync_era',
-        contracts: {
-            ...defaultContracts,
-            harvestLens: null,
-        },
     },
 };
 
@@ -405,8 +401,7 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
     },
     zksync: {
         addressLinkTemplate: 'https://explorer.zksync.io/address/${address}',
-        apiUrl: process.env.ZKSYNC_EXPLORER_API_URL || 'https://explorer.zksync.io/api',
-        apiKey: process.env.ZKSYNC_EXPLORER_API_KEY || '',
-        type: 'etherscan',
+        apiUrl: process.env.ZKSYNC_EXPLORER_API_URL || 'https://explorer.zksync.io/api?',
+        type: 'blockscout',
     },
 };
