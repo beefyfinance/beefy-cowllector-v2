@@ -118,28 +118,54 @@ export async function db_migrate() {
         $jsonb_merge_func$;
     `);
 
-    // have a vaults table so we can format the data in a more readable way
-    // this also helps to fill dashboard filters like "eol", "id" by chain, etc
-    await db_query(`
-      CREATE TABLE IF NOT EXISTS vault (
-        id character varying PRIMARY KEY,
-        eol boolean NOT NULL,
-        chain chain_enum NOT NULL,
-        strategy_address evm_address_bytea NOT NULL,
-        platform_id character varying NOT NULL,
-        tvl_usd double decimal NOT NULL
-      );
-    `);
+    // store all raw reports in a single table
+    // we can use views to filter by report type
 
-    // store all raw reports
+    if (!(await typeExists('report_type'))) {
+        await db_query(`
+        CREATE TYPE report_type AS ENUM ('harvest', 'unwrap');
+    `);
+    }
     await db_query(`
       CREATE TABLE IF NOT EXISTS raw_report (
         raw_report_id serial PRIMARY KEY,
+        report_type report_type NOT NULL,
         chain chain_enum NOT NULL,
         datetime timestamp with time zone NOT NULL,
         report_content jsonb NOT NULL
       );
     `);
+
+    await db_query(`
+      CREATE OR REPLACE VIEW raw_harvest_report AS (
+        SELECT * FROM raw_report WHERE report_type = 'harvest'
+      );
+
+      CREATE OR REPLACE VIEW raw_unwrap_report AS (
+        SELECT * FROM raw_report WHERE report_type = 'unwrap'
+      );
+    `);
+
+    // this is the most efficient top-k query
+    await db_query(`
+      CREATE OR REPLACE VIEW last_harvest_report_by_chain AS (
+        (${allChainIds
+            .map(chain => `SELECT * FROM raw_harvest_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
+            .join(') UNION ALL (')})
+      );
+      CREATE OR REPLACE VIEW last_unwrap_report_by_chain AS (
+        (${allChainIds
+            .map(chain => `SELECT * FROM raw_unwrap_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
+            .join(') UNION ALL (')})
+      );
+    `);
+
+    /*
+    await db_query(`
+      CREATE OR REPLACE VIEW vault AS (
+        SELECT v.*
+        FROM 
+          */
 
     logger.info({ msg: 'Migrate done' });
 }

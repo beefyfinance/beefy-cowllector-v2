@@ -7,7 +7,7 @@ import { ConnectionTimeoutError, isConnectionTimeoutError, withTimeout } from '.
 
 const logger = rootLogger.child({ module: 'db', component: 'query' });
 
-export type DbClient = {
+type DbClient = {
     connect: PgClient['connect'];
     query: PgClient['query'];
     end: PgClient['end'];
@@ -72,38 +72,6 @@ export function withDbClient<TArgs extends any[], TRes>(
     };
 }
 
-export async function db_transaction<TRes>(
-    fn: (client: DbClient) => Promise<TRes>,
-    {
-        appName,
-        connectTimeoutMs = 10_000,
-        queryTimeoutMs = 10_000,
-    }: { appName: string; connectTimeoutMs?: number; queryTimeoutMs?: number }
-) {
-    const pgClient = await getDbClient({ appName, freshClient: true });
-    try {
-        await withTimeout(() => pgClient.connect(), connectTimeoutMs);
-        try {
-            logger.trace({ msg: 'Transaction begin', data: { appName, queryTimeoutMs } });
-            await pgClient.query('BEGIN');
-
-            logger.trace({ msg: 'Transaction executing', data: { appName, queryTimeoutMs } });
-            const res = await withTimeout(() => fn(pgClient), queryTimeoutMs);
-
-            logger.trace({ msg: 'Transaction commit', data: { appName, queryTimeoutMs } });
-            await pgClient.query('COMMIT');
-            return res;
-        } catch (error) {
-            logger.trace({ msg: 'Transaction rollback', data: { appName, queryTimeoutMs } });
-            await pgClient.query('ROLLBACK');
-            throw error;
-        }
-    } finally {
-        logger.trace({ msg: 'Transaction end (finally)', data: { appName, queryTimeoutMs } });
-        await pgClient.end();
-    }
-}
-
 export async function db_query<RowType>(
     sql: string,
     params: any[] = [],
@@ -133,7 +101,7 @@ export async function db_query<RowType>(
     }
 }
 
-export async function db_query_one<RowType>(
+async function db_query_one<RowType>(
     sql: string,
     params: any[] = [],
     client: DbClient | null = null
@@ -143,11 +111,6 @@ export async function db_query_one<RowType>(
         return null;
     }
     return rows[0];
-}
-
-export function strAddressToPgBytea(evmAddress: string) {
-    // 0xABC -> // \xABC
-    return '\\x' + evmAddress.slice(2);
 }
 
 // postgresql don't have "create type/domain if not exists"
