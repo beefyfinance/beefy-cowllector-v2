@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - prod
-      - deploy-analytics-dev
 
 jobs:
   deploy:
