@@ -2,7 +2,7 @@ import { Client as PgClient, ClientConfig as PgClientConfig } from 'pg';
 import * as pgcs from 'pg-connection-string';
 import pgf from 'pg-format';
 import { rootLogger } from '../../util/logger';
-import { DATABASE_URL } from '../config';
+import { DATABASE_SSL, DATABASE_URL } from '../config';
 import { ConnectionTimeoutError, isConnectionTimeoutError, withTimeout } from '../../util/promise';
 
 const logger = rootLogger.child({ module: 'db', component: 'query' });
@@ -34,7 +34,7 @@ async function getDbClient({
         const pgUrl = DATABASE_URL;
         const config = pgcs.parse(pgUrl) as any as PgClientConfig;
         logger.trace({ msg: 'Instantiating new shared pg client', data: { appNameToUse } });
-        sharedClient = new PgClient({ ...config, application_name: appNameToUse });
+        sharedClient = new PgClient({ ...config, application_name: appNameToUse, ssl: DATABASE_SSL });
         sharedClient.on('error', (err: any) => {
             logger.error({ msg: 'Postgres client error', data: { err, appNameToUse } });
             logger.error(err);

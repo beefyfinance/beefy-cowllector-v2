@@ -24,6 +24,7 @@ export const DATABASE_URL: string = process.env.DATABASE_URL || '';
 if (DATABASE_URL === '') {
     throw new Error('Please set DATABASE_URL in your .env file or command line');
 }
+export const DATABASE_SSL: boolean = process.env.DATABASE_SSL === 'true';
 
 const RPC_FORCE_URL = process.env.RPC_FORCE_URL || null;
 const PRIVATE_KEY = (process.env.PRIVATE_KEY || null) as Hex | null;
