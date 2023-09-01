@@ -53,7 +53,13 @@ export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG = process.env.VAULT_IDS_WITH_A_K
     ? process.env.VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.split(',')
     : [
           // https://dashboard.tenderly.co/clemToune/project/simulator/a9d6a3ee-cb3c-4e4f-b4ab-04192a05d934
+          // no idea why there is a revert here
           'ellipsis-2brl',
+
+          // simulation fails on cowllector but the actual harvest is fine, even tenderly thinks this trx was failed:
+          // https://moonbeam.moonscan.io/tx/0x05685e1e673e09322c9b554cd899ed615eb86a1b330eec8d5eba6ca3809b1710
+          // https://dashboard.tenderly.co/tx/moonbeam/0x05685e1e673e09322c9b554cd899ed615eb86a1b330eec8d5eba6ca3809b1710
+          // looks like xcUSDT has some kind of weirdness to it but can't find the code https://moonbeam.moonscan.io/address/0xFFFFFFfFea09FB06d082fd1275CD48b191cbCD1d
           'moonwell-xcusdt',
       ];
 
