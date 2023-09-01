@@ -25,7 +25,7 @@
         "lint:format:solidity": "forge fmt",
         "lint:format:typescript": "prettier ./src --write --no-color --log-level silent",
         "test:unit": "yarn --silent test:unit:typescript && yarn --silent test:unit:solidity",
-        "test:unit:typescript": "LOG_LEVEL=error TZ=UTC jest --maxConcurrency=1 2>&1",
+        "test:unit:typescript": "DATABASE_URL=ok LOG_LEVEL=error TZ=UTC jest --maxConcurrency=1 2>&1",
         "test:unit:solidity": "NO_COLOR=1 forge test --match-contract BeefyHarvestLensTest -vvv",
         "test:lint": "yarn --silent test:lint:typescript && yarn --silent test:lint:solidity",
         "test:lint:typescript": "prettier ./src --check",
