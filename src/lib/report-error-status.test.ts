@@ -1,40 +1,62 @@
 import { TimingData } from '../util/async';
-import { Chain } from './chain';
-import { getMergedReportAsyncStatus, getReportAsyncStatus, mergeReportAsyncStatus } from './report-error-status';
+import {
+    ReportAsyncStatusContext,
+    getMergedReportAsyncStatus,
+    getReportAsyncStatus,
+    mergeReportAsyncStatus,
+} from './report-error-status';
+import { BeefyVault } from './vault';
+
+import { VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG } from './config';
+
+jest.mock('./config', () => ({
+    VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG: ['this-vault-has-a-bug'],
+}));
 
 describe('getReportAsyncStatus', () => {
     const timing: TimingData = { durationMs: 1, endedAt: new Date(), startedAt: new Date() };
-    const chain: Chain = 'ethereum';
+    const ctx: ReportAsyncStatusContext = {
+        chain: 'ethereum',
+        vault: {
+            id: 'curve-weth-wsteth',
+        } as any as BeefyVault,
+    };
+
     it('should return not-started if report is null', () => {
-        expect(getReportAsyncStatus({ chain }, null)).toEqual('not-started');
+        expect(getReportAsyncStatus(ctx, null)).toEqual('not-started');
     });
     it('should return success for an async report in success', () => {
-        expect(getReportAsyncStatus({ chain }, { status: 'fulfilled', value: { ok: true }, timing })).toEqual(
-            'success'
-        );
+        expect(getReportAsyncStatus(ctx, { status: 'fulfilled', value: { ok: true }, timing })).toEqual('success');
     });
     it('should warn when an async report is in success and has a warning', () => {
-        expect(getReportAsyncStatus({ chain }, { status: 'fulfilled', value: { warning: true }, timing })).toEqual(
-            'warning'
-        );
+        expect(getReportAsyncStatus(ctx, { status: 'fulfilled', value: { warning: true }, timing })).toEqual('warning');
     });
     it('should warn when an async report is in success and has level key', () => {
-        expect(getReportAsyncStatus({ chain }, { status: 'fulfilled', value: { level: 'notice' }, timing })).toEqual(
+        expect(getReportAsyncStatus(ctx, { status: 'fulfilled', value: { level: 'notice' }, timing })).toEqual(
             'notice'
         );
-        expect(getReportAsyncStatus({ chain }, { status: 'fulfilled', value: { level: 'info' }, timing })).toEqual(
-            'info'
-        );
+        expect(getReportAsyncStatus(ctx, { status: 'fulfilled', value: { level: 'info' }, timing })).toEqual('info');
     });
     it('should return error when an async report is in rejected', () => {
-        expect(getReportAsyncStatus({ chain }, { status: 'rejected', reason: 'some error', timing })).toEqual('error');
+        expect(getReportAsyncStatus(ctx, { status: 'rejected', reason: 'some error', timing })).toEqual('error');
     });
     it('should return notice when an async report is in rejected with a specific error and the chain is zkevm', () => {
         expect(
             getReportAsyncStatus(
-                { chain: 'zkevm' },
+                { ...ctx, chain: 'zkevm' },
                 { status: 'rejected', reason: { details: 'failed to execute the unsigned transaction' }, timing }
             )
+        ).toEqual('notice');
+    });
+
+    it('should return notice when an async report is in rejected with a specific error and the vault is in VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG', () => {
+        const localCtx: ReportAsyncStatusContext = {
+            ...ctx,
+            vault: { id: 'this-vault-has-a-bug' } as any as BeefyVault,
+        };
+        expect(VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG).toContain(localCtx.vault.id);
+        expect(
+            getReportAsyncStatus(localCtx, { status: 'rejected', reason: { details: 'This was a mistake' }, timing })
         ).toEqual('notice');
     });
 });
@@ -90,10 +112,16 @@ describe('mergeReportAsyncStatus', () => {
 
 describe('getMergedReportAsyncStatus', () => {
     const timing: TimingData = { durationMs: 1, endedAt: new Date(), startedAt: new Date() };
-    const chain: Chain = 'ethereum';
+    const ctx: ReportAsyncStatusContext = {
+        chain: 'ethereum',
+        vault: {
+            id: 'curve-weth-wsteth',
+        } as any as BeefyVault,
+    };
+
     it('should return the status of the worst report', () => {
         expect(
-            getMergedReportAsyncStatus<any>({ chain }, [
+            getMergedReportAsyncStatus<any>(ctx, [
                 { status: 'fulfilled', value: { ok: true }, timing },
                 { status: 'fulfilled', value: { warning: true }, timing },
                 { status: 'fulfilled', value: { warning: true }, timing },
@@ -101,7 +129,7 @@ describe('getMergedReportAsyncStatus', () => {
             ])
         ).toEqual('warning');
         expect(
-            getMergedReportAsyncStatus({ chain }, [
+            getMergedReportAsyncStatus(ctx, [
                 { status: 'fulfilled', value: { ok: true }, timing },
                 { status: 'fulfilled', value: { warning: true }, timing },
                 { status: 'rejected', reason: 'some error', timing },

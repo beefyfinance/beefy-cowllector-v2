@@ -93,7 +93,16 @@ async function main() {
             }),
     ]);
 
-    console.dir(res, { depth: null });
+    console.dir(
+        res.map(r => {
+            if (r.status === 'rejected') {
+                // @ts-ignore
+                r.reason.abi = 'redacted';
+            }
+            return r;
+        }),
+        { depth: null }
+    );
 }
 
 runMain(main);

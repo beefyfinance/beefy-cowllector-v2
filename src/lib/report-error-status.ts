@@ -2,6 +2,8 @@ import { get } from 'lodash';
 import { Async } from '../util/async';
 import { Chain } from './chain';
 import { extractErrorMessage } from './error-message';
+import { BeefyVault } from './vault';
+import { VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG } from './config';
 
 // info: do not show or alert in the notifier message
 // notice: show in the notifier message but do not alert
@@ -10,10 +12,18 @@ import { extractErrorMessage } from './error-message';
 export type ReportNotificationLevels = 'error' | 'warning' | 'notice' | 'info';
 export type ReportAsyncStatus = 'success' | ReportNotificationLevels | 'not-started';
 
+export type ReportAsyncStatusContext = {
+    chain: Chain;
+    vault: BeefyVault;
+};
+
 /**
  * Some errors are unavoidable and we should not be warned about them.
  */
-export function getReportAsyncStatus<T>({ chain }: { chain: Chain }, report: Async<T> | null): ReportAsyncStatus {
+export function getReportAsyncStatus<T>(
+    { chain, vault }: ReportAsyncStatusContext,
+    report: Async<T> | null
+): ReportAsyncStatus {
     if (report === null) {
         return 'not-started';
     }
@@ -29,6 +39,9 @@ export function getReportAsyncStatus<T>({ chain }: { chain: Chain }, report: Asy
         return 'success';
     } else if (get(report, 'status', undefined) === 'rejected') {
         if (chain === 'zkevm' && extractErrorMessage(report) === 'failed to execute the unsigned transaction') {
+            return 'notice';
+        }
+        if (VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.includes(vault.id)) {
             return 'notice';
         }
         return 'error';
@@ -64,12 +77,12 @@ export function mergeReportAsyncStatus<A, B>(
 }
 
 export function getMergedReportAsyncStatus<T>(
-    { chain }: { chain: Chain },
+    ctx: ReportAsyncStatusContext,
     reports: Array<Async<T> | null>
 ): ReportAsyncStatus {
     let aggStatus: ReportAsyncStatus = 'not-started';
     for (const report of reports) {
-        const reportStatus = getReportAsyncStatus({ chain }, report);
+        const reportStatus = getReportAsyncStatus(ctx, report);
         aggStatus = mergeReportAsyncStatus(aggStatus, reportStatus);
     }
     return aggStatus;

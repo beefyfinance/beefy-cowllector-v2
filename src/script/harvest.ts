@@ -92,10 +92,11 @@ async function main() {
                     // update the summary
                     report.timing = result.timing;
                     report.details.forEach(item => {
+                        const trxStatus = getReportAsyncStatus({ chain, vault: item.vault }, item.transaction);
                         item.summary = {
-                            harvested: getReportAsyncStatus({ chain }, item.transaction) === 'success',
-                            skipped: getReportAsyncStatus({ chain }, item.transaction) === 'not-started',
-                            status: getMergedReportAsyncStatus<any>({ chain }, [
+                            harvested: trxStatus === 'success',
+                            skipped: trxStatus === 'not-started',
+                            status: getMergedReportAsyncStatus<any>({ chain, vault: item.vault }, [
                                 item.simulation,
                                 item.decision,
                                 item.transaction,
