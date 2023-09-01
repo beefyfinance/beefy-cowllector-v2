@@ -48,6 +48,31 @@ export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = process.env
     ? process.env.PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.split(',')
     : ['curve', 'balancer'];
 
+// just don't harvest those vaults for now
+export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG = process.env.VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG
+    ? process.env.VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.split(',')
+    : [
+          // https://dashboard.tenderly.co/clemToune/project/simulator/a9d6a3ee-cb3c-4e4f-b4ab-04192a05d934
+          'ellipsis-2brl',
+          'moonwell-xcusdt',
+      ];
+
+// some strategies do not have an `harvest(address rewardRecipient)` function that we can call to harvest rewards
+// instead, we have to call `harvest()` and then `withdraw(address rewardRecipient)` to get the rewards
+// but this call has a different behavior and can send the rewards to trx.origin instead of msg.sender
+// for the sake of simplicity, we just don't harvest those vaults and plan to upgrade them since there is only a few of them
+export const VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION = process.env.VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION
+    ? process.env.VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION.split(',')
+    : [
+          'sushi-arb-eth-usdc',
+          'sushi-arb-magic-weth',
+          'curve-avax-atricrypto',
+          'curve-am3crv',
+          'telxchange-quick-aave-tel',
+          'nfty-nfty',
+          'yel-yel-wbnb',
+      ];
+
 // 1 ether value in wei
 const ONE_ETHER = 1_000_000_000_000_000_000n;
 

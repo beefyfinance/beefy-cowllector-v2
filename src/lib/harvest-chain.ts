@@ -9,6 +9,8 @@ import {
     RPC_CONFIG,
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
     PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
+    VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION,
+    VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG,
 } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport } from './gas';
@@ -127,17 +129,7 @@ export async function harvestChain({
             }
 
             if (item.simulation.harvestWillSucceed === false) {
-                // this is a temporary fix while we have a more robust solution
-                // TODO: have the lens handle cases where the strat only has an `harvest()` function
-                if (
-                    (chain === 'arbitrum' && item.vault.id === 'sushi-arb-eth-usdc') ||
-                    (chain === 'arbitrum' && item.vault.id === 'sushi-arb-magic-weth') ||
-                    (chain === 'avax' && item.vault.id === 'curve-avax-atricrypto') ||
-                    (chain === 'polygon' && item.vault.id === 'curve-am3crv') ||
-                    (chain === 'polygon' && item.vault.id === 'telxchange-quick-aave-tel') ||
-                    (chain === 'bsc' && item.vault.id === 'nfty-nfty') ||
-                    (chain === 'bsc' && item.vault.id === 'yel-yel-wbnb')
-                ) {
+                if (VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION.includes(item.vault.id)) {
                     return {
                         shouldHarvest: false,
                         level: 'info',
@@ -155,8 +147,7 @@ export async function harvestChain({
                     };
                 }
 
-                // https://dashboard.tenderly.co/clemToune/project/simulator/a9d6a3ee-cb3c-4e4f-b4ab-04192a05d934
-                if (chain === 'bsc' && item.vault.id === 'ellipsis-2brl') {
+                if (VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.includes(item.vault.id)) {
                     return {
                         shouldHarvest: false,
                         level: 'notice',
