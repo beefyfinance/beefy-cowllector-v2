@@ -34,7 +34,15 @@ async function getDbClient({
         const pgUrl = DATABASE_URL;
         const config = pgcs.parse(pgUrl) as any as PgClientConfig;
         logger.trace({ msg: 'Instantiating new shared pg client', data: { appNameToUse } });
-        sharedClient = new PgClient({ ...config, application_name: appNameToUse, ssl: DATABASE_SSL });
+        sharedClient = new PgClient({
+            ...config,
+            application_name: appNameToUse,
+            ssl: DATABASE_SSL
+                ? {
+                      rejectUnauthorized: false,
+                  }
+                : undefined,
+        });
         sharedClient.on('error', (err: any) => {
             logger.error({ msg: 'Postgres client error', data: { err, appNameToUse } });
             logger.error(err);
