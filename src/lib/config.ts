@@ -314,6 +314,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     zksync: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKSYNC_RPC_URL || 'https://rpc.ankr.com/zksync_era',
+        contracts: {
+            ...defaultContracts,
+            deployer: null,
+            harvestLens: '0x525e2664d2d30ED068Ab83dC4e83594d51cd61fF',
+        },
     },
 };
 
