@@ -115,6 +115,22 @@ export async function harvestChain({
         'decision',
         'parallel',
         async item => {
+            if (item.vault.eol) {
+                return {
+                    shouldHarvest: false,
+                    level: 'info',
+                    notHarvestingReason: 'vault is eol',
+                };
+            }
+
+            if (item.simulation.paused) {
+                return {
+                    shouldHarvest: false,
+                    level: 'info',
+                    notHarvestingReason: 'strategy paused',
+                };
+            }
+
             if (item.vault.tvlUsd < rpcConfig.harvest.minTvlThresholdUsd) {
                 return {
                     shouldHarvest: false,
@@ -160,22 +176,6 @@ export async function harvestChain({
                     notHarvestingReason: 'harvest would fail',
                     harvestReturnData: item.simulation.harvestResultData,
                     blockNumber: item.simulation.blockNumber,
-                };
-            }
-
-            if (item.vault.eol) {
-                return {
-                    shouldHarvest: false,
-                    level: 'info',
-                    notHarvestingReason: 'vault is eol',
-                };
-            }
-
-            if (item.simulation.paused) {
-                return {
-                    shouldHarvest: false,
-                    level: 'info',
-                    notHarvestingReason: 'strategy paused',
                 };
             }
 
