@@ -290,7 +290,6 @@ export async function db_migrate() {
             skipped boolean,
             status character varying
           )
-        ;
       );
     `);
 
