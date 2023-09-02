@@ -149,6 +149,7 @@ export async function db_migrate() {
 
     await db_query(
         `
+        drop view if exists chain cascade;
       CREATE OR REPLACE VIEW chain AS (
         SELECT 
           c.chain::chain_enum,
