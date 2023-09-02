@@ -150,17 +150,18 @@ export async function db_migrate() {
     await db_query(
         `
         drop view if exists chain cascade;
-      CREATE OR REPLACE VIEW chain AS (
-        SELECT 
-          c.chain::chain_enum,
-          (c.eol = 'true')::boolean as eol
-        FROM (values %L) as c(chain, eol)
-      );
+        CREATE OR REPLACE VIEW chain AS (
+          SELECT 
+            c.chain::chain_enum,
+            (c.eol = 'true')::boolean as eol
+          FROM (values %L) as c(chain, eol)
+        );
     `,
         [allChainIds.map(c => [c, RPC_CONFIG[c].eol])]
     );
 
     await db_query(`
+      drop view if exists vault cascade;
       CREATE OR REPLACE VIEW vault AS (
         -- this is the most efficient top-k query
         with last_harvest_report_by_chain AS (
@@ -191,6 +192,7 @@ export async function db_migrate() {
     `);
 
     await db_query(`
+      drop view if exists cowllector_run cascade;
       CREATE OR REPLACE VIEW cowllector_run AS (
         select
         r.raw_report_id,
@@ -274,8 +276,8 @@ export async function db_migrate() {
     `);
 
     await db_query(`
+      drop view if exists harvest_report_vault_details cascade;
       CREATE OR REPLACE VIEW harvest_report_vault_details AS (
-        
         with vault_report_jsonb as (
           SELECT 
             r.raw_report_id,
