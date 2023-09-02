@@ -197,5 +197,102 @@ export async function db_migrate() {
       );
     `);
 
+    await db_query(`
+      CREATE OR REPLACE VIEW vault_harvest_report AS (
+        with vault_report_jsonb as (
+          SELECT 
+            r.raw_report_id,
+            r.chain,
+            r.datetime,
+            jsonb_path_query(r.report_content, '$.details[*]') as vault_report
+          FROM raw_harvest_report r
+        ) 
+        select 
+          r.raw_report_id,
+          r.chain,
+          r.datetime,
+          d.simulation is not null as simulation_started,
+          coalesce(d.simulation->>'status' = 'fulfilled', true) as simulation_ok, -- not started (null) is "ok"
+          sim_ok."lastHarvest" as simulation_last_harvest,
+          sim_ok."hoursSinceLastHarvest" as simulation_hours_since_last_harvest,
+          sim_ok."isLastHarvestRecent" as simulation_is_last_harvest_recent,
+          sim_ok."paused" as simulation_paused,
+          sim_ok."blockNumber" as simulation_block_number,
+          sim_ok."harvestResultData" as simulation_harvest_result_data,
+          gas."rawGasPrice" as simulation_gas_raw_gas_price,
+          gas."rawGasAmountEstimation" as simulation_gas_raw_gas_amount_estimation,
+          gas."estimatedCallRewardsWei" as simulation_gas_estimated_call_rewards_wei,
+          gas."gasPriceMultiplier" as simulation_gas_gas_price_multiplier,
+          gas."gasPrice" as simulation_gas_gas_price,
+          gas."transactionCostEstimationWei" as simulation_gas_transaction_cost_estimation_wei,
+          gas."estimatedGainWei" as simulation_gas_estimated_gain_wei,
+          gas."wouldBeProfitable" as simulation_gas_would_be_profitable,
+          d.decision is not null as decision_started,
+          coalesce(d.decision->>'status' = 'fulfilled', true) as decision_ok, -- not started (null) is "ok"
+          dec_ok."shouldHarvest" as decision_should_harvest,
+          dec_ok."level" as decision_level,
+          dec_ok."notHarvestingReason" as decision_not_harvesting_reason,
+          d.transaction is not null as transaction_started,
+          coalesce(d.transaction->>'status' = 'fulfilled', true) as transaction_ok, -- not started (null) is "ok"
+          hexstr_to_bytea(tx."transactionHash") as transaction_hash,
+          tx."blockNumber" as transaction_block_number,
+          tx."gasUsed" as transaction_gas_used,
+          tx."effectiveGasPrice" as transaction_effective_gas_price,
+          tx."balanceBeforeWei" as transaction_balance_before_wei,
+          tx."estimatedProfitWei" as transaction_estimated_profit_wei,
+          summary.harvested as summary_harvested,
+          summary.skipped as summary_skipped,
+          summary.status as summary_status
+        FROM 
+          vault_report_jsonb r, 
+          jsonb_to_record(r.vault_report) as d(
+            simulation jsonb,
+            decision jsonb,
+            transaction jsonb,
+            summary jsonb
+          ),
+          jsonb_to_record(d.simulation->'value') as sim_ok(
+            "estimatedCallRewardsWei" numeric,
+            "gas" jsonb,
+            "harvestWillSucceed" boolean,
+            "lastHarvest" timestamp with time zone,
+            "hoursSinceLastHarvest" double precision,
+            "isLastHarvestRecent" boolean,
+            "paused" boolean,
+            "blockNumber" numeric,
+            "harvestResultData" jsonb
+          ),
+          jsonb_to_record(sim_ok.gas) as gas(
+            "rawGasPrice" numeric,
+            "rawGasAmountEstimation" numeric,
+            "estimatedCallRewardsWei" numeric,
+            "gasPriceMultiplier" double precision,
+            "gasPrice" numeric,
+            "transactionCostEstimationWei" numeric,
+            "estimatedGainWei" numeric,
+            "wouldBeProfitable" boolean
+          ),
+          jsonb_to_record(d.decision->'value') as dec_ok(
+            "shouldHarvest" boolean,
+            "level" character varying,
+            "notHarvestingReason" character varying
+          ),
+          jsonb_to_record(d.transaction->'value') as tx(
+            "transactionHash" character varying,
+            "blockNumber" numeric,
+            "gasUsed" numeric,
+            "effectiveGasPrice" numeric,
+            "balanceBeforeWei" numeric,
+            "estimatedProfitWei" numeric
+          ),
+          jsonb_to_record(d.summary) as summary(
+            harvested boolean,
+            skipped boolean,
+            status character varying
+          )
+        ;
+      );
+    `);
+
     logger.info({ msg: 'Migrate done' });
 }
