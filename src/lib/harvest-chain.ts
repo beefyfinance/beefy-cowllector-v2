@@ -200,7 +200,7 @@ export async function harvestChain({
 
                 if (
                     PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.platformId) &&
-                    item.simulation.hoursSinceLastHarvest < 24 * 7 // give them a week before we get alerted
+                    item.simulation.hoursSinceLastHarvest < 2 * 24 * 7 // give them 2 weeks before we get alerted
                 ) {
                     return {
                         shouldHarvest: false,
