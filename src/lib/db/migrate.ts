@@ -152,7 +152,7 @@ export async function db_migrate() {
       CREATE OR REPLACE VIEW chain AS (
         SELECT 
           c.chain::chain_enum,
-          c.eol
+          (c.eol = 'true')::boolean as eol
         FROM (values %L) as c(chain, eol)
       );
     `,
@@ -200,7 +200,6 @@ export async function db_migrate() {
         coalesce(d."fetchGasPrice"->>'status' = 'fulfilled', true) as fetch_gas_price_ok, -- not started (null) is "ok"
         d."fetchGasPrice"->'reason' as fetch_gas_price_ko_reason,
         gas_ok."gasPriceWei" as fetch_gas_price_wei,
-        r.report_content->'summary',
         d."collectorBalanceBefore" is not null as balance_before_started,
         coalesce(d."collectorBalanceBefore"->>'status' = 'fulfilled', true) as balance_before_ok, -- not started (null) is "ok"
         d."collectorBalanceBefore"->'reason' as balance_before_ko_reason,
