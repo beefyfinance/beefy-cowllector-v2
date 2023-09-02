@@ -147,20 +147,6 @@ export async function db_migrate() {
       );
     `);
 
-    // this is the most efficient top-k query
-    await db_query(`
-      CREATE OR REPLACE VIEW last_harvest_report_by_chain AS (
-        (${allChainIds
-            .map(chain => `SELECT * FROM raw_harvest_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
-            .join(') UNION ALL (')})
-      );
-      CREATE OR REPLACE VIEW last_unwrap_report_by_chain AS (
-        (${allChainIds
-            .map(chain => `SELECT * FROM raw_unwrap_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
-            .join(') UNION ALL (')})
-      );
-    `);
-
     await db_query(
         `
       CREATE OR REPLACE VIEW chain AS (
@@ -175,7 +161,13 @@ export async function db_migrate() {
 
     await db_query(`
       CREATE OR REPLACE VIEW vault AS (
-        with vault_jsonb as (
+        -- this is the most efficient top-k query
+        with last_harvest_report_by_chain AS (
+          (${allChainIds
+              .map(chain => `SELECT * FROM raw_harvest_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
+              .join(') UNION ALL (')})
+        ),
+        vault_jsonb as (
           SELECT jsonb_path_query(r.report_content, '$.details[*].vault') as vault
           FROM last_harvest_report_by_chain r
         )
@@ -198,7 +190,92 @@ export async function db_migrate() {
     `);
 
     await db_query(`
-      CREATE OR REPLACE VIEW vault_harvest_report AS (
+      CREATE OR REPLACE VIEW cowllector_run AS (
+        select
+        r.raw_report_id,
+        r.chain,
+        r.report_type,
+        r.datetime,
+        d."fetchGasPrice" is not null as fetch_gas_price_started,
+        coalesce(d."fetchGasPrice"->>'status' = 'fulfilled', true) as fetch_gas_price_ok, -- not started (null) is "ok"
+        d."fetchGasPrice"->'reason' as fetch_gas_price_ko_reason,
+        gas_ok."gasPriceWei" as fetch_gas_price_wei,
+        r.report_content->'summary',
+        d."collectorBalanceBefore" is not null as balance_before_started,
+        coalesce(d."collectorBalanceBefore"->>'status' = 'fulfilled', true) as balance_before_ok, -- not started (null) is "ok"
+        d."collectorBalanceBefore"->'reason' as balance_before_ko_reason,
+        balance_before_ok."balanceWei" as balance_before_native_wei,
+        balance_before_ok."wnativeBalanceWei" as balance_before_wnative_wei,
+        balance_before_ok."aggregatedBalanceWei" as balance_before_aggregated_wei,
+        d."collectorBalanceAfter" is not null as balance_after_started,
+        coalesce(d."collectorBalanceAfter"->>'status' = 'fulfilled', true) as balance_after_ok, -- not started (null) is "ok"
+        d."collectorBalanceAfter"->'reason' as balance_after_ko_reason,
+        balance_after_ok."balanceWei" as balance_after_native_wei,
+        balance_after_ok."wnativeBalanceWei" as balance_after_wnative_wei,
+        balance_after_ok."aggregatedBalanceWei" as balance_after_aggregated_wei,
+        summary."aggregatedProfitWei" as aggregated_profit_wei,
+        summary."nativeGasUsedWei" as native_gas_used_wei,
+        summary."wnativeProfitWei" as wnative_profit_wei,
+        summary."harvested" as harvested,
+        summary."skipped" as skipped,
+        summary."totalStrategies" as total_strategies,
+        summary."balanceWei" as native_balance_wei,
+        summary."wnativeBalanceWei" as wnative_balance_wei,
+        summary."aggregatedBalanceWei" as aggregated_balance_wei,
+        status_count."not-started" as status_not_started,
+        status_count."success" as status_count_success,
+        status_count."warning" as status_count_warning,
+        status_count."info" as status_count_info,
+        status_count."notice" as status_count_notice,
+        status_count."error" as status_count_error
+      FROM 
+        raw_report r, 
+        jsonb_to_record(r.report_content) as d(
+          "timing" jsonb,
+          "fetchGasPrice" jsonb,
+          "collectorBalanceBefore" jsonb,
+          "collectorBalanceAfter" jsonb,
+          "summary" jsonb
+        ),
+        jsonb_to_record(d."fetchGasPrice"->'value') as gas_ok(
+          "gasPriceWei" numeric
+        ),
+        jsonb_to_record(d."collectorBalanceBefore"->'value') as balance_before_ok(
+          "balanceWei" numeric,
+          "wnativeBalanceWei" numeric,
+          "aggregatedBalanceWei" numeric
+        ),
+        jsonb_to_record(d."collectorBalanceAfter"->'value') as balance_after_ok(
+          "balanceWei" numeric,
+          "wnativeBalanceWei" numeric,
+          "aggregatedBalanceWei" numeric
+        ),
+        jsonb_to_record(d."summary") as summary(
+          "aggregatedProfitWei" numeric,
+          "nativeGasUsedWei" numeric,
+          "wnativeProfitWei" numeric,
+          "harvested" integer,
+          "skipped" integer,
+          "totalStrategies" integer,
+          "balanceWei" numeric,
+          "wnativeBalanceWei" numeric,
+          "aggregatedBalanceWei" numeric,
+          "statuses" jsonb
+        ),
+        jsonb_to_record(summary."statuses") as status_count(
+          "not-started" integer,
+          "success" integer,
+          "warning" integer,
+          "info" integer,
+          "notice" integer,
+          "error" integer
+        )
+      );
+    `);
+
+    await db_query(`
+      CREATE OR REPLACE VIEW harvest_report_vault_details AS (
+        
         with vault_report_jsonb as (
           SELECT 
             r.raw_report_id,
@@ -213,6 +290,7 @@ export async function db_migrate() {
           r.datetime,
           d.simulation is not null as simulation_started,
           coalesce(d.simulation->>'status' = 'fulfilled', true) as simulation_ok, -- not started (null) is "ok"
+          d.simulation->'reason' as simulation_ko_reason,
           sim_ok."lastHarvest" as simulation_last_harvest,
           sim_ok."hoursSinceLastHarvest" as simulation_hours_since_last_harvest,
           sim_ok."isLastHarvestRecent" as simulation_is_last_harvest_recent,
@@ -229,11 +307,13 @@ export async function db_migrate() {
           gas."wouldBeProfitable" as simulation_gas_would_be_profitable,
           d.decision is not null as decision_started,
           coalesce(d.decision->>'status' = 'fulfilled', true) as decision_ok, -- not started (null) is "ok"
+          d.decision->'reason' as decision_ko_reason,
           dec_ok."shouldHarvest" as decision_should_harvest,
           dec_ok."level" as decision_level,
           dec_ok."notHarvestingReason" as decision_not_harvesting_reason,
           d.transaction is not null as transaction_started,
           coalesce(d.transaction->>'status' = 'fulfilled', true) as transaction_ok, -- not started (null) is "ok"
+          d.transaction->'reason' as transaction_ko_reason,
           hexstr_to_bytea(tx."transactionHash") as transaction_hash,
           tx."blockNumber" as transaction_block_number,
           tx."gasUsed" as transaction_gas_used,
