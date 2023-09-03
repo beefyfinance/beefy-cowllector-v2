@@ -181,6 +181,8 @@ export async function db_migrate() {
             (c.eol = 't')::boolean as eol,
             (unwrap_enabled = 't')::boolean as unwrap_enabled,
             unwrap_balance_gas_multiplier_threshold::double precision,
+            unwrap_trigger_amount_wei::bigint,
+            (harvest_enabled = 't')::boolean as harvest_enabled,
             (target_hours_between_harvests || ' hours')::interval as target_time_between_harvests,
             harvest_balance_gas_multiplier_threshold::double precision
           FROM (values %L) as c(
@@ -188,6 +190,8 @@ export async function db_migrate() {
             eol, 
             unwrap_enabled,
             unwrap_balance_gas_multiplier_threshold,
+            unwrap_trigger_amount_wei,
+            harvest_enabled,
             target_hours_between_harvests,
             harvest_balance_gas_multiplier_threshold)
         );
@@ -198,6 +202,8 @@ export async function db_migrate() {
                 RPC_CONFIG[c].eol,
                 RPC_CONFIG[c].unwrap.enabled,
                 RPC_CONFIG[c].unwrap.balanceCheck.minWalletThreshold,
+                RPC_CONFIG[c].unwrap.triggerAmountWei,
+                RPC_CONFIG[c].harvest.enabled,
                 RPC_CONFIG[c].harvest.targetTimeBetweenHarvestsMs / 1000 / 60 / 60,
                 RPC_CONFIG[c].harvest.balanceCheck.minWalletThreshold,
             ]),

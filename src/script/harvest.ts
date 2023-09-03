@@ -10,7 +10,7 @@ import { createDefaultHarvestReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyHarvestReport } from '../lib/notify';
-import { DISABLE_COLLECTOR_FOR_CHAINS } from '../lib/config';
+import { DISABLE_COLLECTOR_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 import {
     ReportAsyncStatusContext,
     getMergedReportAsyncStatus,
@@ -80,6 +80,18 @@ async function main() {
                     }
                     return !isChainDisabled;
                 })
+                .filter(([chain, _]) => {
+                    const harvestEnabled = RPC_CONFIG[chain].harvest.enabled;
+                    if (!harvestEnabled) {
+                        logger.warn({
+                            msg: 'Skipping chain, harvest is disabled',
+                            data: { chain },
+                        });
+                    }
+                    return harvestEnabled;
+                })
+                .filter(([_, vaults]) => vaults.length > 0)
+
                 .map(async ([chain, vaults]) => {
                     // create the report objects
                     let report = createDefaultHarvestReport({ chain });

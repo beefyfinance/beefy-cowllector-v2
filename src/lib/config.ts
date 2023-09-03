@@ -158,6 +158,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
     },
 };
 const defaultHarvestConfig: RpcConfig['harvest'] = {
+    enabled: true,
     minTvlThresholdUsd: 100,
     targetTimeBetweenHarvestsMs: HARVEST_AT_LEAST_EVERY_HOURS * 60 * 60 * 1000,
     balanceCheck: {
@@ -253,6 +254,15 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     ethereum: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ETHEREUM_RPC_URL || 'https://rpc.ankr.com/eth',
+        // ethereum is harvested by gelato
+        harvest: {
+            ...defaultHarvestConfig,
+            enabled: false,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            enabled: false,
+        },
     },
     fantom: {
         ...defaultConfig,

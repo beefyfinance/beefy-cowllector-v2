@@ -41,6 +41,9 @@ export type RpcConfig = {
         privateKey: Hex;
     };
     harvest: {
+        // some chains are harvested a different way
+        enabled: boolean;
+
         // we try to harvest at most every X ms (24h by default)
         targetTimeBetweenHarvestsMs: number;
 
