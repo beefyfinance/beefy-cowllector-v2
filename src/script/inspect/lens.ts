@@ -1,17 +1,17 @@
 import yargs from 'yargs';
-import { runMain } from '../util/process';
-import { allChainIds } from '../lib/chain';
-import type { Chain } from '../lib/chain';
-import { rootLogger } from '../util/logger';
-import { getVault } from '../lib/vault-list';
+import { runMain } from '../../util/process';
+import { allChainIds } from '../../lib/chain';
+import type { Chain } from '../../lib/chain';
+import { rootLogger } from '../../util/logger';
+import { getVault } from '../../lib/vault-list';
 import { Hex } from 'viem';
-import { RPC_CONFIG } from '../lib/config';
-import { getReadOnlyRpcClient, getWalletAccount } from '../lib/rpc-client';
-import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
-import { getChainWNativeTokenAddress } from '../lib/addressbook';
-import { IStrategyABI } from '../abi/IStrategyABI';
+import { RPC_CONFIG } from '../../lib/config';
+import { getReadOnlyRpcClient, getWalletAccount } from '../../lib/rpc-client';
+import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
+import { getChainWNativeTokenAddress } from '../../lib/addressbook';
+import { IStrategyABI } from '../../abi/IStrategyABI';
 
-const logger = rootLogger.child({ module: 'harvest-main' });
+const logger = rootLogger.child({ module: 'inspect', component: 'lens' });
 
 type CmdOptions = {
     chain: Chain;
