@@ -128,6 +128,12 @@ export async function db_migrate() {
       $$ LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT;
     `);
 
+    await db_query(`
+      CREATE OR REPLACE FUNCTION async_field_ok(jsonb) RETURNS boolean AS $$ 
+        SELECT coalesce(($1::jsonb)->>'status' = 'fulfilled', true) -- not started (null) is "ok"
+      $$ LANGUAGE SQL IMMUTABLE CALLED ON NULL INPUT;
+    `);
+
     // store all raw reports in a single table
     // we can use views to filter by report type
 
@@ -208,18 +214,19 @@ export async function db_migrate() {
         r.chain,
         r.report_type,
         r.datetime,
+        async_field_ok(d."fetchGasPrice") and async_field_ok(d."collectorBalanceBefore") and async_field_ok(d."collectorBalanceAfter") as run_ok,
         d."fetchGasPrice" is not null as fetch_gas_price_started,
-        coalesce(d."fetchGasPrice"->>'status' = 'fulfilled', true) as fetch_gas_price_ok, -- not started (null) is "ok"
+        async_field_ok(d."fetchGasPrice") as fetch_gas_price_ok, 
         d."fetchGasPrice"->'reason' as fetch_gas_price_ko_reason,
         gas_ok."gasPriceWei" as fetch_gas_price_wei,
         d."collectorBalanceBefore" is not null as balance_before_started,
-        coalesce(d."collectorBalanceBefore"->>'status' = 'fulfilled', true) as balance_before_ok, -- not started (null) is "ok"
+        async_field_ok(d."collectorBalanceBefore") as balance_before_ok,
         d."collectorBalanceBefore"->'reason' as balance_before_ko_reason,
         balance_before_ok."balanceWei" as balance_before_native_wei,
         balance_before_ok."wnativeBalanceWei" as balance_before_wnative_wei,
         balance_before_ok."aggregatedBalanceWei" as balance_before_aggregated_wei,
         d."collectorBalanceAfter" is not null as balance_after_started,
-        coalesce(d."collectorBalanceAfter"->>'status' = 'fulfilled', true) as balance_after_ok, -- not started (null) is "ok"
+        async_field_ok(d."collectorBalanceAfter") as balance_after_ok,
         d."collectorBalanceAfter"->'reason' as balance_after_ko_reason,
         balance_after_ok."balanceWei" as balance_after_native_wei,
         balance_after_ok."wnativeBalanceWei" as balance_after_wnative_wei,
@@ -301,7 +308,7 @@ export async function db_migrate() {
           r.datetime,
           d.vault->>'id' as vault_id,
           d.simulation is not null as simulation_started,
-          coalesce(d.simulation->>'status' = 'fulfilled', true) as simulation_ok, -- not started (null) is "ok"
+          async_field_ok(d.simulation) as simulation_ok,
           d.simulation->'reason' as simulation_ko_reason,
           sim_ok."lastHarvest" as simulation_last_harvest,
           sim_ok."hoursSinceLastHarvest" as simulation_hours_since_last_harvest,
@@ -318,13 +325,13 @@ export async function db_migrate() {
           gas."estimatedGainWei" as simulation_gas_estimated_gain_wei,
           gas."wouldBeProfitable" as simulation_gas_would_be_profitable,
           d.decision is not null as decision_started,
-          coalesce(d.decision->>'status' = 'fulfilled', true) as decision_ok, -- not started (null) is "ok"
+          async_field_ok(d.decision) as decision_ok,
           d.decision->'reason' as decision_ko_reason,
           dec_ok."shouldHarvest" as decision_should_harvest,
           dec_ok."level" as decision_level,
           dec_ok."notHarvestingReason" as decision_not_harvesting_reason,
           d.transaction is not null as transaction_started,
-          coalesce(d.transaction->>'status' = 'fulfilled', true) as transaction_ok, -- not started (null) is "ok"
+          async_field_ok(d.transaction) as transaction_ok,
           d.transaction->'reason' as transaction_ko_reason,
           hexstr_to_bytea(tx."transactionHash") as transaction_hash,
           tx."blockNumber" as transaction_block_number,
@@ -335,7 +342,7 @@ export async function db_migrate() {
           summary.harvested as summary_harvested,
           summary.skipped as summary_skipped,
           summary.status as summary_status,
-          r.vault_report as raw_report
+          r.vault_report
         FROM 
           vault_report_jsonb r, 
           jsonb_to_record(r.vault_report) as d(
