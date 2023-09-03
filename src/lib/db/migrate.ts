@@ -299,13 +299,28 @@ export async function db_migrate() {
             r.raw_report_id,
             r.chain,
             r.datetime,
+            async_field_ok(d."fetchGasPrice") and async_field_ok(d."collectorBalanceBefore") and async_field_ok(d."collectorBalanceAfter") as run_ok,
+            async_field_ok(d."fetchGasPrice") as fetch_gas_price_ok, 
+            async_field_ok(d."collectorBalanceBefore") as balance_before_ok,
+            async_field_ok(d."collectorBalanceAfter") as balance_after_ok,
             jsonb_path_query(r.report_content, '$.details[*]') as vault_report
-          FROM raw_harvest_report r
+          FROM raw_harvest_report r,
+            jsonb_to_record(r.report_content) as d(
+              "timing" jsonb,
+              "fetchGasPrice" jsonb,
+              "collectorBalanceBefore" jsonb,
+              "collectorBalanceAfter" jsonb,
+              "summary" jsonb
+            )
         ) 
         select 
           r.raw_report_id,
           r.chain,
           r.datetime,
+          r.run_ok,
+          r.fetch_gas_price_ok,
+          r.balance_before_ok,
+          r.balance_after_ok,
           d.vault->>'id' as vault_id,
           d.simulation is not null as simulation_started,
           async_field_ok(d.simulation) as simulation_ok,
