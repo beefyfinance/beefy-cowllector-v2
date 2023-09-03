@@ -58,10 +58,17 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = process.env.VAULT_ID
       ];
 
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
+export const SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS = parseInt(
+    process.env.SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS || '14',
+    10
+); // 2 weeks
 export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = process.env
     .PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS
     ? process.env.PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.split(',')
     : ['curve', 'balancer'];
+export const VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = process.env.VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS
+    ? process.env.VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.split(',')
+    : ['joe-joe'];
 
 // just don't harvest those vaults for now
 export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG = process.env.VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG

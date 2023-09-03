@@ -8,6 +8,8 @@ import {
     PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
     VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION,
     VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG,
+    VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
+    SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS,
 } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport } from './gas';
@@ -199,15 +201,16 @@ export async function harvestChain({
                 }
 
                 if (
-                    PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.platformId) &&
-                    item.simulation.hoursSinceLastHarvest < 2 * 24 * 7 // give them 2 weeks before we get alerted
+                    (VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.id) ||
+                        PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.platformId)) &&
+                    item.simulation.hoursSinceLastHarvest < 24 * SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS
                 ) {
                     return {
                         shouldHarvest: false,
                         level: 'notice',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                         notHarvestingReason:
-                            'estimated call rewards is 0, but this platform is notoriously slow to refill rewards',
+                            'estimated call rewards is 0, but this vault is notoriously slow to refill rewards',
                     };
                 }
 

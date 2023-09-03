@@ -97,7 +97,7 @@ export type HarvestReportDecision = Async<
           shouldHarvest: false;
           level: 'notice';
           hoursSinceLastHarvest: number;
-          notHarvestingReason: 'estimated call rewards is 0, but this platform is notoriously slow to refill rewards';
+          notHarvestingReason: 'estimated call rewards is 0, but this vault is notoriously slow to refill rewards';
       }
     | {
           shouldHarvest: false;
