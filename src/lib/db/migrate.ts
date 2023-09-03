@@ -195,15 +195,19 @@ export async function db_migrate() {
     );
 
     await db_query(`
-      drop view if exists vault cascade;
-      CREATE OR REPLACE VIEW vault AS (
+        drop view if exists last_harvest_report_by_chain cascade;
         -- this is the most efficient top-k query
-        with last_harvest_report_by_chain AS (
+        CREATE OR REPLACE VIEW last_harvest_report_by_chain AS (
           (${allChainIds
               .map(chain => `SELECT * FROM raw_harvest_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
               .join(') UNION ALL (')})
-        ),
-        vault_jsonb as (
+        );
+    `);
+
+    await db_query(`
+      drop view if exists vault cascade;
+      CREATE OR REPLACE VIEW vault AS (
+        with vault_jsonb as (
           SELECT jsonb_path_query(r.report_content, '$.details[*].vault') as vault
           FROM last_harvest_report_by_chain r
         )
