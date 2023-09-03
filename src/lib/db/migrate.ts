@@ -119,6 +119,15 @@ export async function db_migrate() {
         $jsonb_merge_func$;
     `);
 
+    await db_query(`
+      CREATE OR REPLACE FUNCTION eth_wei_to_gwei(numeric) RETURNS numeric AS $$ 
+        SELECT $1::numeric / 1000000000 
+      $$ LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT;
+      CREATE OR REPLACE FUNCTION eth_wei_to_eth(numeric) RETURNS numeric AS $$ 
+          SELECT $1::numeric / 1000000000000000000 
+      $$ LANGUAGE SQL IMMUTABLE RETURNS NULL ON NULL INPUT;
+    `);
+
     // store all raw reports in a single table
     // we can use views to filter by report type
 
