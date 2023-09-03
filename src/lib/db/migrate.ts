@@ -452,5 +452,37 @@ export async function db_migrate() {
       );
     `);
 
+    await db_query(`
+      drop view if exists alert_enough_balance cascade;
+      CREATE OR REPLACE VIEW alert_enough_balance AS (
+        with transaction_max_cost as (
+          select chain, max(transaction_gas_cost_wei) as max_trx_cost
+          FROM harvest_report_vault_details
+          WHERE datetime between now() - '14 day'::interval and now()
+          GROUP BY chain
+        ),
+        balance_ok_by_chain as (
+          select 
+            c.chain,
+            t.max_trx_cost,
+            c.harvest_balance_gas_multiplier_threshold, 
+            r.balance_after_native_wei,
+            (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold) as balance_threshold_1,
+            c.unwrap_trigger_amount_wei as balance_threshold_2,
+            coalesce(
+              r.balance_after_native_wei > (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold),
+              r.balance_after_native_wei > c.unwrap_trigger_amount_wei, -- not "right" but a good default
+              false
+            ) as balance_ok
+          FROM transaction_max_cost t 
+          join chain c using (chain)
+          join last_harvest_run_by_chain r using (chain)
+          where not c.eol and c.harvest_enabled
+        )
+        select *
+        from balance_ok_by_chain
+      );
+    `);
+
     logger.info({ msg: 'Migrate done' });
 }
