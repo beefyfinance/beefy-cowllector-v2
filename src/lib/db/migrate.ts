@@ -299,6 +299,7 @@ export async function db_migrate() {
           r.raw_report_id,
           r.chain,
           r.datetime,
+          d.vault->>'id' as vault_id,
           d.simulation is not null as simulation_started,
           coalesce(d.simulation->>'status' = 'fulfilled', true) as simulation_ok, -- not started (null) is "ok"
           d.simulation->'reason' as simulation_ko_reason,
@@ -337,6 +338,7 @@ export async function db_migrate() {
         FROM 
           vault_report_jsonb r, 
           jsonb_to_record(r.vault_report) as d(
+            vault jsonb,
             simulation jsonb,
             decision jsonb,
             transaction jsonb,
