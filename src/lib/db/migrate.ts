@@ -168,11 +168,30 @@ export async function db_migrate() {
         CREATE OR REPLACE VIEW chain AS (
           SELECT 
             c.chain::chain_enum,
-            (c.eol = 't')::boolean as eol
-          FROM (values %L) as c(chain, eol)
+            (c.eol = 't')::boolean as eol,
+            (unwrap_enabled = 't')::boolean as unwrap_enabled,
+            unwrap_balance_gas_multiplier_threshold::double precision,
+            (target_hours_between_harvests || ' hours')::interval as target_time_between_harvests,
+            harvest_balance_gas_multiplier_threshold::double precision
+          FROM (values %L) as c(
+            chain, 
+            eol, 
+            unwrap_enabled,
+            unwrap_balance_gas_multiplier_threshold,
+            target_hours_between_harvests,
+            harvest_balance_gas_multiplier_threshold)
         );
     `,
-        [allChainIds.map(c => [c, RPC_CONFIG[c].eol])]
+        [
+            allChainIds.map(c => [
+                c,
+                RPC_CONFIG[c].eol,
+                RPC_CONFIG[c].unwrap.enabled,
+                RPC_CONFIG[c].unwrap.balanceCheck.minWalletThreshold,
+                RPC_CONFIG[c].harvest.targetTimeBetweenHarvestsMs / 1000 / 60 / 60,
+                RPC_CONFIG[c].harvest.balanceCheck.minWalletThreshold,
+            ]),
+        ]
     );
 
     await db_query(`
