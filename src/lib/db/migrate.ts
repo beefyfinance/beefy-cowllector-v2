@@ -162,6 +162,16 @@ export async function db_migrate() {
       );
     `);
 
+    await db_query(`
+        drop view if exists last_harvest_report_by_chain cascade;
+        -- this is the most efficient top-k query
+        CREATE OR REPLACE VIEW last_harvest_report_by_chain AS (
+          (${allChainIds
+              .map(chain => `SELECT * FROM raw_harvest_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
+              .join(') UNION ALL (')})
+        );
+    `);
+
     await db_query(
         `
         drop view if exists chain cascade;
