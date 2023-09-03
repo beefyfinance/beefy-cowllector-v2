@@ -168,7 +168,7 @@ export async function db_migrate() {
         CREATE OR REPLACE VIEW chain AS (
           SELECT 
             c.chain::chain_enum,
-            (c.eol = 'true')::boolean as eol
+            (c.eol = 't')::boolean as eol
           FROM (values %L) as c(chain, eol)
         );
     `,
