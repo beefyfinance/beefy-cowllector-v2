@@ -14,7 +14,7 @@ export type ReportAsyncStatus = 'success' | ReportNotificationLevels | 'not-star
 
 export type ReportAsyncStatusContext = {
     chain: Chain;
-    vault: BeefyVault;
+    vault: BeefyVault | null;
 };
 
 /**
@@ -41,7 +41,7 @@ export function getReportAsyncStatus<T>(
         if (chain === 'zkevm' && extractErrorMessage(report) === 'failed to execute the unsigned transaction') {
             return 'notice';
         }
-        if (VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.includes(vault.id)) {
+        if (vault && VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.includes(vault.id)) {
             return 'notice';
         }
         return 'error';

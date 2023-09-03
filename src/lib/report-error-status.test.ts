@@ -49,8 +49,18 @@ describe('getReportAsyncStatus', () => {
         ).toEqual('notice');
     });
 
+    it('should allow for null values in report context vault', () => {
+        const localCtx = {
+            ...ctx,
+            vault: null,
+        };
+        expect(
+            getReportAsyncStatus(localCtx, { status: 'rejected', reason: { details: 'This was a mistake' }, timing })
+        ).toEqual('error');
+    });
+
     it('should return notice when an async report is in rejected with a specific error and the vault is in VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG', () => {
-        const localCtx: ReportAsyncStatusContext = {
+        const localCtx = {
             ...ctx,
             vault: { id: 'this-vault-has-a-bug' } as any as BeefyVault,
         };

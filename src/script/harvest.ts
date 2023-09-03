@@ -12,6 +12,7 @@ import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyHarvestReport } from '../lib/notify';
 import { DISABLE_COLLECTOR_FOR_CHAINS } from '../lib/config';
 import {
+    ReportAsyncStatusContext,
     getMergedReportAsyncStatus,
     getReportAsyncStatus,
     getReportAsyncStatusCounts,
@@ -110,8 +111,14 @@ async function main() {
                         };
                     });
 
+                    const statusCtx: ReportAsyncStatusContext = { chain, vault: null };
                     report.summary = {
-                        statuses: getReportAsyncStatusCounts(report.details.map(item => item.summary.status)),
+                        statuses: getReportAsyncStatusCounts([
+                            ...report.details.map(item => item.summary.status),
+                            getReportAsyncStatus(statusCtx, report.fetchGasPrice),
+                            getReportAsyncStatus(statusCtx, report.collectorBalanceBefore),
+                            getReportAsyncStatus(statusCtx, report.collectorBalanceAfter),
+                        ]),
                         aggregatedProfitWei:
                             asyncResultGet(report.collectorBalanceAfter, ba =>
                                 asyncResultGet(
