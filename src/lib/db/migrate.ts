@@ -334,7 +334,8 @@ export async function db_migrate() {
           tx."estimatedProfitWei" as transaction_estimated_profit_wei,
           summary.harvested as summary_harvested,
           summary.skipped as summary_skipped,
-          summary.status as summary_status
+          summary.status as summary_status,
+          r.vault_report as raw_report
         FROM 
           vault_report_jsonb r, 
           jsonb_to_record(r.vault_report) as d(
