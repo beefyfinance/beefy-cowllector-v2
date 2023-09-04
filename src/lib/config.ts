@@ -112,6 +112,7 @@ export const VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION = process.env.VAULT_
           'sushi-arb-magic-weth',
           'curve-avax-atricrypto',
           'curve-am3crv',
+          'curve-op-f-susd',
           'telxchange-quick-aave-tel',
           'nfty-nfty',
           'yel-yel-wbnb',
