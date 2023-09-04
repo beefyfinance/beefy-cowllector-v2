@@ -203,3 +203,72 @@ groups:
           execErrState: Error
           for: 3h
           isPaused: false
+        - uid: a238c42c-cd5e-4050-86cf-64ac3a0954c9
+          title: Non-profitable unwrap
+          condition: last_harvest_profitable
+          data:
+            - refId: unwrap unprofitable
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |-
+                    select
+                      date_trunc('hour', datetime) as time,
+                      chain,
+                      (not is_valid) :: integer as value
+                    from
+                      alert_unwrap_not_profitable
+                    where
+                      $__timeFilter(datetime)
+                    order by
+                      datetime
+                refId: unwrap unprofitable
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_harvest_profitable
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: unwrap unprofitable
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_harvest_profitable
+                type: reduce
+          noDataState: OK
+          execErrState: Error
+          for: 30m
+          isPaused: false
+
