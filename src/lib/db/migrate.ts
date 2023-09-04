@@ -525,9 +525,13 @@ export async function db_migrate() {
       CREATE OR REPLACE VIEW alert_unwrap_not_profitable AS (
         SELECT
           r.datetime,
-          r.chain
+          r.chain, 
+          balance_before_aggregated_wei is null 
+          or balance_after_aggregated_wei is null
+          or (balance_before_aggregated_wei <= balance_after_aggregated_wei) as is_valid
         FROM
-          last_unwrap_report_by_chain r
+          cowllector_run r
+          where report_type = 'unwrap'
       );
     `);
 
