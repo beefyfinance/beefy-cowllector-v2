@@ -21,9 +21,8 @@ groups:
                 maxDataPoints: 43200
                 rawQuery: true
                 rawSql: |
-                    select chain, now() as time, (not balance_ok)::integer as value
+                    select *
                     from alert_enough_balance
-                    ;
                 refId: all_chains_have_enough_balance
                 sql:
                     columns:
@@ -83,18 +82,9 @@ groups:
                 intervalMs: 1000
                 maxDataPoints: 43200
                 rawQuery: true
-                rawSql: |-
-                    -- get an alert when a vault harvest has errors 3 times in a row
-                    select
-                      date_trunc('hour', datetime) as time,
-                      vault_id,
-                      (not success) :: integer as value
-                    from
-                      alert_vault_harvest_in_error
-                    where
-                      $__timeFilter(datetime)
-                    order by
-                      datetime;
+                rawSql: |
+                    select *
+                    from alert_vault_harvest_in_error
                 refId: vault_harvest_success_ts
                 sql:
                     columns:
@@ -156,7 +146,9 @@ groups:
                 intervalMs: 1000
                 maxDataPoints: 43200
                 rawQuery: true
-                rawSql: "select date_trunc('hour', datetime) as time, report_key, (not success)::integer as value\nfrom alert_run_in_error\nwhere $__timeFilter(datetime) \norder by datetime\n;\n"
+                rawSql: |
+                  select *
+                  from alert_run_in_error
                 refId: cowllector run errors
                 sql:
                     columns:
@@ -218,17 +210,9 @@ groups:
                 intervalMs: 1000
                 maxDataPoints: 43200
                 rawQuery: true
-                rawSql: |-
-                    select
-                      date_trunc('hour', datetime) as time,
-                      chain,
-                      (not is_valid) :: integer as value
-                    from
-                      alert_unwrap_not_profitable
-                    where
-                      $__timeFilter(datetime)
-                    order by
-                      datetime
+                rawSql: |
+                  select *
+                  from alert_unwrap_not_profitable
                 refId: unwrap unprofitable
                 sql:
                     columns:

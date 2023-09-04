@@ -488,7 +488,7 @@ export async function db_migrate() {
           join last_harvest_run_by_chain r using (chain)
           where not c.eol and c.harvest_enabled
         )
-        select *
+        select now() as time, chain, (not balance_ok)::integer as value
         from balance_ok_by_chain
       );
     `);
@@ -498,12 +498,24 @@ export async function db_migrate() {
     await db_query(`
       drop view if exists alert_vault_harvest_in_error cascade;
       CREATE OR REPLACE VIEW alert_vault_harvest_in_error AS (
-          SELECT
-            r.datetime,
-            r.vault_id,
-            coalesce(r.summary_status != 'error', true) as success
-          FROM
-            harvest_report_vault_details r
+          with vault_harvest_in_error as (
+            SELECT
+              r.datetime,
+              r.vault_id,
+              coalesce(r.summary_status != 'error', true) as success
+            FROM
+              harvest_report_vault_details r
+          )
+          select
+            date_trunc('hour', datetime) as time,
+            vault_id,
+            (not success) :: integer as value
+          from
+            vault_harvest_in_error
+          where
+            datetime between now() - '4 hours'::interval and now()
+          order by
+            datetime
       );
     `);
 
@@ -511,11 +523,20 @@ export async function db_migrate() {
     await db_query(`
       drop view if exists alert_run_in_error cascade;
       CREATE OR REPLACE VIEW alert_run_in_error AS (
+        with run_in_error as (
+          select 
+            r.datetime,
+            r.report_type || '-' || r.chain as report_key,
+            r.run_ok as success
+          from cowllector_run r
+        )
         select 
-          r.datetime,
-          r.report_type || '-' || r.chain as report_key,
-          r.run_ok as success
-        from cowllector_run r
+          date_trunc('hour', datetime) as time, 
+          report_key, 
+          (not success)::integer as value
+        from run_in_error
+        where datetime between now() - '12 hours'::interval and now()
+        order by datetime
       );
     `);
 
@@ -523,15 +544,27 @@ export async function db_migrate() {
     await db_query(`
       drop view if exists alert_unwrap_not_profitable cascade;
       CREATE OR REPLACE VIEW alert_unwrap_not_profitable AS (
-        SELECT
-          r.datetime,
-          r.chain, 
-          balance_before_aggregated_wei is null 
-          or balance_after_aggregated_wei is null
-          or (balance_before_aggregated_wei <= balance_after_aggregated_wei) as is_valid
-        FROM
-          cowllector_run r
-          where report_type = 'unwrap'
+        with unwrap_not_profitable as (
+          SELECT
+            r.datetime,
+            r.chain, 
+            balance_before_aggregated_wei is null 
+            or balance_after_aggregated_wei is null
+            or (balance_before_aggregated_wei <= balance_after_aggregated_wei) as is_valid
+          FROM
+            cowllector_run r
+            where report_type = 'unwrap'
+        )
+        select
+          date_trunc('hour', datetime) as time,
+          chain,
+          (not is_valid) :: integer as value
+        from
+          unwrap_not_profitable
+        where
+          datetime between now() - '12 hours'::interval and now()
+        order by
+          datetime
       );
     `);
 
