@@ -1,0 +1,205 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: Cowllector Alerts
+      folder: Cowllector Alerts
+      interval: 30m
+      rules:
+        - uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03780
+          title: Enough Balance
+          condition: Last balance should alert
+          data:
+            - refId: all_chains_have_enough_balance
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                    select chain, now() as time, (not balance_ok)::integer as value
+                    from alert_enough_balance
+                    ;
+                refId: all_chains_have_enough_balance
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: Last balance should alert
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: all_chains_have_enough_balance
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: Last balance should alert
+                type: reduce
+          noDataState: NoData
+          execErrState: Error
+          for: 2h
+          isPaused: false
+        - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e8
+          title: Vault Harvest Failed
+          condition: last vault harvest status
+          data:
+            - refId: vault_harvest_success_ts
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |-
+                    -- get an alert when a vault harvest has errors 3 times in a row
+                    select
+                      date_trunc('hour', datetime) as time,
+                      vault_id,
+                      (not success) :: integer as value
+                    from
+                      alert_vault_harvest_in_error
+                    where
+                      $__timeFilter(datetime)
+                    order by
+                      datetime;
+                refId: vault_harvest_success_ts
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last vault harvest status
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: vault_harvest_success_ts
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last vault harvest status
+                settings:
+                    mode: ""
+                type: reduce
+          noDataState: OK
+          execErrState: Error
+          for: 3h
+          isPaused: false
+        - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c2
+          title: Run Error Alert
+          condition: last value error
+          data:
+            - refId: cowllector run errors
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: "select date_trunc('hour', datetime) as time, report_key, (not success)::integer as value\nfrom alert_run_in_error\nwhere $__timeFilter(datetime) \norder by datetime\n;\n"
+                refId: cowllector run errors
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last value error
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: cowllector run errors
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last value error
+                settings:
+                    mode: ""
+                type: reduce
+          noDataState: OK
+          execErrState: Error
+          for: 3h
+          isPaused: false
