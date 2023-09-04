@@ -24,7 +24,7 @@ templates:
       {{- end }}
       {{ define "discord.message" -}}
       {{ if .Alerts.Firing -}}
-      {{ len .Alerts.Firing }} firing alert(s):
+      ## {{ len .Alerts.Firing }} firing alert(s):
       {{ range .Alerts.Firing }}
       {{ template "discord.print_alert" . }}
       {{ end -}}
