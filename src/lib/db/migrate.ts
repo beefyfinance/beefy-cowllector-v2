@@ -484,5 +484,17 @@ export async function db_migrate() {
       );
     `);
 
+    await db_query(`
+      drop view if exists alert_vault_harvest_in_error cascade;
+      CREATE OR REPLACE VIEW alert_vault_harvest_in_error AS (
+          SELECT
+            r.datetime,
+            r.vault_id,
+            coalesce(r.summary_status != 'error', true) as success
+          FROM
+            harvest_report_vault_details r
+      );
+    `);
+
     logger.info({ msg: 'Migrate done' });
 }
