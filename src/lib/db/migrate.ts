@@ -452,6 +452,7 @@ export async function db_migrate() {
       );
     `);
 
+    // helper view to get alerted when there is not enough balance left
     await db_query(`
       drop view if exists alert_enough_balance cascade;
       CREATE OR REPLACE VIEW alert_enough_balance AS (
@@ -484,6 +485,8 @@ export async function db_migrate() {
       );
     `);
 
+    // get alerted when a vault harvest is in error for too long (3 times default)
+    // we don't want to get alerted on the first error because sometimes the trx goes through anyway
     await db_query(`
       drop view if exists alert_vault_harvest_in_error cascade;
       CREATE OR REPLACE VIEW alert_vault_harvest_in_error AS (
