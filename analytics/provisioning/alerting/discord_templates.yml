@@ -5,21 +5,19 @@ templates:
     name: discord.title
     template: >
       {{ define "discord.title" }}
-      {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+      ## {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
       {{ end }}
   - orgID: 1
     name: discord.message
     template: |
       {{ define "discord.print_alert" -}}
-      [{{.Status}}] {{ .Labels.alertname }}
-      Labels:
+      [{{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}{{.Status}}] {{ .Labels.alertname }}
       {{ range .Labels.SortedPairs -}}
-      - {{ .Name }}: {{ .Value }}
+      - l: {{ .Name }}: {{ .Value }}
       {{ end -}}
       {{ if .Annotations -}}
-      Annotations:
       {{ range .Annotations.SortedPairs -}}
-      - {{ .Name }}: {{ .Value }}
+      - a: {{ .Name }}: {{ .Value }}
       {{ end -}}
       {{ end -}}
       Actions: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
