@@ -499,5 +499,17 @@ export async function db_migrate() {
       );
     `);
 
+    // get an alert when a cowllector run was in error 3 times in a row, harvest or unwrap
+    await db_query(`
+      drop view if exists alert_run_in_error cascade;
+      CREATE OR REPLACE VIEW alert_run_in_error AS (
+        select 
+          r.datetime,
+          r.report_type || '-' || r.chain as report_key,
+          r.run_ok as success
+        from cowllector_run r
+      );
+    `);
+
     logger.info({ msg: 'Migrate done' });
 }
