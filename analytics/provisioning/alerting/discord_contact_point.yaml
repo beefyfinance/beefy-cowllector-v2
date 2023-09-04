@@ -7,7 +7,7 @@ contactPoints:
           type: discord
           settings:
             message: '{{ template "discord.title" . }}'
-            title: '{{ template "discord.title" . }}'
+            title: '{{ template "discord.message" . }}'
             url: ${DISCORD_ALERT_WEBHOOK_URL}
             use_discord_username: false
           disableResolveMessage: false
