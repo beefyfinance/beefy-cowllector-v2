@@ -39,13 +39,6 @@ async function main() {
         await Promise.allSettled(
             options.chain
                 .filter(chain => {
-                    const isChainDisabled = !RPC_CONFIG[chain].unwrap.enabled;
-                    if (isChainDisabled) {
-                        logger.debug({ msg: 'Unwrap is disabled for chain', data: { chain } });
-                    }
-                    return !isChainDisabled;
-                })
-                .filter(chain => {
                     const isChainDisabled = DISABLE_COLLECTOR_FOR_CHAINS.includes(chain);
                     if (isChainDisabled) {
                         logger.warn({
@@ -54,6 +47,20 @@ async function main() {
                         });
                     }
                     return !isChainDisabled;
+                })
+                .filter(chain => {
+                    const isChainDisabled = !RPC_CONFIG[chain].unwrap.enabled;
+                    if (isChainDisabled) {
+                        logger.debug({ msg: 'Unwrap is disabled for chain', data: { chain } });
+                    }
+                    return !isChainDisabled;
+                })
+                .filter(chain => {
+                    const isChainEol = RPC_CONFIG[chain].eol;
+                    if (isChainEol) {
+                        logger.debug({ msg: 'Skipping eol chain', data: { chain } });
+                    }
+                    return !isChainEol;
                 })
                 .map(async chain => {
                     let report = createDefaultUnwrapReport({ chain });

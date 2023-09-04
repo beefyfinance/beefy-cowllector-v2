@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Chain } from './chain';
 import { BeefyVault } from './vault';
-import { BEEFY_API_URL, RPC_CONFIG } from './config';
+import { BEEFY_API_URL } from './config';
 import { rootLogger } from '../util/logger';
 import { Hex } from 'viem';
 import { groupBy, keyBy } from 'lodash';
@@ -55,11 +55,7 @@ export async function getVaultsToMonitorByChain(options: {
     chains: Chain[];
     strategyAddress: Hex | null;
 }): Promise<Record<Chain, BeefyVault[]>> {
-    const allVaults = (await fetchVaults())
-        // remove eol vaults
-        .filter(vault => !vault.eol)
-        // remove eol chains
-        .filter(vault => RPC_CONFIG[vault.chain].eol === false);
+    const allVaults = await fetchVaults();
 
     logger.info({ msg: 'Got vaults from api', data: { vaultLength: allVaults.length } });
 

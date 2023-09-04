@@ -80,6 +80,17 @@ async function main() {
                     }
                     return !isChainDisabled;
                 })
+                // remove eol chains
+                .filter(([chain, _]) => {
+                    const isChainEol = RPC_CONFIG[chain].eol;
+                    if (isChainEol) {
+                        logger.warn({
+                            msg: 'Skipping chain, eol',
+                            data: { chain },
+                        });
+                    }
+                    return !isChainEol;
+                })
                 .filter(([chain, _]) => {
                     const harvestEnabled = RPC_CONFIG[chain].harvest.enabled;
                     if (!harvestEnabled) {
@@ -90,8 +101,10 @@ async function main() {
                     }
                     return harvestEnabled;
                 })
+                // remove eol vaults
+                .map(([chain, vaults]) => [chain, vaults.filter(vault => !vault.eol)] as const)
+                // only those with vaults left
                 .filter(([_, vaults]) => vaults.length > 0)
-
                 .map(async ([chain, vaults]) => {
                     // create the report objects
                     let report = createDefaultHarvestReport({ chain });
