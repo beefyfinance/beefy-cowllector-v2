@@ -368,6 +368,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 blockConfirmations: 1, // reduces the amount of TransactionReceiptNotFoundError we get
             },
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // 0.001 weth (~$1.5)
+        },
     },
     zksync: {
         ...defaultConfig,
@@ -376,10 +380,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultContracts,
             deployer: null,
             harvestLens: '0x525e2664d2d30ED068Ab83dC4e83594d51cd61fF',
-        },
-        unwrap: {
-            ...defaultUnwrapConfig,
-            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // 0.001 weth (~$1.5)
         },
     },
 };
