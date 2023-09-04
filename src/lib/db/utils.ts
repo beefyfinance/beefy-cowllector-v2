@@ -109,7 +109,7 @@ export async function db_query<RowType>(
     }
 }
 
-async function db_query_one<RowType>(
+export async function db_query_one<RowType>(
     sql: string,
     params: any[] = [],
     client: DbClient | null = null

@@ -9,7 +9,7 @@ import { Hex } from 'viem';
 import { createDefaultHarvestReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
-import { notifyHarvestReport } from '../lib/notify';
+import { notifyError, notifyHarvestReport } from '../lib/notify';
 import { DISABLE_COLLECTOR_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 import {
     ReportAsyncStatusContext,
@@ -18,7 +18,7 @@ import {
     getReportAsyncStatusCounts,
 } from '../lib/report-error-status';
 import { withDbClient } from '../lib/db/utils';
-import { insertHarvestReports } from '../lib/db/db-report';
+import { insertHarvestReport } from '../lib/db/db-report';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -167,9 +167,17 @@ async function main() {
                         totalStrategies: report.details.length,
                     };
 
-                    await notifyHarvestReport(report);
+                    let db_raw_report_id: number | null = null;
+                    try {
+                        const res = await insertHarvestReport(report);
+                        db_raw_report_id = res.raw_report_id;
+                    } catch (e) {
+                        logger.error({ msg: 'Failed to insert report into db', data: { chain, error: e } });
+                        logger.trace(e);
+                        await notifyError({ doing: 'insert harvest report', data: { chain: report.chain } }, e);
+                    }
 
-                    await insertHarvestReports([report]);
+                    await notifyHarvestReport(report, db_raw_report_id);
 
                     return report;
                 })
@@ -188,6 +196,12 @@ async function main() {
         });
         for (const rejectedReport of rejectedReports) {
             logger.error(rejectedReport);
+            try {
+                await notifyError({ doing: 'harvest', data: { chain: rejectedReport.chain } }, rejectedReport);
+            } catch (e) {
+                logger.error({ msg: 'Failed to notify error', data: { chain: rejectedReport.chain, error: e } });
+                logger.trace(e);
+            }
         }
     }
 }
