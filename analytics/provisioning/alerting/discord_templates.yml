@@ -20,7 +20,7 @@ templates:
       - a: {{ .Name }}: {{ .Value }}
       {{ end -}}
       {{ end -}}
-      Actions: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
+      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
       {{- end }}
 
       {{ define "discord.message" -}}
