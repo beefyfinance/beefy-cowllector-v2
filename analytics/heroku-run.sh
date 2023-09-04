@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+# inject env vars in provisioning templates
+sed -i "s/__DISCORD_PING_ROLE_ID_ON_ERROR__/${DISCORD_PING_ROLE_ID_ON_ERROR}/g" /etc/grafana/provisioning/alerting/discord_templates.yml
+
 # use a pointer to the environment variable because it may change name
 DB_URL=${!COWLLECTOR_DB_URL_ENV_VAR}
 
