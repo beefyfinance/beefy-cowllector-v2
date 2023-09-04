@@ -6,8 +6,8 @@ contactPoints:
         - uid: a503176f-ebff-4771-a4ba-ee273a2d4eb0
           type: discord
           settings:
-            message: '{{ template "discord.title" . }}'
-            title: '{{ template "discord.message" . }}'
+            message: '{{ template "discord.message" . }}'
+            title: '{{ template "discord.title" . }}'
             url: ${DISCORD_ALERT_WEBHOOK_URL}
             use_discord_username: true
           disableResolveMessage: false
