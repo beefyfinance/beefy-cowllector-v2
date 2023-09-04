@@ -1,0 +1,42 @@
+apiVersion: 1
+
+templates:
+  - orgID: 1
+    name: discord.title
+    template: >
+      {{ define "discord.title" }}
+      {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+      {{ end }}
+  - orgID: 1
+    name: discord.message
+    template: |
+      {{ define "discord.print_alert" -}}
+      [{{.Status}}] {{ .Labels.alertname }}
+      Labels:
+      {{ range .Labels.SortedPairs -}}
+      - {{ .Name }}: {{ .Value }}
+      {{ end -}}
+      {{ if .Annotations -}}
+      Annotations:
+      {{ range .Annotations.SortedPairs -}}
+      - {{ .Name }}: {{ .Value }}
+      {{ end -}}
+      {{ end -}}
+      Actions: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
+      {{- end }}
+
+      {{ define "discord.message" -}}
+      {{ if .Alerts.Firing -}}
+      {{ len .Alerts.Firing }} firing alert(s):
+      {{ range .Alerts.Firing }}
+      {{ template "discord.print_alert" . }}
+      {{ end -}}
+      {{ end }}
+      {{ if .Alerts.Resolved -}}
+      {{ len .Alerts.Resolved }} resolved alert(s):
+      {{ range .Alerts.Resolved }}
+      {{ template "discord.print_alert" .}}
+      {{ end -}}
+      {{ end }}
+      {{- end }}
+
