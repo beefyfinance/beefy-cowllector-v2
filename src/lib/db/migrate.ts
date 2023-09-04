@@ -170,6 +170,14 @@ export async function db_migrate() {
               .map(chain => `SELECT * FROM raw_harvest_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
               .join(') UNION ALL (')})
         );
+
+        drop view if exists last_unwrap_report_by_chain cascade;
+        -- this is the most efficient top-k query
+        CREATE OR REPLACE VIEW last_unwrap_report_by_chain AS (
+          (${allChainIds
+              .map(chain => `SELECT * FROM raw_unwrap_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
+              .join(') UNION ALL (')})
+        );
     `);
 
     await db_query(
@@ -508,6 +516,18 @@ export async function db_migrate() {
           r.report_type || '-' || r.chain as report_key,
           r.run_ok as success
         from cowllector_run r
+      );
+    `);
+
+    // unwraps should always be profitable, get alerted when it's not
+    await db_query(`
+      drop view if exists alert_unwrap_not_profitable cascade;
+      CREATE OR REPLACE VIEW alert_unwrap_not_profitable AS (
+        SELECT
+          r.datetime,
+          r.chain
+        FROM
+          last_unwrap_report_by_chain r
       );
     `);
 
