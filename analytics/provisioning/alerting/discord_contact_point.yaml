@@ -10,4 +10,4 @@ contactPoints:
             title: '{{ template "discord.title" . }}'
             url: ${DISCORD_ALERT_WEBHOOK_URL}
             use_discord_username: true
-          disableResolveMessage: false
+          disableResolveMessage: true
