@@ -6,7 +6,7 @@ groups:
       interval: 30m
       rules:
         - uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03780
-          title: Enough Balance
+          title: Cowllector Wallet Native Balance Is Low
           condition: Last balance should alert
           data:
             - refId: all_chains_have_enough_balance
