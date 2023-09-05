@@ -122,6 +122,14 @@ export type HarvestReportDecision = Async<
           estimatedGainWei: bigint;
           wouldBeProfitable: boolean;
       }
+
+    // this is an unused decision just to keep typescript happy about the warning level
+    // remove the warning level altogether when ready as we use grafana alerts now
+    | {
+          shouldHarvest: false;
+          level: 'warning';
+          notHarvestingReason: 'legacy decision leve';
+      }
 >;
 
 type HarvestReportTransaction = Async<{
