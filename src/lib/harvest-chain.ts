@@ -216,7 +216,7 @@ export async function harvestChain({
 
                 return {
                     shouldHarvest: false,
-                    level: 'warning',
+                    level: 'error',
                     hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                     notHarvestingReason: 'estimated call rewards is 0 and vault has not been harvested in a long time',
                 };
