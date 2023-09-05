@@ -206,6 +206,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 blockConfirmations: 1, // reduces the amount of TransactionReceiptNotFoundError we get
             },
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+        },
     },
     base: {
         ...defaultConfig,
