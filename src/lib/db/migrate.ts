@@ -499,15 +499,20 @@ export async function db_migrate() {
     await db_query(`
       drop view if exists alert_vault_harvest_in_error cascade;
       CREATE OR REPLACE VIEW alert_vault_harvest_in_error AS (
+          with vault_harvest_in_error as (
+            SELECT
+              r.datetime,
+              r.vault_id,
+              coalesce(r.summary_status != 'error', true) as success
+            FROM
+              harvest_report_vault_details r
+          )
           select
             date_trunc('hour', datetime) as time,
             vault_id,
-            (not coalesce(summary_status != 'error', true)) :: integer as value,
-            chain,
-            'alert_vault_harvest_in_error' as alert_type,
-            raw_report_id::text as raw_report_id
+            (not success) :: integer as value
           from
-            harvest_report_vault_details
+            vault_harvest_in_error
           where
             datetime between now() - '4 hours'::interval and now()
           order by
