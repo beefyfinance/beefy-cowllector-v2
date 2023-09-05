@@ -251,6 +251,7 @@ export async function db_migrate() {
         r.chain,
         r.report_type,
         r.datetime,
+        r.report_content,
         async_field_ok(d."fetchGasPrice") and async_field_ok(d."collectorBalanceBefore") and async_field_ok(d."collectorBalanceAfter") as run_ok,
         d."fetchGasPrice" is not null as fetch_gas_price_started,
         async_field_ok(d."fetchGasPrice") as fetch_gas_price_ok, 
