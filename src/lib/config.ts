@@ -244,6 +244,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     cronos: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.CRONOS_RPC_URL || 'https://evm.cronos.org',
+        unwrap: {
+            ...defaultUnwrapConfig,
+            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 1.5), // 1.5 cro
+        },
     },
     emerald: {
         ...defaultConfig,
