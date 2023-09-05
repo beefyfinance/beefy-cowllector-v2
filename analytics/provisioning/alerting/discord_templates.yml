@@ -20,7 +20,9 @@ templates:
       - {{ .Name }}: {{ .Value }}
       {{ end -}}
       {{ end -}}
+      {{ if eq .Status "firing" }}
       <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
+      {{ end }}
       {{- end }}
       {{ define "discord.message" -}}
       {{ if .Alerts.Firing -}}
