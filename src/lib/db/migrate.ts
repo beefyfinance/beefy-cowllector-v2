@@ -494,32 +494,6 @@ export async function db_migrate() {
       );
     `);
 
-    // get alerted when a vault harvest is in error for too long (3 times default)
-    // we don't want to get alerted on the first error because sometimes the trx goes through anyway
-    await db_query(`
-      drop view if exists alert_vault_harvest_in_error cascade;
-      CREATE OR REPLACE VIEW alert_vault_harvest_in_error AS (
-          with vault_harvest_in_error as (
-            SELECT
-              r.datetime,
-              r.vault_id,
-              coalesce(r.summary_status != 'error', true) as success
-            FROM
-              harvest_report_vault_details r
-          )
-          select
-            date_trunc('hour', datetime) as time,
-            vault_id,
-            (not success) :: integer as value
-          from
-            vault_harvest_in_error
-          where
-            datetime between now() - '4 hours'::interval and now()
-          order by
-            datetime
-      );
-    `);
-
     // get an alert when a cowllector run was in error 3 times in a row, harvest or unwrap
     await db_query(`
       drop view if exists alert_run_in_error cascade;

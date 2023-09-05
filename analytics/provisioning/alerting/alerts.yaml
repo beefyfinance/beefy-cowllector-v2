@@ -83,8 +83,17 @@ groups:
                 maxDataPoints: 43200
                 rawQuery: true
                 rawSql: |
-                    select *
-                    from alert_vault_harvest_in_error
+                    SELECT
+                      date_trunc('hour', datetime) as time,
+                      vault_id,
+                      chain,
+                      (not coalesce(r.summary_status != 'error', true)) :: integer as value
+                    FROM
+                      harvest_report_vault_details r
+                    WHERE
+                      $__timeFilter(datetime)
+                    ORDER BY
+                      datetime
                 refId: vault_harvest_success_ts
                 sql:
                     columns:
@@ -127,9 +136,16 @@ groups:
                 settings:
                     mode: ""
                 type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
           noDataState: OK
           execErrState: Error
           for: 3h
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: alert_vault_harvest_in_error
           isPaused: false
         - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c2
           title: Run Error Alert
