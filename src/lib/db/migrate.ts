@@ -505,7 +505,7 @@ export async function db_migrate() {
             (not coalesce(summary_status != 'error', true)) :: integer as value,
             chain,
             'alert_vault_harvest_in_error' as alert_type,
-            r.raw_report_id::text as raw_report_id
+            raw_report_id::text as raw_report_id
           from
             harvest_report_vault_details
           where
