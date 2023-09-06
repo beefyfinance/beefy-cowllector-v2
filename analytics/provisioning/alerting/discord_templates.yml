@@ -36,15 +36,11 @@ templates:
       {{ end -}}
       {{ end }}
   - orgID: 1
-    name: beefy.alert_vault_harvest_in_error.alert_print
-    template: >
-      - {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}: {{ $labels.vault_id }}
-  - orgID: 1
     name: beefy.alert_vault_harvest_in_error.message
     template: |
       <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end }}
       {{ range .Alerts }}
-      {{ template "beefy.default.alert_print" . }}
+      - {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}: {{ $labels.vault_id }}
       {{ end -}}
   - orgID: 1
     name: discord.message
