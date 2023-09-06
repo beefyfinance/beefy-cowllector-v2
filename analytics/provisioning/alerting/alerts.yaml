@@ -188,18 +188,33 @@ groups:
                 rawQuery: true
                 rawSql: |
                   with run_in_error as (
-                    select 
-                      r.datetime,
-                      r.report_type || '-' || r.chain as report_key,
-                      r.run_ok as success
-                    from cowllector_run r
+                    (
+                      select 
+                        r.datetime,
+                        r.chain,
+                        'unwrap' as report_type,
+                        r.run_ok
+                      from last_unwrap_run_by_chain r
+                      join chain c using (chain)
+                      where c.harvest_enabled and not c.eol
+                        and $__timeFilter(datetime) 
+                    ) UNION ALL (
+                      select 
+                        r.datetime,
+                        r.chain,
+                        'harvest' as report_type,
+                        r.run_ok
+                      from last_harvest_run_by_chain r
+                      join chain c using (chain)
+                      where c.harvest_enabled and not c.eol
+                        and $__timeFilter(datetime)
+                    )
                   )
                   select 
                     date_trunc('hour', datetime) as time, 
-                    report_key, 
-                    (not success)::integer as value
-                  from run_in_error
-                  where datetime between now() - '12 hours'::interval and now()
+                    chain || '-' || report_type as report_key, 
+                    (not run_ok)::integer as value
+                  from run_in_error r
                   order by datetime
                 refId: cowllector run errors
                 sql:
