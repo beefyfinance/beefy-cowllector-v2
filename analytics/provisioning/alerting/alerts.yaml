@@ -231,16 +231,16 @@ groups:
                     SELECT
                       r.datetime,
                       r.chain,
-                      balance_before_aggregated_wei,
-                      balance_after_aggregated_wei,
-                      (balance_before_aggregated_wei <= balance_after_aggregated_wei) as is_valid,
+                      balance_before_native_wei,
+                      balance_after_native_wei,
+                      (balance_before_native_wei <= balance_after_native_wei) as is_valid,
                       row_number() over (partition by chain order by datetime desc) as row_number
                     FROM
                       cowllector_run r
                     where 
                       report_type = 'unwrap'
-                      and balance_before_aggregated_wei is not null 
-                      and balance_after_aggregated_wei is not null
+                      and balance_before_native_wei is not null 
+                      and balance_after_native_wei is not null
                       and $__timeFilter(datetime) 
                   )
                   select 

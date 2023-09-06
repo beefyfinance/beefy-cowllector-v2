@@ -239,6 +239,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'legacy',
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.2),
+        },
     },
     celo: {
         ...defaultConfig,
