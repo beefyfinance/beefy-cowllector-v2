@@ -16,41 +16,6 @@ templates:
     template: >
       {{- if eq .Status "firing" }}🔥{{ end }}{{ if eq .Status "resolved" }}✅{{ end }} {{.Status -}}
   - orgID: 1
-    name: beefy.default.alert_print
-    template: |-2
-      {{ template "beefy.alert.status" . }} {{ .Labels.alertname }} <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ template "beefy.alert.action_urls" . }}
-      {{ range .Labels.SortedPairs -}}
-      - {{ .Name }}: {{ .Value }}
-      {{ end -}}
-      {{ if .Annotations -}}
-      {{ range .Annotations.SortedPairs -}}
-      - {{ .Name }}: {{ .Value }}
-      {{ end -}}
-      {{ end -}}
-  - orgID: 1
-    name: beefy.default.message
-    template: |-2
-      {{ if .Alerts.Firing -}}
-      ### {{ len .Alerts.Firing }} firing alert(s):
-      {{ range .Alerts.Firing }}
-      {{ template "beefy.default.alert_print" . }}
-      {{ end -}}
-      {{ end }}
-      {{ if .Alerts.Resolved -}}
-      ### {{ len .Alerts.Resolved }} resolved alert(s):
-      {{ range .Alerts.Resolved }}
-      {{ template "beefy.default.alert_print" .}}
-      {{ end -}}
-      {{ end }}
-  - orgID: 1
-    name: beefy.alert_vault_harvest_in_error.message
-    template: |-2
-      ### Vault Harvest: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
-      {{ range .Alerts -}}
-      - {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
-      {{ end }}
-      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
-  - orgID: 1
     name: discord.message
     template: |-2
       {{- $template := "default" -}}
@@ -59,8 +24,23 @@ templates:
         {{- break -}}
       {{- end -}}
       {{- if eq $template "alert_vault_harvest_in_error" -}}
-      {{-   template "beefy.alert_vault_harvest_in_error.message" . -}}
+      ### Vault Harvest: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+      {{   range .Alerts -}}
+      - {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
+      {{   end }}
+      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
       {{- else -}}
-      {{-   template "beefy.default.message" . -}}
+      ### {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s):
+      {{   range .Alerts -}}
+      {{-    template "beefy.alert.status" . }} {{ .Labels.alertname }} <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ template "beefy.alert.action_urls" . }}
+      {{     range .Labels.SortedPairs -}}
+      - {{ .Name }}: {{ .Value }}
+      {{     end -}}
+      {{     if .Annotations -}}
+      {{       range .Annotations.SortedPairs -}}
+      - {{ .Name }}: {{ .Value }}
+      {{       end -}}
+      {{     end }}
+      {{   end -}}
       {{- end -}}
 
