@@ -399,7 +399,7 @@ export async function db_migrate() {
           hexstr_to_bytea(dec_ok."harvestReturnData") as decision_harvest_return_data,
           case 
             -- abi.encodeWithSignature('Error(string)', 'SOME TEXT')
-            when substr(hexstr_to_bytea(dec_ok."harvestReturnData"), 0, 5) = '\x08c379a0' then
+            when substr(hexstr_to_bytea(dec_ok."harvestReturnData"), 0, 5) = '\\x08c379a0' then
               replace(
                 encode(
                     hexstr_to_bytea(
