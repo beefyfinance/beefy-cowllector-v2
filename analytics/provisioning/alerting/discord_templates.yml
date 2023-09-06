@@ -33,13 +33,13 @@ templates:
     template: |-2
       {{- print ""   }}{{ if .Alerts.Firing -}}
       {{- print "\n" }}### {{ len .Alerts.Firing }} firing alert(s):
-      {{- print ""   }}{{   range .Alerts.Firing }}
+      {{- print "\n" }}{{   range .Alerts.Firing }}
       {{- print ""   }}{{     template "beefy.default.alert_print" . }}
       {{- print ""   }}{{   end -}}
       {{- print ""   }}{{ end }}
       {{- print ""   }}{{ if .Alerts.Resolved -}}
       {{- print "\n" }}### {{ len .Alerts.Resolved }} resolved alert(s):
-      {{- print ""   }}{{   range .Alerts.Resolved }}
+      {{- print "\n" }}{{   range .Alerts.Resolved }}
       {{- print ""   }}{{     template "beefy.default.alert_print" .}}
       {{- print ""   }}{{   end -}}
       {{- print ""   }}{{ end }}
