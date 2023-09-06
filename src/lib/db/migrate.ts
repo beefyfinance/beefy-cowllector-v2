@@ -459,60 +459,15 @@ export async function db_migrate() {
             status character varying
           )
       );
-    `);
 
-    // helper view to get alerted when there is not enough balance left
-    await db_query(`
-      drop view if exists alert_enough_balance cascade;
-      CREATE OR REPLACE VIEW alert_enough_balance AS (
-        with transaction_max_cost as (
-          select chain, max(transaction_gas_cost_wei) as max_trx_cost
-          FROM harvest_report_vault_details
-          WHERE datetime between now() - '14 day'::interval and now()
-          GROUP BY chain
-        ),
-        balance_ok_by_chain as (
-          select 
-            c.chain,
-            t.max_trx_cost,
-            c.harvest_balance_gas_multiplier_threshold, 
-            r.balance_after_native_wei,
-            (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold) as balance_threshold_1,
-            c.unwrap_trigger_amount_wei as balance_threshold_2,
-            coalesce(
-              r.balance_after_native_wei > (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold),
-              r.balance_after_native_wei > c.unwrap_trigger_amount_wei, -- not "right" but a good default
-              false
-            ) as balance_ok
-          FROM transaction_max_cost t 
-          join chain c using (chain)
-          join last_harvest_run_by_chain r using (chain)
-          where not c.eol and c.harvest_enabled
+      drop view if exists harvest_report_last_vault_details cascade;
+      CREATE OR REPLACE VIEW harvest_report_last_vault_details AS (
+        with latest_report as (
+          select
+            *, row_number() over (partition by vault_id order by datetime desc) as row_number
+          from harvest_report_vault_details
         )
-        select now() as time, chain, (not balance_ok)::integer as value
-        from balance_ok_by_chain
-      );
-    `);
-
-    // get an alert when a cowllector run was in error 3 times in a row, harvest or unwrap
-    await db_query(`
-      drop view if exists alert_run_in_error cascade;
-      CREATE OR REPLACE VIEW alert_run_in_error AS (
-        with run_in_error as (
-          select 
-            r.datetime,
-            r.report_type || '-' || r.chain as report_key,
-            r.run_ok as success
-          from cowllector_run r
-        )
-        select 
-          date_trunc('hour', datetime) as time, 
-          report_key, 
-          (not success)::integer as value
-        from run_in_error
-        where datetime between now() - '12 hours'::interval and now()
-        order by datetime
-      );
+        select * from latest_report where row_number = 1
     `);
 
     logger.info({ msg: 'Migrate done' });
