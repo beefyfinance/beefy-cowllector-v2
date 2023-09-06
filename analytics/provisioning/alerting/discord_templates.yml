@@ -10,7 +10,7 @@ templates:
   - orgID: 1
     name: beefy.alert.action_urls
     template: |
-      {{- if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
+      {{- if .SilenceURL -}}[Silence]({{ .SilenceURL }}){{ end }} | {{ if .DashboardURL -}}[Dashboard]({{ .DashboardURL }}){{ end -}}
   - orgID: 1
     name: beefy.alert.status
     template: >
