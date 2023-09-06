@@ -31,13 +31,13 @@ templates:
     name: beefy.default.message
     template: |
       {{ if .Alerts.Firing -}}
-      ## {{ len .Alerts.Firing }} firing alert(s):
+      ### {{ len .Alerts.Firing }} firing alert(s):
       {{ range .Alerts.Firing }}
       {{ template "beefy.default.alert_print" . }}
       {{ end -}}
       {{ end }}
       {{ if .Alerts.Resolved -}}
-      ##{{ len .Alerts.Resolved }} resolved alert(s):
+      ### {{ len .Alerts.Resolved }} resolved alert(s):
       {{ range .Alerts.Resolved }}
       {{ template "beefy.default.alert_print" .}}
       {{ end -}}
