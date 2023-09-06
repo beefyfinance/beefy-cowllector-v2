@@ -146,7 +146,8 @@ const defaultTimeoutMs: RpcConfig['timeoutMs'] = 60_000; // high timeout because
 const defaultUnwrapConfig: RpcConfig['unwrap'] = {
     enabled: true,
     // default to 0.01 wnative (18 decimals)
-    triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+    minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+    maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
     balanceCheck: {
         minWalletThreshold: UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER,
     },
@@ -199,7 +200,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
-            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.1),
         },
     },
     base: {
@@ -227,7 +229,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
-            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.2),
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.2),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
         },
     },
     celo: {
@@ -245,7 +248,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.CRONOS_RPC_URL || 'https://evm.cronos.org',
         unwrap: {
             ...defaultUnwrapConfig,
-            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 1.5), // 1.5 cro
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 1.5), // 1.5 cro
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
         },
     },
     emerald: {
@@ -357,7 +361,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
-            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 2.0), // 2 wmatic
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 2.0), // 2 wmatic
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
         },
     },
     zkevm: {
@@ -373,7 +378,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
-            triggerAmountWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // 0.001 weth (~$1.5)
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // 0.001 weth (~$1.5)
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.03),
         },
     },
     zksync: {

@@ -70,7 +70,9 @@ export type RpcConfig = {
         enabled: boolean;
 
         // we try to unwrap if the amount of wrapped tokens is above this threshold
-        triggerAmountWei: bigint;
+        minAmountOfWNativeWei: bigint;
+        // but only if we are low on native
+        maxAmountOfNativeWei: bigint;
 
         // these parameters are used to know if we have enough gas to send a transaction
         balanceCheck: {

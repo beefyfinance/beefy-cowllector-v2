@@ -37,24 +37,29 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
     // ===============
 
     const unwrapDecision = await reportOnSingleUnwrapAsyncCall(item, 'unwrapDecision', async item => {
-        const shouldUnwrap =
-            item.collectorBalanceBefore.wnativeBalanceWei > 0n &&
-            item.collectorBalanceBefore.wnativeBalanceWei > rpcConfig.unwrap.triggerAmountWei;
-
-        if (!shouldUnwrap) {
+        if (item.collectorBalanceBefore.wnativeBalanceWei < rpcConfig.unwrap.minAmountOfWNativeWei) {
             return {
                 shouldUnwrap: false,
-                triggerAmount: rpcConfig.unwrap.triggerAmountWei,
+                minAmountOfWNativeWei: rpcConfig.unwrap.minAmountOfWNativeWei,
                 actualAmount: item.collectorBalanceBefore.wnativeBalanceWei,
                 notUnwrappingReason: 'too few wnative to unwrap',
             };
-        } else {
+        }
+
+        if (item.collectorBalanceBefore.balanceWei > rpcConfig.unwrap.maxAmountOfNativeWei) {
             return {
-                shouldUnwrap: true,
-                triggerAmount: rpcConfig.unwrap.triggerAmountWei,
-                actualAmount: item.collectorBalanceBefore.wnativeBalanceWei,
+                shouldUnwrap: false,
+                maxAmountOfNativeWei: rpcConfig.unwrap.maxAmountOfNativeWei,
+                actualAmount: item.collectorBalanceBefore.balanceWei,
+                notUnwrappingReason: 'still got plenty of native left',
             };
         }
+
+        return {
+            shouldUnwrap: true,
+            triggerAmount: rpcConfig.unwrap.minAmountOfWNativeWei,
+            actualAmount: item.collectorBalanceBefore.wnativeBalanceWei,
+        };
     });
 
     // =======================

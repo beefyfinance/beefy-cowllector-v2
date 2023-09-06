@@ -7,9 +7,15 @@ import { CollectorBalance } from './collector-balance';
 type UnwrapReportShouldUnwrapDecision =
     | {
           shouldUnwrap: false;
-          triggerAmount: bigint;
+          minAmountOfWNativeWei: bigint;
           actualAmount: bigint;
           notUnwrappingReason: 'too few wnative to unwrap';
+      }
+    | {
+          shouldUnwrap: false;
+          maxAmountOfNativeWei: bigint;
+          actualAmount: bigint;
+          notUnwrappingReason: 'still got plenty of native left';
       }
     | {
           shouldUnwrap: true;
