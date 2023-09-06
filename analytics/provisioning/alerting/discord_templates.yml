@@ -3,14 +3,13 @@ apiVersion: 1
 templates:
   - orgID: 1
     name: discord.title
-    template: >
+    template: |
       {{ define "discord.title" }}
       ## {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
       {{ end }}
   - orgID: 1
-    name: discord.message
+    name: beefy.default.alert_print
     template: |
-      {{ define "discord.print_alert" -}}
       {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}{{.Status}} {{ .Labels.alertname }}
       {{ range .Labels.SortedPairs -}}
       - {{ .Name }}: {{ .Value }}
@@ -20,22 +19,50 @@ templates:
       - {{ .Name }}: {{ .Value }}
       {{ end -}}
       {{ end -}}
-      {{ if eq .Status "firing" }}
-      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
-      {{ end }}
-      {{- end }}
-      {{ define "discord.message" -}}
+  - orgID: 1
+    name: beefy.default.message
+    template: |
+      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
       {{ if .Alerts.Firing -}}
       ## {{ len .Alerts.Firing }} firing alert(s):
       {{ range .Alerts.Firing }}
-      {{ template "discord.print_alert" . }}
+      {{ template "beefy.default.alert_print" . }}
       {{ end -}}
       {{ end }}
       {{ if .Alerts.Resolved -}}
-      {{ len .Alerts.Resolved }} resolved alert(s):
+      ##{{ len .Alerts.Resolved }} resolved alert(s):
       {{ range .Alerts.Resolved }}
-      {{ template "discord.print_alert" .}}
+      {{ template "beefy.default.alert_print" .}}
       {{ end -}}
       {{ end }}
-      {{- end }}
+  - orgID: 1
+    name: beefy.alert_vault_harvest_in_error.alert_print
+    template: >
+      - {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}: {{ $labels.vault_id }}
+  - orgID: 1
+    name: beefy.alert_vault_harvest_in_error.message
+    template: |
+      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end }}
+      {{ range .Alerts }}
+      {{ template "beefy.default.alert_print" . }}
+      {{ end -}}
+  - orgID: 1
+  - orgID: 1
+    name: discord.message
+    template: |
+      {{- $template := "default" -}}
+      {{- range .Alerts -}}
+        {{- range $k, $v := .Labels -}}
+          {{- if eq $k "template" -}}
+            {{- $template = $v -}}
+            {{- break -}}
+          {{- end -}}
+        {{- end -}}
+        {{- break -}}
+      {{- end -}}
+      {{- if eq $template "alert_vault_harvest_in_error" -}}
+      {{-   template "beefy.alert_vault_harvest_in_error.message" . -}}
+      {{- else -}}
+      {{-   template "beefy.default.message" . -}}
+      {{- end -}}
 
