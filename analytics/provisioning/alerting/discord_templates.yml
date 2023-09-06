@@ -50,7 +50,6 @@ templates:
         {{- $template = index .Labels "template" -}}
         {{- break -}}
       {{- end -}}
-      {{ print $template }}
       {{- if eq $template "alert_vault_harvest_in_error" -}}
       {{-   template "beefy.alert_vault_harvest_in_error.message" . -}}
       {{- else -}}
