@@ -217,7 +217,7 @@ groups:
           data:
             - refId: unwrap unprofitable
               relativeTimeRange:
-                from: 21600
+                from: 1209600
                 to: 0
               datasourceUid: PAF11E62F20EEC83B
               model:
@@ -227,8 +227,30 @@ groups:
                 maxDataPoints: 43200
                 rawQuery: true
                 rawSql: |
-                  select *
-                  from alert_unwrap_not_profitable
+                  with unwrap_not_profitable as (
+                    SELECT
+                      r.datetime,
+                      r.chain,
+                      balance_before_aggregated_wei,
+                      balance_after_aggregated_wei,
+                      (balance_before_aggregated_wei <= balance_after_aggregated_wei) as is_valid,
+                      row_number() over (partition by chain order by datetime desc) as row_number
+                    FROM
+                      cowllector_run r
+                    where 
+                      report_type = 'unwrap'
+                      and balance_before_aggregated_wei is not null 
+                      and balance_after_aggregated_wei is not null
+                      and $__timeFilter(datetime) 
+                  )
+                  select 
+                    date_trunc('month', datetime) as time,
+                    chain,
+                    (not bool_and(is_valid)) :: integer as value
+                  from
+                    unwrap_not_profitable
+                  group by 1, 2
+                  order by 1
                 refId: unwrap unprofitable
                 sql:
                     columns:

@@ -515,35 +515,5 @@ export async function db_migrate() {
       );
     `);
 
-    // unwraps should always be profitable, get alerted when it's not
-    await db_query(`
-      drop view if exists alert_unwrap_not_profitable cascade;
-      CREATE OR REPLACE VIEW alert_unwrap_not_profitable AS (
-        with unwrap_not_profitable as (
-          SELECT
-            r.datetime,
-            r.chain,
-            balance_before_aggregated_wei,
-            balance_after_aggregated_wei,
-            balance_before_aggregated_wei is null 
-            or balance_after_aggregated_wei is null
-            or (balance_before_aggregated_wei <= balance_after_aggregated_wei) as is_valid
-          FROM
-            cowllector_run r
-            where report_type = 'unwrap'
-        )
-        select
-          date_trunc('hour', datetime) as time,
-          chain,
-          (not is_valid) :: integer as value
-        from
-          unwrap_not_profitable
-        where
-          datetime between now() - '12 hours'::interval and now()
-        order by
-          datetime
-      );
-    `);
-
     logger.info({ msg: 'Migrate done' });
 }
