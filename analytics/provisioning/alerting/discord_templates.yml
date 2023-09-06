@@ -38,9 +38,9 @@ templates:
   - orgID: 1
     name: beefy.alert_vault_harvest_in_error.message
     template: |
-      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end }}
+      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>
       {{ range .Alerts }}
-      - {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}: {{ index .Labels "vault_id" }}
+      - {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}: {{ index .Labels "vault_id" }} {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end }}
       {{ end -}}
   - orgID: 1
     name: discord.message
