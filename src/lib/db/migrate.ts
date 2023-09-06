@@ -340,6 +340,17 @@ export async function db_migrate() {
               )
               .join(') UNION ALL (')})
         );
+
+        drop view if exists last_unwrap_run_by_chain cascade;
+        -- this is the most efficient top-k query
+        CREATE OR REPLACE VIEW last_unwrap_run_by_chain AS (
+          (${allChainIds
+              .map(
+                  chain =>
+                      `SELECT * FROM cowllector_run WHERE chain = '${chain}' and report_type = 'unwrap' ORDER BY datetime DESC LIMIT 1`
+              )
+              .join(') UNION ALL (')})
+        );
     `);
 
     await db_query(`
