@@ -48,6 +48,7 @@ const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUG
 
 // some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
+// some vaults can't be paused to allow users to burn their shares (like beefy-beopx)
 export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
     'curve-arb-f-wsteth',
     'aavev3-dai.e',
@@ -60,6 +61,7 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
     'thena-bnbx-wbnb',
     'stargate-base-usdbc',
     'stargate-base-eth',
+    'beefy-beopx',
 ];
 
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
