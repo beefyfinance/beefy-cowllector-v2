@@ -10,7 +10,7 @@ templates:
   - orgID: 1
     name: beefy.default.alert_print
     template: |
-      {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}{{.Status}} {{ .Labels.alertname }} <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end -}} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
+      {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}{{.Status}} {{ .Labels.alertname }} <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end }}
       {{ range .Labels.SortedPairs -}}
       - {{ .Name }}: {{ .Value }}
       {{ end -}}
