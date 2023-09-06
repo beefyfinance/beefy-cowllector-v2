@@ -396,7 +396,7 @@ export async function db_migrate() {
           dec_ok."shouldHarvest" as decision_should_harvest,
           dec_ok."level" as decision_level,
           dec_ok."notHarvestingReason" as decision_not_harvesting_reason,
-          dec_ok."harvestReturnData" as decision_harvest_return_data,
+          hexstr_to_bytea(dec_ok."harvestReturnData") as decision_harvest_return_data,
           d.transaction is not null as transaction_started,
           async_field_ok(d.transaction) as transaction_ok,
           d.transaction->'reason' as transaction_ko_reason,
