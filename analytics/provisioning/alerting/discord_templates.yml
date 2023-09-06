@@ -47,9 +47,9 @@ templates:
     template: |
       ### Vault Harvest: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
       {{ range .Alerts -}}
-      - {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>) {{ template "beefy.alert.action_urls" . }}
+      - {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
       {{ end }}
-      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>
+      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
   - orgID: 1
     name: discord.message
     template: |
