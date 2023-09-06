@@ -5,6 +5,7 @@ apiVersion: 1
 
 datasources:
   - name: Beefy Cowllector DB
+    uid: PAF11E62F20EEC83B
     type: postgres
     access: proxy
     url: ${PG_HOSTNAME}:${PG_PORT}

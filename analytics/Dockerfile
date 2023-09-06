@@ -4,6 +4,7 @@ FROM grafana/grafana:10.1.1
 ADD ./custom.ini /etc/grafana/grafana.ini
 
 # provision the instance
+ADD ./provisioning/dashboards/* /etc/grafana/provisioning/dashboards/
 ADD ./provisioning/datasources/* /etc/grafana/provisioning/datasources/
 ADD ./provisioning/alerting/* /etc/grafana/provisioning/alerting/
 
