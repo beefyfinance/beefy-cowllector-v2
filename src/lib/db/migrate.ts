@@ -468,6 +468,7 @@ export async function db_migrate() {
           from harvest_report_vault_details
         )
         select * from latest_report where row_number = 1
+      );
     `);
 
     logger.info({ msg: 'Migrate done' });
