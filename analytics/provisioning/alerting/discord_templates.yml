@@ -10,11 +10,11 @@ templates:
   - orgID: 1
     name: beefy.alert.action_urls
     template: |
-      {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end }}
+      {{- if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end -}}
   - orgID: 1
     name: beefy.alert.status
     template: >
-      {{ if eq .Status "firing" }}🔥{{ end }}{{ if eq .Status "resolved" }}✅{{ end }} {{.Status}}
+      {{ if eq .Status "firing" }}🔥{{ end }}{{ if eq .Status "resolved" }}✅{{ end }} {{.Status -}}
   - orgID: 1
     name: beefy.default.alert_print
     template: |
