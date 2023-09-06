@@ -5,7 +5,7 @@ templates:
     name: discord.title
     template: |
       {{ define "discord.title" }}
-      ## {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+      {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
       {{ end }}
   - orgID: 1
     name: beefy.default.alert_print
