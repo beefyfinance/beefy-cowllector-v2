@@ -38,10 +38,10 @@ templates:
     name: beefy.alert_vault_harvest_in_error.message
     template: |
       ### Vault Harvest {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
-      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>
-      {{- range .Alerts -}}
+      {{ range .Alerts -}}
       - {{ if eq .Status "firing" }}🔥 {{ end }}{{ if eq .Status "resolved" }}✅ {{ end }}: {{ index .Labels "vault_id" }} {{ if .SilenceURL -}}[Silence](<{{ .SilenceURL }}>){{ end }} {{ if .DashboardURL -}}[Dashboard](<{{ .DashboardURL }}>){{ end }}
-      {{ end -}}
+      {{ end }}
+      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>
   - orgID: 1
     name: discord.message
     template: |
