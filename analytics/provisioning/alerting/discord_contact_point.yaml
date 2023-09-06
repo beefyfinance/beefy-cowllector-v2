@@ -5,9 +5,34 @@ contactPoints:
       receivers:
         - uid: a503176f-ebff-4771-a4ba-ee273a2d4eb0
           type: discord
+          disableResolveMessage: false
           settings:
-            message: '{{ template "discord.message" . }}'
             title: '{{ template "discord.title" . }}'
             url: ${DISCORD_ALERT_WEBHOOK_URL}
             use_discord_username: true
-          disableResolveMessage: false
+            message: |-2
+              {{- $template := "default" -}}
+              {{- range .Alerts -}}
+                {{- $template = index .Labels "template" -}}
+                {{- break -}}
+              {{- end -}}
+              {{- if eq $template "alert_vault_harvest_in_error" -}}
+              ### Vault Harvest: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+              {{   range .Alerts -}}
+              - {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
+              {{   end }}
+              <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
+              {{- else -}}
+              ### {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s):
+              {{   range .Alerts -}}
+              {{-    template "beefy.alert.status" . }} {{ .Labels.alertname }} <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ template "beefy.alert.action_urls" . }}
+              {{     range .Labels.SortedPairs -}}
+              - {{ .Name }}: {{ .Value }}
+              {{     end -}}
+              {{     if .Annotations -}}
+              {{       range .Annotations.SortedPairs -}}
+              - {{ .Name }}: {{ .Value }}
+              {{       end -}}
+              {{     end }}
+              {{   end -}}
+              {{- end -}}
