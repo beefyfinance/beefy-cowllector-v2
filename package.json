@@ -5,8 +5,8 @@
     "license": "MIT",
     "private": true,
     "engines": {
-        "node": "20.5.x",
-        "yarn": "1.22.x"
+        "node": "20.x",
+        "yarn": "1.x"
     },
     "scripts": {
         "test": "yarn --silent test:all",
