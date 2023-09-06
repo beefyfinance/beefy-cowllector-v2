@@ -47,7 +47,6 @@ templates:
       {{ template "beefy.default.alert_print" . }}
       {{ end -}}
   - orgID: 1
-  - orgID: 1
     name: discord.message
     template: |
       {{- $template := "default" -}}
