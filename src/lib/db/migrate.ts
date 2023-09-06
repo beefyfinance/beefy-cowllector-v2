@@ -397,6 +397,24 @@ export async function db_migrate() {
           dec_ok."level" as decision_level,
           dec_ok."notHarvestingReason" as decision_not_harvesting_reason,
           hexstr_to_bytea(dec_ok."harvestReturnData") as decision_harvest_return_data,
+          case 
+            -- abi.encodeWithSignature('Error(string)', 'SOME TEXT')
+            when substr(hexstr_to_bytea(dec_ok."harvestReturnData"), 0, 5) = '\x08c379a0' then
+              replace(
+                encode(
+                    hexstr_to_bytea(
+                        '0x' || substring(
+                          dec_ok."harvestReturnData",
+                            1 /*?*/ + 2 /*"0x"*/ + (4 /*selector*/ + 32 /*offset to str*/ + 32 /*string len*/) * 2 /* bytes are 2 char long*/
+                        )
+                    ),
+                    'escape'
+                ), 
+                '\\000', 
+                ''
+              )
+            else dec_ok."harvestReturnData"
+          end as decision_harvest_return_data_decoded,
           d.transaction is not null as transaction_started,
           async_field_ok(d.transaction) as transaction_ok,
           d.transaction->'reason' as transaction_ko_reason,
