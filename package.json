@@ -49,6 +49,7 @@
         "pino": "^8.15.0",
         "table": "^6.8.1",
         "viem": "^1.9.2",
+        "yaml": "^2.3.2",
         "yargs": "^17.7.2"
     },
     "devDependencies": {

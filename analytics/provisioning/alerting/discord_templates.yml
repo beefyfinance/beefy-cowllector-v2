@@ -1,46 +1,67 @@
 apiVersion: 1
 
+# grafana prefixes template content with a " " (space) prefix
+# so we use {{- print ""   }} before each line to remove it
+# but that also removes \n (newlines) so we have to re-add them
 templates:
   - orgID: 1
     name: discord.title
     template: |-2
-      {{ define "discord.title" }}
-      {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
-      {{ end }}
+      {{- print ""   }}{{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
   - orgID: 1
     name: beefy.alert.action_urls
     template: |-2
-      {{- if .SilenceURL -}}[Silence]({{ .SilenceURL }}){{ end }} | {{ if .DashboardURL -}}[Dashboard]({{ .DashboardURL }}){{ end -}}
+      {{- print ""   }}{{- if .SilenceURL -}}[Silence]({{ .SilenceURL }}){{ end }} | {{ if .DashboardURL -}}[Dashboard]({{ .DashboardURL }}){{ end -}}
   - orgID: 1
     name: beefy.alert.status
     template: >
-      {{- if eq .Status "firing" }}🔥{{ end }}{{ if eq .Status "resolved" }}✅{{ end }} {{.Status -}}
+      {{- print ""   }}{{- if eq .Status "firing" }}🔥{{ end }}{{ if eq .Status "resolved" }}✅{{ end }} {{.Status -}}
+  - orgID: 1
+    name: beefy.default.alert_print
+    template: |-2
+      {{- print ""   }}{{ template "beefy.alert.status" . }} {{ .Labels.alertname }} <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ template "beefy.alert.action_urls" . }}
+      {{- print ""   }}{{ range .Labels.SortedPairs -}}
+      {{- print "\n" }}- {{ .Name }}: {{ .Value }}
+      {{- print ""   }}{{ end -}}
+      {{- print ""   }}{{ if .Annotations -}}
+      {{- print ""   }}{{   range .Annotations.SortedPairs -}}
+      {{- print "\n" }}- {{ .Name }}: {{ .Value }}
+      {{- print "\n" }}{{   end -}}
+      {{- print "\n"   }}{{ end -}}
+  - orgID: 1
+    name: beefy.default.message
+    template: |-2
+      {{- print ""   }}{{ if .Alerts.Firing -}}
+      {{- print "\n" }}### {{ len .Alerts.Firing }} firing alert(s):
+      {{- print ""   }}{{   range .Alerts.Firing }}
+      {{- print ""   }}{{     template "beefy.default.alert_print" . }}
+      {{- print ""   }}{{   end -}}
+      {{- print ""   }}{{ end }}
+      {{- print ""   }}{{ if .Alerts.Resolved -}}
+      {{- print "\n" }}### {{ len .Alerts.Resolved }} resolved alert(s):
+      {{- print ""   }}{{   range .Alerts.Resolved }}
+      {{- print ""   }}{{     template "beefy.default.alert_print" .}}
+      {{- print ""   }}{{   end -}}
+      {{- print ""   }}{{ end }}
+  - orgID: 1
+    name: beefy.alert_vault_harvest_in_error.message
+    template: |-2
+      {{- print "\n" }}### Vault Harvest: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+      {{- print ""   }}{{ range .Alerts -}}
+      {{- print "\n" }}- {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
+      {{- print ""   }}{{ end }}
+      {{- print "\n" }}<@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
   - orgID: 1
     name: discord.message
     template: |-2
-      {{- $template := "default" -}}
-      {{- range .Alerts -}}
-        {{- $template = index .Labels "template" -}}
-        {{- break -}}
-      {{- end -}}
-      {{- if eq $template "alert_vault_harvest_in_error" -}}
-      ### Vault Harvest: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
-      {{   range .Alerts -}}
-      - {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
-      {{   end }}
-      <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
-      {{- else -}}
-      ### {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s):
-      {{   range .Alerts -}}
-      {{-    template "beefy.alert.status" . }} {{ .Labels.alertname }} <@&__DISCORD_PING_ROLE_ID_ON_ERROR__>: {{ template "beefy.alert.action_urls" . }}
-      {{     range .Labels.SortedPairs -}}
-      - {{ .Name }}: {{ .Value }}
-      {{     end -}}
-      {{     if .Annotations -}}
-      {{       range .Annotations.SortedPairs -}}
-      - {{ .Name }}: {{ .Value }}
-      {{       end -}}
-      {{     end }}
-      {{   end -}}
-      {{- end -}}
+      {{- print ""   }}{{- $template := "default" -}}
+      {{- print ""   }}{{-   range .Alerts -}}
+      {{- print ""   }}{{-   $template = index .Labels "template" -}}
+      {{- print ""   }}{{- break -}}
+      {{- print ""   }}{{- end -}}
+      {{- print ""   }}{{- if eq $template "alert_vault_harvest_in_error" -}}
+      {{- print ""   }}{{-   template "beefy.alert_vault_harvest_in_error.message" . -}}
+      {{- print ""   }}{{- else -}}
+      {{- print ""   }}{{-   template "beefy.default.message" . -}}
+      {{- print ""   }}{{- end -}}
 
