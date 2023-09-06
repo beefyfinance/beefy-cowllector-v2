@@ -89,7 +89,7 @@ groups:
                 type: reduce
           noDataState: NoData
           execErrState: Error
-          for: 2h
+          for: 6h
           isPaused: false
         - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e8
           title: Vault Harvest Failed
@@ -164,7 +164,7 @@ groups:
           panelId: 1
           noDataState: OK
           execErrState: Error
-          for: 3h
+          for: 6h
           annotations:
             __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
             __panelId__: "1"
@@ -260,7 +260,7 @@ groups:
                 type: reduce
           noDataState: OK
           execErrState: Error
-          for: 3h
+          for: 6h
           isPaused: false
         - uid: a238c42c-cd5e-4050-86cf-64ac3a0954c9
           title: Non-profitable unwrap
