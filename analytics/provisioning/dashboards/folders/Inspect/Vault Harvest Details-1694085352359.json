@@ -133,103 +133,116 @@
             "type": "timeseries"
         },
         {
-            "datasource": {
-                "type": "postgres",
-                "uid": "PAF11E62F20EEC83B"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "custom": {
-                        "align": "auto",
-                        "cellOptions": {
-                            "mode": "gradient",
-                            "type": "color-background"
-                        },
-                        "filterable": true,
-                        "inspect": true
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "transparent",
-                                "value": null
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "vault_report"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.cellOptions",
-                                "value": {
-                                    "type": "json-view"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
+            "collapsed": true,
             "gridPos": {
-                "h": 16,
+                "h": 1,
                 "w": 24,
                 "x": 0,
                 "y": 14
             },
-            "id": 1,
-            "options": {
-                "cellHeight": "sm",
-                "footer": {
-                    "countRows": false,
-                    "enablePagination": false,
-                    "fields": "",
-                    "reducer": ["sum"],
-                    "show": false
-                },
-                "showHeader": true
-            },
-            "pluginVersion": "10.1.1",
-            "targets": [
+            "id": 3,
+            "panels": [
                 {
                     "datasource": {
                         "type": "postgres",
                         "uid": "PAF11E62F20EEC83B"
                     },
-                    "editorMode": "code",
-                    "format": "table",
-                    "rawQuery": true,
-                    "rawSql": "select\n  r.*\nFROM\n  harvest_report_vault_details r\n  join vault v on r.vault_id = v.id\nWHERE\n  r.chain in ($chains)\n  AND r.vault_id in ($vault_ids)\n  AND r.summary_status in ($summary_status)\n  AND $__timeFilter(r.datetime)\n  AND v.platform_id not in ($platform_ids_exclude)\n  AND r.vault_id not in ($vault_ids_exclude)\nORDER BY\n  r.datetime DESC",
-                    "refId": "A",
-                    "sql": {
-                        "columns": [
-                            {
-                                "parameters": [],
-                                "type": "function"
-                            }
-                        ],
-                        "groupBy": [
-                            {
-                                "property": {
-                                    "type": "string"
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "custom": {
+                                "align": "auto",
+                                "cellOptions": {
+                                    "mode": "gradient",
+                                    "type": "color-background"
                                 },
-                                "type": "groupBy"
+                                "filterable": true,
+                                "inspect": true
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "transparent"
+                                    }
+                                ]
                             }
-                        ],
-                        "limit": 50
-                    }
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "vault_report"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.cellOptions",
+                                        "value": {
+                                            "type": "json-view"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 16,
+                        "w": 24,
+                        "x": 0,
+                        "y": 15
+                    },
+                    "id": 1,
+                    "options": {
+                        "cellHeight": "sm",
+                        "footer": {
+                            "countRows": false,
+                            "enablePagination": false,
+                            "fields": "",
+                            "reducer": ["sum"],
+                            "show": false
+                        },
+                        "showHeader": true
+                    },
+                    "pluginVersion": "10.1.1",
+                    "targets": [
+                        {
+                            "datasource": {
+                                "type": "postgres",
+                                "uid": "PAF11E62F20EEC83B"
+                            },
+                            "editorMode": "code",
+                            "format": "table",
+                            "rawQuery": true,
+                            "rawSql": "select\n  r.*\nFROM\n  harvest_report_vault_details r\n  join vault v on r.vault_id = v.id\nWHERE\n  r.chain in ($chains)\n  AND r.vault_id in ($vault_ids)\n  AND r.summary_status in ($summary_status)\n  AND $__timeFilter(r.datetime)\n  AND v.platform_id not in ($platform_ids_exclude)\n  AND r.vault_id not in ($vault_ids_exclude)\nORDER BY\n  r.datetime DESC",
+                            "refId": "A",
+                            "sql": {
+                                "columns": [
+                                    {
+                                        "parameters": [],
+                                        "type": "function"
+                                    }
+                                ],
+                                "groupBy": [
+                                    {
+                                        "property": {
+                                            "type": "string"
+                                        },
+                                        "type": "groupBy"
+                                    }
+                                ],
+                                "limit": 50
+                            }
+                        }
+                    ],
+                    "title": "Vault report details",
+                    "type": "table"
                 }
             ],
-            "title": "Vault report details",
-            "type": "table"
+            "title": "Report Details",
+            "type": "row"
         }
     ],
     "refresh": "",
@@ -288,7 +301,7 @@
             },
             {
                 "current": {
-                    "selected": false,
+                    "selected": true,
                     "text": ["All"],
                     "value": ["$__all"]
                 },
@@ -296,14 +309,14 @@
                     "type": "postgres",
                     "uid": "PAF11E62F20EEC83B"
                 },
-                "definition": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nand not v.eol",
+                "definition": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nand not eol",
                 "description": "",
                 "hide": 0,
                 "includeAll": true,
                 "multi": true,
                 "name": "vault_ids",
                 "options": [],
-                "query": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nand not v.eol",
+                "query": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nand not eol",
                 "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
@@ -354,7 +367,7 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": ["aave", "balancer", "none", "stargate"],
                     "value": ["aave", "balancer", "none", "stargate"]
                 },
@@ -378,7 +391,7 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": ["curve-avax-atricrypto", "joe-joe", "none", "moonwell-base-weth"],
                     "value": ["curve-avax-atricrypto", "joe-joe", "none", "moonwell-base-weth"]
                 },
@@ -410,6 +423,6 @@
     "timezone": "",
     "title": "Vault Harvest Details",
     "uid": "eceba98b-5444-477d-acf7-a459abfb7596",
-    "version": 22,
+    "version": 25,
     "weekStart": ""
 }
