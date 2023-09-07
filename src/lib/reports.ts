@@ -4,6 +4,7 @@ import { get, set } from 'lodash';
 import { runSequentially, splitPromiseResultsByStatus } from '../util/promise';
 import { rootLogger } from '../util/logger';
 import { Prettify } from 'viem/dist/types/types/utils';
+import { CENSOR_SECRETS_FROM_REPORTS } from './config';
 
 const logger = rootLogger.child({ module: 'report' });
 
@@ -140,8 +141,11 @@ function formatAsyncResult<T>(asyncResult: Async<T>): Async<T> {
 /**
  * JSON.stringify cannot handle BigInt and set a good format for dates, so we need to serialize it ourselves
  */
+const SECRET_REGEXS = CENSOR_SECRETS_FROM_REPORTS.map(
+    secret => new RegExp(secret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+);
 export function serializeReport(o: object, pretty: boolean = false): string {
-    return JSON.stringify(
+    let reportStr = JSON.stringify(
         o,
         (_, value) => {
             // handle BigInt
@@ -156,4 +160,16 @@ export function serializeReport(o: object, pretty: boolean = false): string {
         },
         pretty ? 2 : undefined
     );
+
+    return removeSecretsFromString(reportStr);
+}
+
+export function removeSecretsFromString(s: string): string {
+    let str = s;
+    for (const secretRegex of SECRET_REGEXS) {
+        if (secretRegex.test(str)) {
+            str = str.replace(secretRegex, '******');
+        }
+    }
+    return str;
 }

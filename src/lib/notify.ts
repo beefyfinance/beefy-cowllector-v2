@@ -13,7 +13,7 @@ import { bigintFormat } from '../util/bigint';
 import { getChainWNativeTokenSymbol } from './addressbook';
 import { table } from 'table';
 import { asyncResultGet } from '../util/async';
-import { serializeReport } from './reports';
+import { removeSecretsFromString, serializeReport } from './reports';
 import { UnwrapReport } from './unwrap-report';
 import { extractErrorMessage } from './error-message';
 
@@ -94,7 +94,7 @@ export async function notifyHarvestReport(report: HarvestReport, db_raw_report_i
 
     const codeSep = '```';
     const params: DiscordWebhookParams = {
-        content: `
+        content: removeSecretsFromString(`
 ### Harvest ${reportLevel} for ${report.chain.toLocaleUpperCase()}
 ${reportUrlMarkdown}
 ${codeSep}
@@ -102,7 +102,7 @@ ${stratCountTableStr}
 ${getBalanceReportTable(report)}
 ${codeSep}
 ${errorDetails}
-${rolePing}`,
+${rolePing}`),
     };
 
     try {
@@ -162,12 +162,12 @@ export async function notifyUnwrapReport(report: UnwrapReport, db_raw_report_id:
 
     const codeSep = '```';
     const params: DiscordWebhookParams = {
-        content: `
+        content: removeSecretsFromString(`
 ### Wnative unwrap ${reportLevel} for ${report.chain.toLocaleUpperCase()}
 ${reportUrlMarkdown}
 ${report.summary.unwrapped ? codeSep + getBalanceReportTable(report) + codeSep : ''}  
 ${errorDetails}
-${rolePing}`,
+${rolePing}`),
     };
 
     try {
@@ -231,7 +231,7 @@ export async function notifyError(ctx: { doing: string; data: any }, error: unkn
 
     const codeSep = '```';
     const params: DiscordWebhookParams = {
-        content: `
+        content: removeSecretsFromString(`
 ### 🚨 ERROR while ${ctx.doing}
 ${codeSep}
 ${String(error)}
@@ -239,7 +239,7 @@ ${codeSep}
 ${codeSep}
 ${JSON.stringify(ctx.data, null, 2)}
 ${codeSep}
-`,
+`),
     };
 
     try {
