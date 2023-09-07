@@ -54,7 +54,7 @@
                             "type": "linear"
                         },
                         "showPoints": "never",
-                        "spanNulls": false,
+                        "spanNulls": true,
                         "stacking": {
                             "group": "A",
                             "mode": "none"
@@ -108,7 +108,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "select\n  datetime as time,\n  vault_id,\n  simulation_hours_since_last_harvest as hours_since_last_harvest\nfrom\n  harvest_report_vault_details\nwhere\n  chain in ($chains)\n  and vault_id in ($vault_ids)\nORDER BY\n  datetime",
+                    "rawSql": "select\n  r.datetime as time,\n  r.vault_id,\n  r.simulation_hours_since_last_harvest as hours_since_last_harvest\nfrom\n  harvest_report_vault_details r\n  join vault v on v.id = r.vault_id\nwhere\n  r.chain in ($chains)\n  and r.vault_id in ($vault_ids)\n  and r.vault_id not in ($vault_ids_exclude)\n  and v.platform_id not in ($platform_ids_exclude)\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -207,7 +207,7 @@
                     "editorMode": "code",
                     "format": "table",
                     "rawQuery": true,
-                    "rawSql": "select\n  *\nFROM\n  harvest_report_vault_details\nWHERE\n  chain in ($chains)\n  AND vault_id in ($vault_ids)\n  AND summary_status in ($summary_status)\n  AND $__timeFilter(datetime) \nORDER BY\n  datetime DESC",
+                    "rawSql": "select\n  r.*\nFROM\n  harvest_report_vault_details r\n  join vault v on r.vault_id = v.id\nWHERE\n  r.chain in ($chains)\n  AND r.vault_id in ($vault_ids)\n  AND r.summary_status in ($summary_status)\n  AND $__timeFilter(r.datetime)\n  AND v.platform_id not in ($platform_ids_exclude)\n  AND r.vault_id not in ($vault_ids_exclude)\nORDER BY\n  r.datetime DESC",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -240,9 +240,9 @@
         "list": [
             {
                 "current": {
-                    "selected": true,
-                    "text": ["base"],
-                    "value": ["base"]
+                    "selected": false,
+                    "text": ["arbitrum", "avax", "base"],
+                    "value": ["arbitrum", "avax", "base"]
                 },
                 "datasource": {
                     "type": "postgres",
@@ -264,7 +264,7 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": ["All"],
                     "value": ["$__all"]
                 },
@@ -288,7 +288,7 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": ["All"],
                     "value": ["$__all"]
                 },
@@ -296,14 +296,14 @@
                     "type": "postgres",
                     "uid": "PAF11E62F20EEC83B"
                 },
-                "definition": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)",
+                "definition": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nand not v.eol",
                 "description": "",
                 "hide": 0,
                 "includeAll": true,
                 "multi": true,
                 "name": "vault_ids",
                 "options": [],
-                "query": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)",
+                "query": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nand not v.eol",
                 "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
@@ -312,7 +312,7 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": ["All"],
                     "value": ["$__all"]
                 },
@@ -351,17 +351,65 @@
                 "queryValue": "",
                 "skipUrlSync": false,
                 "type": "custom"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": ["aave", "balancer", "none", "stargate"],
+                    "value": ["aave", "balancer", "none", "stargate"]
+                },
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "PAF11E62F20EEC83B"
+                },
+                "definition": "select distinct platform_id from vault where chain in ($chains)\nunion all \nselect 'none'",
+                "description": "",
+                "hide": 0,
+                "includeAll": false,
+                "multi": true,
+                "name": "platform_ids_exclude",
+                "options": [],
+                "query": "select distinct platform_id from vault where chain in ($chains)\nunion all \nselect 'none'",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": ["curve-avax-atricrypto", "joe-joe", "none", "moonwell-base-weth"],
+                    "value": ["curve-avax-atricrypto", "joe-joe", "none", "moonwell-base-weth"]
+                },
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "PAF11E62F20EEC83B"
+                },
+                "definition": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nunion all select 'none'",
+                "description": "",
+                "hide": 0,
+                "includeAll": false,
+                "multi": true,
+                "name": "vault_ids_exclude",
+                "options": [],
+                "query": "select id from vault \nwhere chain in ($chains) \nand platform_id in ($platform_ids)\nunion all select 'none'",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
             }
         ]
     },
     "time": {
-        "from": "now-6h",
+        "from": "now-24h",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "Vault Harvest Details",
     "uid": "eceba98b-5444-477d-acf7-a459abfb7596",
-    "version": 16,
+    "version": 22,
     "weekStart": ""
 }
