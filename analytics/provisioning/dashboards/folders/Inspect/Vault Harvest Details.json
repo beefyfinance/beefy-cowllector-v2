@@ -109,7 +109,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "select\n  r.datetime as time,\n  r.vault_id,\n  r.simulation_hours_since_last_harvest as hours_since_last_harvest\nfrom\n  harvest_report_vault_details r\n  join vault v on v.id = r.vault_id\nwhere\n  r.chain in ($chains)\n  and r.vault_id in ($vault_ids)\n  and r.vault_id not in ($vault_ids_exclude)\n  and v.platform_id not in ($platform_ids_exclude)\nORDER BY\n  datetime",
+                    "rawSql": "select\n  date_trunc('hour', r.datetime) as time,\n  r.vault_id,\n  r.simulation_hours_since_last_harvest as hours_since_last_harvest\nfrom\n  harvest_report_vault_details r\n  join vault v on v.id = r.vault_id\nwhere\n  r.chain in ($chains)\n  and r.vault_id in ($vault_ids)\n  and r.vault_id not in ($vault_ids_exclude)\n  and v.platform_id not in ($platform_ids_exclude)\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -438,6 +438,6 @@
     "timezone": "",
     "title": "Vault Harvest Details",
     "uid": "eceba98b-5444-477d-acf7-a459abfb7596",
-    "version": 27,
+    "version": 28,
     "weekStart": ""
 }
