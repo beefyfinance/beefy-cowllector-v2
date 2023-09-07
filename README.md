@@ -1,37 +1,6 @@
-<div align="center">
-  <br>
-  <img alt="Open Sauced" src="https://beefy.com/img/COW.svg" width="100px">
-  <br>
-  <h1>🧑‍🌾 Cowllector 🌾</h1>
-  <strong>The path to your next Open Source cowtribution</strong>
-</div>
-<br>
-<p align="center">
-  <img src="https://img.shields.io/github/languages/code-size/beefyfinance/beefy-cowllector" alt="GitHub code size in bytes">
-  <img src="https://img.shields.io/github/commit-activity/w/beefyfinance/beefy-cowllector" alt="GitHub commit activity">
-  <a href="https://https://github.com/beefyfinance/beefy-cowllector/issues">
-    <img src="https://img.shields.io/github/issues/beefyfinance/beefy-cowllector" alt="GitHub issues">
-  </a>
-  <a href="https://beefy.finance">
-    <img alt="website" src="https://img.shields.io/badge/Website-231d9b?logo=google%20chrome&logoColor=ffffff">
-  </a>
-  <a href="https://discord.gg/yq8wfHd">
-    <img src="https://img.shields.io/discord/755231190134554696.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2" alt="Discord">
-  </a>
-    <a href="https://t.me/beefyfinance">
-    <img alt="telegram" src="https://img.shields.io/badge/Telegram-2CA5E0?logo=telegram&logoColor=white">
-  </a>
-  <a href="https://twitter.com/beefyfinance">
-    <img alt="twitter" src="https://img.shields.io/twitter/follow/beefyfinance?&color=%231d9bf0&label=%40beefyfinance&logo=twitter&logoColor=23fff">
-  </a>
-</p>
+# 🐮 🧑‍🌾 Cowllector v2 🌾
 
-# 🐮 About Cowllector
-
-This is the bot that harvest all strategies from all Beefy's chains, also do another things like:
-
-- Notify the BIFI rewards pool
-- Harvest the Beefy fee batch from all Beefy´s chains to distribute it.
+This is the bot that harvest all strategies from all Beefy's chains:
 
 **Cowllectors does NOT focus in to be profitable, so don't expect it to win some profit when it harvests. Cowllector harvest script was create it to bring resilience and consistency in all active vaults strategies, giving at least ONE harvest every 24 hour to every strat in every chain**
 
@@ -39,7 +8,9 @@ After every run of harvests in every chain, you can find the `harvest report` in
 
 # 📖 Prerequisites
 
-In order to run the project you need `node>=16.13`, `yarn>=1.22` installed on our development machines
+In order to run the project you need `node>=20.5`, `yarn>=1.22`, `docker` with the `docker compose v2` and `foundry` installed on our development machines
+
+- Install foundry: https://book.getfoundry.sh/getting-started/installation
 
 # 🖥️ Local development
 
@@ -47,23 +18,80 @@ To install the application:
 
 ```shell
 yarn
+
+# configure the app
+cp .env.example .env
 ```
 
-To start harvest all chains in parallel:
+To start the report database:
+  
+```shell
+yarn infra:start
+yarn db:migrate
+```
+
+Work on a local fork
 
 ```shell
-yarn harvest
-```
-
-To start harvest one chain:
+# start the fork, copy the generated private key to the .env file
+anvil -f 'https://rpc.ankr.com/arbitrum' --accounts 3 --balance 300 --no-cors --block-time 5 --auto-impersonate
+``` 
 
 ```shell
-node ./scripts/harvest_child.js <chain id>
+# harvest
+LOG_LEVEL=debug yarn ts-node ./src/script/harvest.ts -c arbitrum
+
+# Run harvest with pretty log parser (pino-pretty also has many formatting and filtering options)
+LOG_LEVEL=trace yarn ts-node ./src/script/harvest.ts -c base | yarn pino-pretty > debug-pretty.log
+
+# see harvest script options
+yarn ts-node ./src/script/harvest.ts --help
 ```
 
-# 🔑 Enviroment
+```shell
+# unwrap wnative to native
+LOG_LEVEL=debug yarn ts-node ./src/script/unwrap.ts -c arbitrum
 
-See [enviroment variable example](./.env.example) file for ENV required to run cowllector
+# see unwrap script options
+yarn ts-node ./src/script/unwrap.ts --help
+```
+
+Use our inspect commands
+  
+```shell
+# get the result of our lens contract 
+LOG_LEVEL=debug yarn ts-node ./src/script/inspect/lens.ts -c zkevm -a 0x000000...
+LOG_LEVEL=debug yarn ts-node ./src/script/inspect/lens.ts --help
+
+# see a contract balance
+LOG_LEVEL=debug yarn ts-node ./src/script/inspect/balance.ts -c zkevm -a 0x000000...
+LOG_LEVEL=debug yarn ts-node ./src/script/inspect/balance.ts -help
+```
+
+Update the addressbook
+
+```bash
+yarn run ncu --upgrade blockchain-addressbook
+yarn
+```
+
+Run all tests
+
+```bash
+yarn test
+```
+
+Deploy the lens contract 
+
+```shell
+# get a seed
+LOG_LEVEL=fatal node -r ts-node/register ./src/script/deploy/seed.ts -c bsc
+LOG_LEVEL=fatal node -r ts-node/register ./src/script/deploy/seed.ts --help
+
+# deploy and verify the lens contract
+LOG_LEVEL=trace node -r ts-node/register ./src/script/deploy/deploy-lens.ts -s 0x000000000... -c bsc
+LOG_LEVEL=trace node -r ts-node/register ./src/script/deploy/deploy-lens.ts -help
+```
 
 # 🤝 Contributing
 
