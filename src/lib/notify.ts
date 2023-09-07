@@ -123,11 +123,13 @@ export async function notifyHarvestReport(report: HarvestReport, db_raw_report_i
         }
     }
 
+    // disable role ping for now
     const rolePing =
         (report.summary.statuses.error > 0 ||
             report.summary.statuses.warning > 0 ||
             DISCORD_NOTIFY_UNEVENTFUL_HARVEST) &&
-        DISCORD_PING_ROLE_IDS_ON_ERROR
+        DISCORD_PING_ROLE_IDS_ON_ERROR &&
+        false
             ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
             : '';
 
@@ -193,8 +195,9 @@ export async function notifyUnwrapReport(report: UnwrapReport, db_raw_report_id:
         errorDetails += `- 🔥 Unwrap transaction failed: ${extractErrorMessage(report.unwrapTransaction)}\n`;
     }
 
+    // disable role ping for now
     const rolePing =
-        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR
+        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR && false
             ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
             : '';
 
