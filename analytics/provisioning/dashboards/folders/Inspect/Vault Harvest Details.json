@@ -255,8 +255,8 @@
             {
                 "current": {
                     "selected": false,
-                    "text": ["arbitrum", "avax", "base"],
-                    "value": ["arbitrum", "avax", "base"]
+                    "text": ["arbitrum", "avax", "base", "zkevm", "kava", "canto"],
+                    "value": ["arbitrum", "avax", "base", "zkevm", "kava", "canto"]
                 },
                 "datasource": {
                     "type": "postgres",
@@ -302,7 +302,7 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": ["All"],
                     "value": ["$__all"]
                 },
@@ -368,7 +368,7 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": ["aave", "balancer", "none", "stargate"],
                     "value": ["aave", "balancer", "none", "stargate"]
                 },
@@ -392,22 +392,34 @@
             },
             {
                 "current": {
-                    "selected": true,
+                    "selected": false,
                     "text": [
                         "aerodrome-weth-well",
                         "curve-avax-atricrypto",
+                        "curve-base-4pool",
+                        "curve-base-cbeth",
+                        "curve-base-crv",
+                        "curve-base-tricrypto",
                         "joe-joe",
                         "moonwell-base-weth",
                         "none",
-                        "sushi-arb-rdpx-weth"
+                        "baseswap-axlwbtc-usdbc",
+                        "baseswap-dai+-usd+",
+                        "baseswap-usd+-usdbc"
                     ],
                     "value": [
                         "aerodrome-weth-well",
                         "curve-avax-atricrypto",
+                        "curve-base-4pool",
+                        "curve-base-cbeth",
+                        "curve-base-crv",
+                        "curve-base-tricrypto",
                         "joe-joe",
                         "moonwell-base-weth",
                         "none",
-                        "sushi-arb-rdpx-weth"
+                        "baseswap-axlwbtc-usdbc",
+                        "baseswap-dai+-usd+",
+                        "baseswap-usd+-usdbc"
                     ]
                 },
                 "datasource": {
@@ -438,6 +450,6 @@
     "timezone": "",
     "title": "Vault Harvest Details",
     "uid": "eceba98b-5444-477d-acf7-a459abfb7596",
-    "version": 28,
+    "version": 30,
     "weekStart": ""
 }
