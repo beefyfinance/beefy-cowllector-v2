@@ -50,6 +50,17 @@ export type HarvestReportDecision = Async<
           notHarvestingReason: 'Tvl do not meet minimum threshold';
       }
     | {
+          shouldHarvest: true;
+          blindHarvestDate: Date;
+          level: 'info';
+      }
+    | {
+          shouldHarvest: false;
+          blindHarvestDate: Date;
+          level: 'info';
+          notHarvestingReason: 'Blind harvest date not reached yet';
+      }
+    | {
           shouldHarvest: false;
           level: 'info';
           notHarvestingReason: 'vault not compatible with lens: missing `harvest(address recipient)` function';

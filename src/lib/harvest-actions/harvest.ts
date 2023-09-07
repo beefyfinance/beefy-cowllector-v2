@@ -1,4 +1,4 @@
-import { Hex } from 'viem';
+import { Hex, TransactionReceipt } from 'viem';
 import { rootLogger } from '../../util/logger';
 import { IStrategyABI } from '../../abi/IStrategyABI';
 import { NotEnoughRemainingGasError } from '../harvest-errors';
@@ -8,11 +8,17 @@ import { bigintMultiplyFloat } from '../../util/bigint';
 
 const logger = rootLogger.child({ module: 'harvest-actions' });
 
-export type HarvestParameters = {
-    strategyAddress: Hex;
-    transactionCostEstimationWei: bigint;
-    transactionGasLimit: bigint;
-};
+export type HarvestParameters =
+    | {
+          strategyAddress: Hex;
+          transactionCostEstimationWei: bigint;
+          transactionGasLimit: bigint;
+      }
+    | {
+          strategyAddress: Hex;
+          transactionCostEstimationWei: null;
+          transactionGasLimit: null;
+      };
 
 export type HarvestReturnType = {
     transactionHash: Hex;
@@ -31,8 +37,9 @@ export async function harvest(
     logger.trace({ msg: 'Checking if we have enough gas to harvest', data: { chain, strategyAddress } });
     const balanceBeforeWei = await publicClient.getBalance({ address: walletAccount.address });
     if (
+        transactionCostEstimationWei !== null &&
         balanceBeforeWei <
-        bigintMultiplyFloat(transactionCostEstimationWei, rpcConfig.harvest.balanceCheck.minWalletThreshold)
+            bigintMultiplyFloat(transactionCostEstimationWei, rpcConfig.harvest.balanceCheck.minWalletThreshold)
     ) {
         logger.info({ msg: 'Not enough gas to harvest', data: { chain, balanceBeforeWei, strategyAddress } });
         const error = new NotEnoughRemainingGasError({
@@ -46,15 +53,34 @@ export async function harvest(
     logger.debug({ msg: 'Enough gas to harvest', data: { chain, balanceBeforeWei, strategyAddress } });
 
     logger.trace({ msg: 'Harvesting strat', data: { chain, strategyAddress } });
-    const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
-        abi: IStrategyABI,
-        address: strategyAddress,
-        functionName: 'harvest',
-        args: [walletAccount.address],
-        account: walletAccount,
-        // setting a gas limit is mandatory since the viem default is too low for larger protocols
-        gas: transactionGasLimit,
-    });
+
+    let transactionHash: Hex;
+    let transactionReceipt: TransactionReceipt;
+
+    // this happens when we blindly harvest a vault, then we don't know the gas limit
+    if (transactionGasLimit === null) {
+        transactionHash = await walletClient.writeContract({
+            abi: IStrategyABI,
+            address: strategyAddress,
+            functionName: 'harvest',
+            args: [walletAccount.address],
+            account: walletAccount,
+        });
+        transactionReceipt = await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+    } else {
+        const res = await walletClient.aggressivelyWriteContract({
+            abi: IStrategyABI,
+            address: strategyAddress,
+            functionName: 'harvest',
+            args: [walletAccount.address],
+            account: walletAccount,
+            // setting a gas limit is mandatory since the viem default is too low for larger protocols
+            // but some vaults need to be blindly harvested without knowing the gas limit
+            gas: transactionGasLimit,
+        });
+        transactionHash = res.transactionHash;
+        transactionReceipt = res.transactionReceipt;
+    }
 
     logger.info({ msg: 'Harvested strat', data: { chain, strategyAddress, transactionHash, transactionReceipt } });
     return {

@@ -50,18 +50,28 @@ const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUG
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
 // some vaults can't be paused to allow users to burn their shares (like beefy-beopx)
 export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
-    'curve-arb-f-wsteth',
     'aavev3-dai.e',
     'aavev3-polygon-maticx',
     'aavev3-op-dai',
     'aavev3-op-eth',
     'aavev3-op-usdc',
     'aavev3-op-wbtc',
+    'curve-arb-f-wsteth',
     'curve-op-f-wsteth',
     'thena-bnbx-wbnb',
+    'beefy-beopx', // can't be paused to allow users to burn their shares
+];
+
+// some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
+// some moon* vaults straight out fail to simulate due to the underlying contract being a native contract
+// in both cases we should harvest those vaults blindly every 3 days
+export const BLIND_HARVEST_EVERY_X_HOURS = 24 * 3;
+export const VAULT_IDS_WE_SHOULD_BLIND_HARVEST = [
     'stargate-base-usdbc',
     'stargate-base-eth',
-    'beefy-beopx',
+    'moonwell-xcusdt',
+    'solarbeam-wstksm-xcksm',
+    'solarbeam-xckbtc-wbtc',
 ];
 
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
@@ -70,30 +80,13 @@ export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['curve', 'balanc
 export const VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['joe-joe'];
 
 // just don't harvest those vaults for now
-export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG = [
+export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG: string[] = [
     // https://dashboard.tenderly.co/clemToune/project/simulator/a9d6a3ee-cb3c-4e4f-b4ab-04192a05d934
     // no idea why there is a revert here
-    'ellipsis-2brl',
-
-    // simulation fails on cowllector but the actual harvest is fine, even tenderly thinks this trx was failed:
-    // https://moonbeam.moonscan.io/tx/0x05685e1e673e09322c9b554cd899ed615eb86a1b330eec8d5eba6ca3809b1710
-    // https://dashboard.tenderly.co/tx/moonbeam/0x05685e1e673e09322c9b554cd899ed615eb86a1b330eec8d5eba6ca3809b1710
-    // looks like xcUSDT has some kind of weirdness to it but can't find the code https://moonbeam.moonscan.io/address/0xFFFFFFfFea09FB06d082fd1275CD48b191cbCD1d
-    // EDIT:
-    // - this is a native contract https://docs.moonbeam.network/builders/interoperability/xcm/xc20/overview/
-    // - it seems like those native contracts do not support simulating calls
-    'moonwell-xcusdt',
-
-    // curl https://rpc.ankr.com/moonbeam -X POST -H "Content-Type: application/json" \
-    // --data '{"id":1, "jsonrpc":"2.0","method":"eth_call","params":[{"from":"0x03d9964f4D93a24B58c0Fc3a8Df3474b59Ba8557","data":"0x0e5c011e00000000000000000000000003d9964f4d93a24b58c0fc3a8df3474b59ba8557","gas":"0x307aaa","maxFeePerGas":"0x6fc23ac0","maxPriorityFeePerGas":"0x0","nonce":"0x4","to":"0x536666f9F135d69FF86F3F8F210b98a0d441f253"},"latest"]}'
-    // =====> {"jsonrpc":"2.0","error":{"code":-32603,"message":"execution fatal: Module(ModuleError { index: 51, error: [5, 0, 0, 0], message: None })"},"id":1}
-    // might be more of the same issue as above with native contracts
-    'solarbeam-wstksm-xcksm',
-    'solarbeam-xckbtc-wbtc',
-
+    //'ellipsis-2brl',
     // harvest would fail (block: 18041014, data:       0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000014b00000000000000000000000000000000000000000000000000000000000000)
     // abi.encodeWithSignature('Error(string)', 'K') -> 0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000014b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    'ramses-frxeth-sfrxeth',
+    //'ramses-frxeth-sfrxeth',
 ];
 
 // some strategies do not have an `harvest(address rewardRecipient)` function that we can call to harvest rewards

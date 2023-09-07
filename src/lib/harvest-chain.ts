@@ -10,6 +10,8 @@ import {
     VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG,
     VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
     SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS,
+    VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
+    BLIND_HARVEST_EVERY_X_HOURS,
 } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport } from './gas';
@@ -74,6 +76,25 @@ export async function harvestChain({
         'simulation',
         'parallel',
         async item => {
+            if (VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)) {
+                return {
+                    estimatedCallRewardsWei: 0n,
+                    harvestWillSucceed: true,
+                    lastHarvest: new Date(),
+                    hoursSinceLastHarvest: 0,
+                    isLastHarvestRecent: true,
+                    paused: false,
+                    blockNumber: 0n,
+                    harvestResultData: '0x',
+                    gas: createGasEstimationReport({
+                        rawGasPrice,
+                        rawGasAmountEstimation: 0n,
+                        estimatedCallRewardsWei: 0n,
+                        gasPriceMultiplier: 1,
+                    }),
+                };
+            }
+
             const {
                 result: { callReward, gasUsed, lastHarvest, paused, success, blockNumber, harvestResult },
             } = await publicClient.simulateContract({
@@ -141,6 +162,30 @@ export async function harvestChain({
                     vaultTvlUsd: item.vault.tvlUsd,
                     notHarvestingReason: 'Tvl do not meet minimum threshold',
                 };
+            }
+
+            if (VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)) {
+                // to avoid remembering the last harvest time, we harvest at regular interval based on the current time
+                const truncatedDate = new Date();
+                truncatedDate.setMilliseconds(0);
+                truncatedDate.setSeconds(0);
+                truncatedDate.setMinutes(0);
+                const shouldBlindHarvest =
+                    truncatedDate.getTime() % (BLIND_HARVEST_EVERY_X_HOURS * 60 * 60 * 1000) === 0;
+                if (shouldBlindHarvest) {
+                    return {
+                        shouldHarvest: true,
+                        blindHarvestDate: truncatedDate,
+                        level: 'info',
+                    };
+                } else {
+                    return {
+                        shouldHarvest: false,
+                        blindHarvestDate: truncatedDate,
+                        level: 'info',
+                        notHarvestingReason: 'Blind harvest date not reached yet',
+                    };
+                }
             }
 
             if (item.simulation.harvestWillSucceed === false) {
@@ -261,14 +306,20 @@ export async function harvestChain({
 
     logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
     await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', 'sequential', async item => {
-        const res = await walletClient.harvest({
-            strategyAddress: item.vault.strategyAddress,
-            transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
-            transactionGasLimit: bigintMultiplyFloat(
-                item.simulation.gas.rawGasAmountEstimation,
-                rpcConfig.harvest.balanceCheck.gasLimitMultiplier
-            ),
-        });
+        const res = VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)
+            ? await walletClient.harvest({
+                  strategyAddress: item.vault.strategyAddress,
+                  transactionCostEstimationWei: null,
+                  transactionGasLimit: null,
+              })
+            : await walletClient.harvest({
+                  strategyAddress: item.vault.strategyAddress,
+                  transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
+                  transactionGasLimit: bigintMultiplyFloat(
+                      item.simulation.gas.rawGasAmountEstimation,
+                      rpcConfig.harvest.balanceCheck.gasLimitMultiplier
+                  ),
+              });
 
         return {
             ...res,
