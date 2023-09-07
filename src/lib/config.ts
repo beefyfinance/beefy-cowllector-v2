@@ -183,6 +183,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: null,
         },
         eol: true,
     },
@@ -212,6 +213,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
         },
         harvest: {
             ...defaultHarvestConfig,
@@ -224,6 +226,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 20.0),
         },
         unwrap: {
             ...defaultUnwrapConfig,
@@ -257,6 +260,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: null,
         },
     },
     ethereum: {
@@ -282,6 +286,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 40.0),
         },
     },
     heco: {
@@ -295,6 +300,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 3.0),
         },
     },
     metis: {
@@ -303,6 +309,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.17),
         },
         unwrap: {
             ...defaultUnwrapConfig,
@@ -340,6 +347,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: null,
         },
     },
     optimism: {
@@ -348,6 +356,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
         },
     },
     polygon: {
@@ -374,6 +383,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
             receipt: {
                 ...defaultTransactionConfig.receipt,
                 blockConfirmations: 1, // reduces the amount of TransactionReceiptNotFoundError we get

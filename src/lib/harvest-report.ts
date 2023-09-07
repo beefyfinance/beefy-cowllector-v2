@@ -128,6 +128,13 @@ export type HarvestReportDecision = Async<
           notHarvestingReason: 'harvested too recently';
       }
     | {
+          shouldHarvest: false;
+          level: 'error';
+          maxNativePerTransactionWei: bigint;
+          transactionCostEstimationWei: bigint;
+          notHarvestingReason: 'estimated transaction cost would be too high, waiting until the network is less congested';
+      }
+    | {
           shouldHarvest: true;
           level: 'info';
           callRewardsWei: bigint;

@@ -288,6 +288,21 @@ export async function harvestChain({
                 };
             }
 
+            if (
+                rpcConfig.transaction.type === 'legacy' &&
+                rpcConfig.transaction.maxNativePerTransactionWei &&
+                item.simulation.gas.transactionCostEstimationWei > rpcConfig.transaction.maxNativePerTransactionWei
+            ) {
+                return {
+                    shouldHarvest: false,
+                    level: 'error',
+                    maxNativePerTransactionWei: rpcConfig.transaction.maxNativePerTransactionWei,
+                    transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
+                    notHarvestingReason:
+                        'estimated transaction cost would be too high, waiting until the network is less congested',
+                };
+            }
+
             return {
                 shouldHarvest: true,
                 level: 'info',

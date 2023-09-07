@@ -13,8 +13,15 @@ export type RpcConfig = {
         // only applies for the public client
         multicall: false | MulticallBatchOptions;
     };
-    transaction: {
-        type: 'legacy' | 'eip1559';
+    transaction: (
+        | {
+              type: 'legacy';
+              maxNativePerTransactionWei: bigint | null;
+          }
+        | {
+              type: 'eip1559';
+          }
+    ) & {
         // @see aggressivelyWriteContract
         totalTries: number;
         retryGasMultiplier: number;
