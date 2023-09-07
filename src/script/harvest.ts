@@ -133,8 +133,9 @@ async function main() {
                                 item.transaction?.status === 'fulfilled'
                                     ? item.transaction?.value.estimatedProfitWei
                                     : 0n,
-                            discordMessage: extractHarvestReportItemErrorDiscordMessageDetails(chain, item),
+                            discordMessage: null,
                         };
+                        item.summary.discordMessage = extractHarvestReportItemErrorDiscordMessageDetails(chain, item);
                     });
 
                     const statusCtx: ReportAsyncStatusContext = { chain, vault: null };
