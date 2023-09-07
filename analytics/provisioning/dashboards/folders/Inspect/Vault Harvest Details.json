@@ -367,7 +367,7 @@
             },
             {
                 "current": {
-                    "selected": false,
+                    "selected": true,
                     "text": ["aave", "balancer", "none", "stargate"],
                     "value": ["aave", "balancer", "none", "stargate"]
                 },
@@ -391,9 +391,23 @@
             },
             {
                 "current": {
-                    "selected": false,
-                    "text": ["curve-avax-atricrypto", "joe-joe", "none", "moonwell-base-weth"],
-                    "value": ["curve-avax-atricrypto", "joe-joe", "none", "moonwell-base-weth"]
+                    "selected": true,
+                    "text": [
+                        "aerodrome-weth-well",
+                        "curve-avax-atricrypto",
+                        "joe-joe",
+                        "moonwell-base-weth",
+                        "none",
+                        "sushi-arb-rdpx-weth"
+                    ],
+                    "value": [
+                        "aerodrome-weth-well",
+                        "curve-avax-atricrypto",
+                        "joe-joe",
+                        "moonwell-base-weth",
+                        "none",
+                        "sushi-arb-rdpx-weth"
+                    ]
                 },
                 "datasource": {
                     "type": "postgres",
@@ -416,13 +430,13 @@
         ]
     },
     "time": {
-        "from": "now-24h",
+        "from": "now-6h",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "Vault Harvest Details",
     "uid": "eceba98b-5444-477d-acf7-a459abfb7596",
-    "version": 25,
+    "version": 26,
     "weekStart": ""
 }
