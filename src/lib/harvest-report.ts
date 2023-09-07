@@ -6,6 +6,8 @@ import { Async, TimingData } from '../util/async';
 import { AItem, AKey, AVal, reportOnMultipleAsyncCall, reportOnSingleAsyncCall } from './reports';
 import { CollectorBalance } from './collector-balance';
 import { ReportAsyncStatus } from './report-error-status';
+import { EXPLORER_CONFIG } from './config';
+import { extractErrorMessage } from './error-message';
 
 export type HarvestReport = {
     timing: TimingData | null;
@@ -156,6 +158,7 @@ type HarvestReportItem = {
         skipped: boolean;
         status: ReportAsyncStatus;
         estimatedProfitWei: bigint;
+        discordMessage: string | null;
     };
 };
 
@@ -199,8 +202,62 @@ export function createDefaultHarvestReportItem({ vault }: { vault: BeefyVault })
             skipped: false,
             status: 'not-started',
             estimatedProfitWei: 0n,
+            discordMessage: null,
         },
     };
+}
+
+export function extractHarvestReportItemErrorDiscordMessageDetails(
+    chain: Chain,
+    stratReport: HarvestReportItem
+): string | null {
+    const explorerConfig = EXPLORER_CONFIG[chain];
+    if (stratReport.summary.status === 'not-started' || stratReport.summary.status === 'success') {
+        return null;
+    }
+    const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
+    const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
+        '${address}',
+        stratReport.vault.strategyAddress
+    );
+    const truncatedAddy =
+        stratReport.vault.strategyAddress.slice(0, 6) + '...' + stratReport.vault.strategyAddress.slice(-4);
+    const stratLink = `[${truncatedAddy}](<${stratExplorerLink}>)`;
+
+    if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
+        const errorMsg = extractErrorMessage(stratReport.simulation);
+        return `- simulation 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+    }
+    if (stratReport.decision && stratReport.decision.status === 'rejected') {
+        const errorMsg = extractErrorMessage(stratReport.decision);
+        return `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+    }
+    if (stratReport.decision && stratReport.decision.status === 'fulfilled') {
+        if (stratReport.decision.value.level === 'error') {
+            const errorMsg =
+                stratReport.decision.value.notHarvestingReason +
+                (stratReport.decision.value.notHarvestingReason === 'harvest would fail'
+                    ? ` (block: ${stratReport.decision.value.blockNumber.toString()}, data: ${
+                          stratReport.decision.value.harvestReturnData
+                      })`
+                    : '');
+            return `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+        }
+        if (stratReport.decision.value.level === 'warning') {
+            const errorMsg = stratReport.decision.value.notHarvestingReason;
+            return `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}`;
+        }
+        if (stratReport.decision.value.level === 'notice') {
+            const errorMsg = stratReport.decision.value.notHarvestingReason;
+            return `- decision ℹ️ ${vaultLink} (${stratLink}): ${errorMsg}`;
+        }
+    }
+    if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
+        const errorMsg = extractErrorMessage(stratReport.transaction);
+        return `- transaction 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+    }
+
+    return null;
 }
 
 // re-export the helper functions with preset types

@@ -4,7 +4,6 @@ import {
     DISCORD_PING_ROLE_IDS_ON_ERROR,
     DISCORD_REPORT_WEBHOOK_URL,
     DISCORD_NOTIFY_UNEVENTFUL_HARVEST,
-    EXPLORER_CONFIG,
     DISCORD_ALERT_WEBHOOK_URL,
     REPORT_URL_TEMPLATE,
 } from './config';
@@ -73,53 +72,10 @@ export async function notifyHarvestReport(report: HarvestReport, db_raw_report_i
         }
     );
 
-    const explorerConfig = EXPLORER_CONFIG[report.chain];
-
     let errorDetails = '';
     for (const stratReport of report.details) {
-        if (stratReport.summary.status === 'not-started' || stratReport.summary.status === 'success') {
-            continue;
-        }
-        const vaultLink = `[${stratReport.vault.id}](<https://app.beefy.finance/vault/${stratReport.vault.id}>)`;
-        const stratExplorerLink = explorerConfig.addressLinkTemplate.replace(
-            '${address}',
-            stratReport.vault.strategyAddress
-        );
-        const truncatedAddy =
-            stratReport.vault.strategyAddress.slice(0, 6) + '...' + stratReport.vault.strategyAddress.slice(-4);
-        const stratLink = `[${truncatedAddy}](<${stratExplorerLink}>)`;
-
-        if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
-            const errorMsg = extractErrorMessage(stratReport.simulation);
-            errorDetails += `- simulation 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
-        }
-        if (stratReport.decision && stratReport.decision.status === 'rejected') {
-            const errorMsg = extractErrorMessage(stratReport.decision);
-            errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
-        }
-        if (stratReport.decision && stratReport.decision.status === 'fulfilled') {
-            if (stratReport.decision.value.level === 'error') {
-                const errorMsg =
-                    stratReport.decision.value.notHarvestingReason +
-                    (stratReport.decision.value.notHarvestingReason === 'harvest would fail'
-                        ? ` (block: ${stratReport.decision.value.blockNumber.toString()}, data: ${
-                              stratReport.decision.value.harvestReturnData
-                          })`
-                        : '');
-                errorDetails += `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
-            }
-            if (stratReport.decision.value.level === 'warning') {
-                const errorMsg = stratReport.decision.value.notHarvestingReason;
-                errorDetails += `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
-            }
-            if (stratReport.decision.value.level === 'notice') {
-                const errorMsg = stratReport.decision.value.notHarvestingReason;
-                errorDetails += `- decision ℹ️ ${vaultLink} (${stratLink}): ${errorMsg}\n`;
-            }
-        }
-        if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
-            const errorMsg = extractErrorMessage(stratReport.transaction);
-            errorDetails += `- transaction 🔥 ${vaultLink} (${stratLink}): ${errorMsg}\n`;
+        if (stratReport.summary.discordMessage) {
+            errorDetails += stratReport.summary.discordMessage + '\n';
         }
     }
 

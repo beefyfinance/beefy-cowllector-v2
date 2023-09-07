@@ -6,7 +6,7 @@ import { rootLogger } from '../util/logger';
 import { getVaultsToMonitorByChain } from '../lib/vault-list';
 import { harvestChain } from '../lib/harvest-chain';
 import { Hex } from 'viem';
-import { createDefaultHarvestReport } from '../lib/harvest-report';
+import { createDefaultHarvestReport, extractHarvestReportItemErrorDiscordMessageDetails } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyError, notifyHarvestReport } from '../lib/notify';
@@ -133,6 +133,7 @@ async function main() {
                                 item.transaction?.status === 'fulfilled'
                                     ? item.transaction?.value.estimatedProfitWei
                                     : 0n,
+                            discordMessage: extractHarvestReportItemErrorDiscordMessageDetails(chain, item),
                         };
                     });
 

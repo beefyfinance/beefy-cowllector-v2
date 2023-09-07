@@ -442,6 +442,7 @@ export async function db_migrate() {
           summary.harvested as summary_harvested,
           summary.skipped as summary_skipped,
           summary.status as summary_status,
+          summary."discordMessage" as summary_discord_message,
           r.vault_report
         FROM 
           vault_report_jsonb r, 
@@ -490,7 +491,8 @@ export async function db_migrate() {
           jsonb_to_record(d.summary) as summary(
             harvested boolean,
             skipped boolean,
-            status character varying
+            status character varying,
+            "discordMessage" character varying
           )
       );
 
