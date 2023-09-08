@@ -409,6 +409,13 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // 0.001 weth (~$1.5)
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.03),
         },
+        harvest: {
+            ...defaultHarvestConfig,
+            balanceCheck: {
+                ...defaultHarvestConfig.balanceCheck,
+                gasPriceMultiplier: 1.1,
+            },
+        },
     },
     zksync: {
         ...defaultConfig,
