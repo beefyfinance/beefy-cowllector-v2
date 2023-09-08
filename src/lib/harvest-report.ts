@@ -135,6 +135,13 @@ export type HarvestReportDecision = Async<
           notHarvestingReason: 'estimated transaction cost would be too high, waiting until the network is less congested';
       }
     | {
+          shouldHarvest: false;
+          level: 'error';
+          maxGasPricePerTransactionWei: bigint;
+          gasPrice: bigint;
+          notHarvestingReason: 'estimated gas price would be too high, waiting until the network is less congested';
+      }
+    | {
           shouldHarvest: true;
           level: 'info';
           callRewardsWei: bigint;

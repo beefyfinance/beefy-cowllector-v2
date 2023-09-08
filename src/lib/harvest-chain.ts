@@ -303,6 +303,21 @@ export async function harvestChain({
                 };
             }
 
+            if (
+                rpcConfig.transaction.type === 'legacy' &&
+                rpcConfig.transaction.maxGasPricePerTransactionWei &&
+                item.simulation.gas.gasPrice > rpcConfig.transaction.maxGasPricePerTransactionWei
+            ) {
+                return {
+                    shouldHarvest: false,
+                    level: 'error',
+                    maxGasPricePerTransactionWei: rpcConfig.transaction.maxGasPricePerTransactionWei,
+                    gasPrice: item.simulation.gas.gasPrice,
+                    notHarvestingReason:
+                        'estimated gas price would be too high, waiting until the network is less congested',
+                };
+            }
+
             return {
                 shouldHarvest: true,
                 level: 'info',
