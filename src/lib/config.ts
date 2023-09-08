@@ -223,7 +223,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             minTvlThresholdUsd: 10_000,
             balanceCheck: {
                 ...defaultHarvestConfig.balanceCheck,
-                gasPriceMultiplier: 1.2,
+                gasPriceMultiplier: 1.0,
             },
         },
     },
