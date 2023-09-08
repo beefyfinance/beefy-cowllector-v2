@@ -39,7 +39,10 @@ export async function harvest(
     if (
         transactionCostEstimationWei !== null &&
         balanceBeforeWei <
-            bigintMultiplyFloat(transactionCostEstimationWei, rpcConfig.harvest.balanceCheck.minWalletThreshold)
+            bigintMultiplyFloat(
+                transactionCostEstimationWei,
+                rpcConfig.harvest.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost
+            )
     ) {
         logger.info({ msg: 'Not enough gas to harvest', data: { chain, balanceBeforeWei, strategyAddress } });
         const error = new NotEnoughRemainingGasError({

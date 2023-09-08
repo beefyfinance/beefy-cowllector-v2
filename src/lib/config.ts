@@ -148,7 +148,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
     minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
     maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
     balanceCheck: {
-        minWalletThreshold: UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER,
+        minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER,
     },
 };
 const defaultHarvestConfig: RpcConfig['harvest'] = {
@@ -158,7 +158,7 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
     balanceCheck: {
         gasLimitMultiplier: HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
         gasPriceMultiplier: HARVEST_GAS_PRICE_MULTIPLIER,
-        minWalletThreshold: HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER,
+        minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER,
     },
 };
 const defaultConfig: RpcConfig = {

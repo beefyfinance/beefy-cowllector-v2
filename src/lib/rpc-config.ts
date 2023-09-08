@@ -69,7 +69,7 @@ export type RpcConfig = {
             // how much gas we need to have in our wallet to send a transaction
             // on the basis of the current transaction estimated total cost
             // setting this to 2 means that we need to have 2 times the estimated cost in our wallet
-            minWalletThreshold: number;
+            minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: number;
         };
     };
     unwrap: {
@@ -87,7 +87,7 @@ export type RpcConfig = {
             // how much gas we need to have in our wallet to send a transaction
             // on the basis of the current transaction estimated total cost
             // setting this to 2 means that we need to have 2 times the estimated cost in our wallet
-            minWalletThreshold: number;
+            minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: number;
         };
     };
 };

@@ -211,12 +211,12 @@ export async function db_migrate() {
                 c,
                 RPC_CONFIG[c].eol,
                 RPC_CONFIG[c].unwrap.enabled,
-                RPC_CONFIG[c].unwrap.balanceCheck.minWalletThreshold,
+                RPC_CONFIG[c].unwrap.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost,
                 RPC_CONFIG[c].unwrap.minAmountOfWNativeWei,
                 RPC_CONFIG[c].unwrap.maxAmountOfNativeWei,
                 RPC_CONFIG[c].harvest.enabled,
                 RPC_CONFIG[c].harvest.targetTimeBetweenHarvestsMs / 1000 / 60 / 60,
-                RPC_CONFIG[c].harvest.balanceCheck.minWalletThreshold,
+                RPC_CONFIG[c].harvest.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost,
             ]),
         ]
     );

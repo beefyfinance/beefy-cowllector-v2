@@ -82,7 +82,10 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
             args: [item.unwrapDecision.actualAmount],
             account: walletAccount,
         });
-        const gasLimit = bigintMultiplyFloat(rawGasEstimation, rpcConfig.unwrap.balanceCheck.minWalletThreshold);
+        const gasLimit = bigintMultiplyFloat(
+            rawGasEstimation,
+            rpcConfig.unwrap.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost
+        );
 
         logger.trace({ msg: 'Unwrapping wnative', data: { chain, strat: item } });
         const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
