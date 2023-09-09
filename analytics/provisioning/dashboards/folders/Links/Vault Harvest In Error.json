@@ -91,6 +91,18 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "summary_discord_message"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 467
+                            }
+                        ]
                     }
                 ]
             },
@@ -122,7 +134,7 @@
                     "editorMode": "code",
                     "format": "table",
                     "rawQuery": true,
-                    "rawSql": "select \n  chain, vault_id, raw_report_id,\n  run_ok, \n  simulation_ok, simulation_ko_reason, \n  decision_ok, decision_ko_reason, decision_not_harvesting_reason, decision_level, bytea_to_hexstr(decision_harvest_return_data),\n  decision_harvest_return_data_decoded,\n  transaction_ok, transaction_ko_reason, \n  summary_discord_message,\n  vault_report\nFROM harvest_report_last_vault_details r\nWHERE $__timeFilter(datetime) \n  and summary_status = 'error'\n  order by datetime desc\n",
+                    "rawSql": "select \n  chain, vault_id, raw_report_id, vault_report,\n  simulation_hours_since_last_harvest,\n  run_ok, \n  simulation_ok,decision_ok, transaction_ok, summary_discord_message,\n  simulation_ko_reason, \n  decision_ko_reason, decision_not_harvesting_reason, decision_level, bytea_to_hexstr(decision_harvest_return_data),\n  decision_harvest_return_data_decoded,\n  transaction_ko_reason\nFROM harvest_report_last_vault_details r\nWHERE $__timeFilter(datetime) \n  and summary_status = 'error'\n  order by datetime desc\n",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -286,6 +298,6 @@
     "timezone": "",
     "title": "Vault Harvest In Error",
     "uid": "dad68cbc-f965-4400-9db3-66a3bb4c447e",
-    "version": 9,
+    "version": 13,
     "weekStart": ""
 }
