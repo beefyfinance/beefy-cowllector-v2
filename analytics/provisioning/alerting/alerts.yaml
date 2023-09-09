@@ -344,4 +344,84 @@ groups:
           execErrState: Error
           for: 30m
           isPaused: false
+        - uid: e21d1911-76b4-4a70-9398-73d6b722fa23
+          title: Vault not harvested when it should have
+          condition: last_error_serie_value
+          data:
+            - refId: should_harvest_but_not_harvested
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  SELECT
+                    date_trunc('hour', datetime) as time,
+                    vault_id,
+                    chain,
+                    (
+                      coalesce(decision_should_harvest, false) -- if this is null, there was an error before 
+                      and not summary_harvested
+                    ) :: integer as value
+                  FROM
+                    harvest_report_vault_details r
+                  WHERE
+                    $__timeFilter(datetime)
+                  ORDER BY
+                    datetime
+                refId: should_harvest_but_not_harvested
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_error_serie_value
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: should_harvest_but_not_harvested
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_error_serie_value
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 6h
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: alert_vault_harvest_in_error
+          isPaused: false
+
 

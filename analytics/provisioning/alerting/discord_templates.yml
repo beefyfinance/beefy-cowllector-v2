@@ -46,7 +46,7 @@ templates:
   - orgID: 1
     name: beefy.alert_vault_harvest_in_error.message
     template: |-2
-      {{- print "\n" }}### Vault Harvest: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+      {{- print "\n" }}### {{ .CommonLabels.alertname }}: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
       {{- print ""   }}{{ range .Alerts -}}
       {{- print "\n" }}- {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
       {{- print ""   }}{{ end }}
@@ -54,11 +54,7 @@ templates:
   - orgID: 1
     name: discord.message
     template: |-2
-      {{- print ""   }}{{- $template := "default" -}}
-      {{- print ""   }}{{-   range .Alerts -}}
-      {{- print ""   }}{{-   $template = index .Labels "template" -}}
-      {{- print ""   }}{{- break -}}
-      {{- print ""   }}{{- end -}}
+      {{- print ""   }}{{- $template := .CommonLabels.template -}}
       {{- print ""   }}{{- if eq $template "alert_vault_harvest_in_error" -}}
       {{- print ""   }}{{-   template "beefy.alert_vault_harvest_in_error.message" . -}}
       {{- print ""   }}{{- else -}}
