@@ -111,7 +111,14 @@ groups:
                       date_trunc('hour', datetime) as time,
                       vault_id,
                       chain,
-                      (not coalesce(r.summary_status != 'error', true)) :: integer as value
+                      (
+                        coalesce(r.summary_status = 'error', false)
+                        -- remove the errors from the other alert that checks last harvest status
+                        and not (
+                          coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                          and not summary_harvested
+                        )
+                      ) :: integer as value
                     FROM
                       harvest_report_vault_details r
                     WHERE
@@ -365,7 +372,7 @@ groups:
                     vault_id,
                     chain,
                     (
-                      coalesce(decision_should_harvest, false) -- if this is null, there was an error before 
+                      coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
                       and not summary_harvested
                     ) :: integer as value
                   FROM
