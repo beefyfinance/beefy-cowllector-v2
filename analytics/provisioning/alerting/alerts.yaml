@@ -350,7 +350,7 @@ groups:
           data:
             - refId: should_harvest_but_not_harvested
               relativeTimeRange:
-                from: 600
+                from: 14400
                 to: 0
               datasourceUid: PAF11E62F20EEC83B
               model:
@@ -386,7 +386,7 @@ groups:
                     limit: 50
             - refId: last_error_serie_value
               relativeTimeRange:
-                from: 600
+                from: 14400
                 to: 0
               datasourceUid: __expr__
               model:
