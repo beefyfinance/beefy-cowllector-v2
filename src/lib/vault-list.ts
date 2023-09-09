@@ -16,6 +16,7 @@ async function fetchVaults() {
         strategy: string;
         chain: Chain;
         platformId: string;
+        lastHarvest: number;
         // + some other fields we don't care about
     }[];
 
@@ -40,6 +41,7 @@ async function fetchVaults() {
         strategyAddress: vault.strategy as Hex,
         platformId: vault.platformId,
         tvlUsd: rawTvls[vault.id] || 0,
+        lastHarvest: new Date(vault.lastHarvest * 1000),
     }));
 }
 

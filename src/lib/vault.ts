@@ -8,4 +8,5 @@ export type BeefyVault = {
     strategyAddress: Hex;
     platformId: string;
     tvlUsd: number;
+    lastHarvest: Date | null;
 };
