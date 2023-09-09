@@ -345,7 +345,7 @@ groups:
           for: 30m
           isPaused: false
         - uid: e21d1911-76b4-4a70-9398-73d6b722fa23
-          title: Vault not harvested when it should have
+          title: Vault not harvested for too long
           condition: last_error_serie_value
           data:
             - refId: should_harvest_but_not_harvested
