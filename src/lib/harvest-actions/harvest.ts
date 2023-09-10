@@ -25,6 +25,7 @@ export type HarvestReturnType = {
     blockNumber: bigint;
     gasUsed: bigint;
     effectiveGasPrice: bigint;
+    transactionCostWei: bigint;
     balanceBeforeWei: bigint;
 };
 
@@ -91,6 +92,7 @@ export async function harvest(
         blockNumber: transactionReceipt.blockNumber,
         gasUsed: transactionReceipt.gasUsed,
         effectiveGasPrice: transactionReceipt.effectiveGasPrice,
+        transactionCostWei: transactionReceipt.gasUsed * transactionReceipt.effectiveGasPrice,
         balanceBeforeWei,
     };
 }

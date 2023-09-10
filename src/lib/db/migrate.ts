@@ -436,7 +436,7 @@ export async function db_migrate() {
           tx."blockNumber" as transaction_block_number,
           tx."gasUsed" as transaction_gas_used,
           tx."effectiveGasPrice" as transaction_effective_gas_price,
-          tx."gasUsed" * tx."effectiveGasPrice" as transaction_gas_cost_wei,
+          tx."transactionCostWei" as transaction_cost_wei,
           tx."balanceBeforeWei" as transaction_balance_before_wei,
           tx."estimatedProfitWei" as transaction_estimated_profit_wei,
           summary.harvested as summary_harvested,
@@ -485,6 +485,7 @@ export async function db_migrate() {
             "blockNumber" numeric,
             "gasUsed" numeric,
             "effectiveGasPrice" numeric,
+            "transactionCostWei" numeric,
             "balanceBeforeWei" numeric,
             "estimatedProfitWei" numeric
           ),

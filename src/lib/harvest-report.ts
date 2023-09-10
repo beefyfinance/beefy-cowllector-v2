@@ -164,6 +164,7 @@ type HarvestReportTransaction = Async<{
     blockNumber: bigint;
     gasUsed: bigint;
     effectiveGasPrice: bigint;
+    transactionCostWei: bigint;
     balanceBeforeWei: bigint;
     estimatedProfitWei: bigint;
 }>;
