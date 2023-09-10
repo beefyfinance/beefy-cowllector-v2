@@ -405,10 +405,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
             maxGasPricePerTransactionWei: null,
         },
-        harvest: {
-            ...defaultHarvestConfig,
-            profitabilityCheck: true,
-        },
     },
     polygon: {
         ...defaultConfig,
