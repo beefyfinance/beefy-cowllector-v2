@@ -12,8 +12,8 @@ policies:
       routes:
         - receiver: discord_one_shot
           matchers:
-            - policy = "one_shot"
+            - policy = one_shot
         - receiver: discord_follow_up
           matchers:
-            - policy != "one_shot"
+            - policy != one_shot
           
