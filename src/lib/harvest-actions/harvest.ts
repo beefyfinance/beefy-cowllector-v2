@@ -87,12 +87,21 @@ export async function harvest(
     }
 
     logger.info({ msg: 'Harvested strat', data: { chain, strategyAddress, transactionHash, transactionReceipt } });
+
+    let transactionCostWei: bigint;
+    if (transactionReceipt.gasUsed && transactionReceipt.effectiveGasPrice) {
+        transactionCostWei = BigInt(transactionReceipt.gasUsed) * BigInt(transactionReceipt.effectiveGasPrice);
+    } else if (transactionCostEstimationWei !== null) {
+        transactionCostWei = transactionCostEstimationWei;
+    } else {
+        transactionCostWei = BigInt(0);
+    }
     return {
         transactionHash,
         blockNumber: transactionReceipt.blockNumber,
         gasUsed: transactionReceipt.gasUsed,
         effectiveGasPrice: transactionReceipt.effectiveGasPrice,
-        transactionCostWei: transactionReceipt.gasUsed * transactionReceipt.effectiveGasPrice,
+        transactionCostWei: transactionCostWei,
         balanceBeforeWei,
     };
 }
