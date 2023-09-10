@@ -21,14 +21,18 @@ templates:
     template: >
       {{- if .Labels.summary_discord_vault_link -}}
         {{- .Labels.summary_discord_vault_link -}}
+        {{- print " " -}}
       {{- else -}}
         [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
+        {{- print " " -}}
       {{- end -}}
       {{- if .Labels.summary_discord_strategy_link -}}
         ({{- .Labels.summary_discord_strategy_link -}})
+        {{- print " " -}}
       {{- end -}}
       {{- if .Labels.summary_discord_transaction_link -}}
         ({{- .Labels.summary_discord_transaction_link -}})
+        {{- print " " -}}
       {{- end -}}
   - orgID: 1
     name: beefy.default.alert_print

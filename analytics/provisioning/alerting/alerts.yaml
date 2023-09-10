@@ -5,8 +5,7 @@ groups:
       folder: Cowllector Alerts
       interval: 30m
       rules:
-      
-        - uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03780
+        - uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03781
           title: Cowllector Wallet Native Balance Is Low
           condition: Last balance should alert
           data:
@@ -100,7 +99,7 @@ groups:
             template: default
             policy: follow_up
           isPaused: false
-        - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e8
+        - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e9
           title: Vault Harvest Failed
           condition: last vault harvest status
           data:
@@ -190,7 +189,7 @@ groups:
             template: alert_vault_harvest_in_error
             policy: follow_up
           isPaused: false
-        - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c2
+        - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3
           title: Run Error Alert
           condition: last value error
           data:
@@ -289,7 +288,7 @@ groups:
             template: alert_vault_harvest_in_error
             policy: follow_up
           isPaused: false
-        - uid: a238c42c-cd5e-4050-86cf-64ac3a0954c9
+        - uid: a238c42c-cd5e-4050-86cf-64ac3a0954c8
           title: Non-profitable unwrap
           condition: last_harvest_profitable
           data:
@@ -376,10 +375,10 @@ groups:
             __dashboardUid__: f1a6b58a-3a4d-4b21-b90a-2b3ee1b82bfe
             __panelId__: "1"
           labels:
-            template: alert_vault_harvest_in_error
+            template: default
             policy: one_shot
           isPaused: false
-        - uid: e21d1911-76b4-4a70-9398-73d6b722fa23
+        - uid: e21d1911-76b4-4a70-9398-73d6b722fa24
           title: Vault not harvested for too long
           condition: last_error_serie_value
           data:
@@ -461,7 +460,7 @@ groups:
             template: alert_vault_harvest_in_error
             policy: follow_up
           isPaused: false
-        - uid: db80be8a-9edb-4e09-b93f-32598c6983cd
+        - uid: db80be8a-9edb-4e09-b93f-32598c6983ce
           title: Harvest wasn't profitable after all
           condition: last_error_serie_value
           data:
@@ -545,9 +544,23 @@ groups:
             __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
             __panelId__: "1"
           labels:
-            template: alert_vault_harvest_in_error
+            template: default
             policy: one_shot
           isPaused: false
 
 
 
+
+deleteRules:
+  - orgId: 1
+    uid: a238c42c-cd5e-4050-86cf-64ac3a0954c9
+  - orgId: 1
+    uid: cacdfe7b-8b6e-4304-8dae-be3346e174c2
+  - orgId: 1
+    uid: db80be8a-9edb-4e09-b93f-32598c6983cd
+  - orgId: 1
+    uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e8
+  - orgId: 1
+    uid: e21d1911-76b4-4a70-9398-73d6b722fa23
+  - orgId: 1
+    uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03780
