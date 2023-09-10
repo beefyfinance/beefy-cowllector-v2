@@ -22,6 +22,7 @@ import { insertHarvestReport } from '../lib/db/db-report';
 import {
     extractHarvestReportItemErrorDiscordMessageDetails,
     getStrategyDiscordMessageLink,
+    getTransactionDiscordMessageLink,
     getVaultDiscordMessageLink,
 } from '../lib/discord-message';
 
@@ -141,10 +142,17 @@ async function main() {
                             discordMessage: null,
                             discordVaultLink: null,
                             discordStrategyLink: null,
+                            discordTransactionLink: null,
                         };
                         item.summary.discordMessage = extractHarvestReportItemErrorDiscordMessageDetails(chain, item);
                         item.summary.discordVaultLink = getVaultDiscordMessageLink(chain, item.vault);
                         item.summary.discordStrategyLink = getStrategyDiscordMessageLink(chain, item.vault);
+                        if (item.transaction?.status === 'fulfilled') {
+                            item.summary.discordTransactionLink = getTransactionDiscordMessageLink(
+                                chain,
+                                item.transaction.value.transactionHash
+                            );
+                        }
                     });
 
                     const statusCtx: ReportAsyncStatusContext = { chain, vault: null };

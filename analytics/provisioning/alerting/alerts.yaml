@@ -456,6 +456,7 @@ groups:
                     chain,
                     summary_discord_vault_link,
                     summary_discord_strategy_link,
+                    summary_discord_transaction_link,
                     (
                       coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
                       and summary_harvested

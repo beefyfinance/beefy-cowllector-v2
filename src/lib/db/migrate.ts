@@ -448,6 +448,7 @@ export async function db_migrate() {
           summary."discordMessage" as summary_discord_message,
           summary."discordVaultLink" as summary_discord_vault_link,
           summary."discordStrategyLink" as summary_discord_strategy_link,
+          summary."discordTransactionLink" as summary_discord_transaction_link,
           r.vault_report
         FROM 
           vault_report_jsonb r, 
@@ -500,7 +501,8 @@ export async function db_migrate() {
             status character varying,
             "discordMessage" character varying,
             "discordVaultLink" character varying,
-            "discordStrategyLink" character varying
+            "discordStrategyLink" character varying,
+            "discordTransactionLink" character varying
           )
       );
 

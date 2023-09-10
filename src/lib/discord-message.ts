@@ -60,3 +60,10 @@ export function getStrategyDiscordMessageLink(chain: Chain, vault: BeefyVault): 
     const truncatedAddy = vault.strategyAddress.slice(0, 6) + '...' + vault.strategyAddress.slice(-4);
     return `[${truncatedAddy}](<${stratExplorerLink}>)`;
 }
+
+export function getTransactionDiscordMessageLink(chain: Chain, transactionHash: string): string {
+    const explorerConfig = EXPLORER_CONFIG[chain];
+    const transactionExplorerLink = explorerConfig.transactionLinkTemplate.replace('${hash}', transactionHash);
+    const truncatedHash = transactionHash.slice(0, 6) + '...' + transactionHash.slice(-4);
+    return `[${truncatedHash}](<${transactionExplorerLink}>)`;
+}

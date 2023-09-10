@@ -27,6 +27,9 @@ templates:
       {{- if .Labels.summary_discord_strategy_link -}}
         ({{- .Labels.summary_discord_strategy_link -}})
       {{- end -}}
+      {{- if .Labels.summary_discord_transaction_link -}}
+        ({{- .Labels.summary_discord_transaction_link -}})
+      {{- end -}}
   - orgID: 1
     name: beefy.default.alert_print
     template: |-2

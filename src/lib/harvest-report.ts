@@ -185,6 +185,7 @@ export type HarvestReportItem = {
         discordMessage: string | null;
         discordVaultLink: string | null;
         discordStrategyLink: string | null;
+        discordTransactionLink: string | null;
     };
 };
 
@@ -231,6 +232,7 @@ export function createDefaultHarvestReportItem({ vault }: { vault: BeefyVault })
             discordMessage: null,
             discordVaultLink: null,
             discordStrategyLink: null,
+            discordTransactionLink: null,
         },
     };
 }
