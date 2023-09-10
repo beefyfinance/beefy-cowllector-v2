@@ -4,18 +4,548 @@ groups:
       name: Cowllector Alerts
       folder: Cowllector Alerts
       interval: 30m
-      rules: []
+      rules:
+        - uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03781
+          title: Cowllector Wallet Native Balance Is Low
+          condition: Last balance should alert
+          data:
+            - refId: all_chains_have_enough_balance
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  with transaction_max_cost as (
+                    select chain, max(transaction_cost_wei) as max_trx_cost
+                    FROM harvest_report_vault_details
+                    WHERE datetime between now() - '14 day'::interval and now()
+                    GROUP BY chain
+                  ),
+                  balance_ok_by_chain as (
+                    select 
+                      c.chain,
+                      t.max_trx_cost,
+                      c.harvest_balance_gas_multiplier_threshold, 
+                      r.balance_after_native_wei,
+                      (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold) as balance_threshold_1,
+                      c.unwrap_max_amount_of_native_wei as balance_threshold_2,
+                      coalesce(
+                        r.balance_after_native_wei > (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold),
+                        r.balance_after_native_wei > c.unwrap_max_amount_of_native_wei, -- not "right" but a good default if we don't have a max trx cost
+                        false
+                      ) as balance_ok
+                    FROM transaction_max_cost t 
+                    join chain c using (chain)
+                    join last_harvest_run_by_chain r using (chain)
+                    where not c.eol and c.harvest_enabled
+                  )
+                  select now() as time, chain, (not balance_ok)::integer as value
+                  from balance_ok_by_chain
+                refId: all_chains_have_enough_balance
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: Last balance should alert
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: all_chains_have_enough_balance
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: Last balance should alert
+                type: reduce
+          dashboardUid: d671083c-022d-434b-9284-ba70f5a72f93
+          panelId: 1
+          noDataState: NoData
+          execErrState: Error
+          for: 6h
+          annotations:
+            __dashboardUid__: d671083c-022d-434b-9284-ba70f5a72f93
+            __panelId__: "1"
+          labels:
+            template: default
+            policy: follow_up
+          isPaused: false
+        - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e9
+          title: Vault Harvest Failed
+          condition: last vault harvest status
+          data:
+            - refId: vault_harvest_success_ts
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  SELECT
+                    date_trunc('hour', datetime) as time,
+                    vault_id,
+                    summary_discord_vault_link,
+                    summary_discord_strategy_link,
+                    chain,
+                    (
+                      coalesce(r.summary_status = 'error', false)
+                      -- remove the errors from the other alert that checks last harvest status
+                      and not (
+                        coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                        and not summary_harvested
+                      )
+                    ) :: integer as value
+                  FROM
+                    harvest_report_vault_details r
+                  WHERE
+                    $__timeFilter(datetime)
+                  ORDER BY
+                    datetime
+                refId: vault_harvest_success_ts
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last vault harvest status
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: vault_harvest_success_ts
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last vault harvest status
+                settings:
+                    mode: ""
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 6h
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: alert_vault_harvest_in_error
+            policy: follow_up
+          isPaused: false
+        - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3
+          title: Run Error Alert
+          condition: last value error
+          data:
+            - refId: cowllector run errors
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  with run_in_error as (
+                    (
+                      select 
+                        r.datetime,
+                        r.chain,
+                        'unwrap' as report_type,
+                        r.run_ok
+                      from last_unwrap_run_by_chain r
+                      join chain c using (chain)
+                      where c.harvest_enabled and not c.eol
+                        and $__timeFilter(datetime) 
+                    ) UNION ALL (
+                      select 
+                        r.datetime,
+                        r.chain,
+                        'harvest' as report_type,
+                        r.run_ok
+                      from last_harvest_run_by_chain r
+                      join chain c using (chain)
+                      where c.harvest_enabled and not c.eol
+                        and $__timeFilter(datetime)
+                    )
+                  )
+                  select 
+                    date_trunc('hour', datetime) as time, 
+                    chain || '-' || report_type as report_key, 
+                    (not run_ok)::integer as value
+                  from run_in_error r
+                  order by datetime
+                refId: cowllector run errors
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last value error
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: cowllector run errors
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last value error
+                settings:
+                    mode: ""
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 6h
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: alert_vault_harvest_in_error
+            policy: follow_up
+          isPaused: false
+        - uid: a238c42c-cd5e-4050-86cf-64ac3a0954c8
+          title: Non-profitable unwrap
+          condition: last_harvest_profitable
+          data:
+            - refId: unwrap unprofitable
+              relativeTimeRange:
+                from: 1209600
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  with unwrap_not_profitable as (
+                    SELECT
+                      r.datetime,
+                      r.chain,
+                      balance_before_native_wei,
+                      balance_after_native_wei,
+                      (balance_before_native_wei <= balance_after_native_wei) as is_valid,
+                      row_number() over (partition by chain order by datetime desc) as row_number
+                    FROM
+                      cowllector_run r
+                    where 
+                      report_type = 'unwrap'
+                      and balance_before_native_wei is not null 
+                      and balance_after_native_wei is not null
+                      and $__timeFilter(datetime) 
+                  )
+                  select 
+                    date_trunc('month', datetime) as time,
+                    chain,
+                    (not bool_and(is_valid)) :: integer as value
+                  from
+                    unwrap_not_profitable
+                  group by 1, 2
+                  order by 1
+                refId: unwrap unprofitable
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_harvest_profitable
+              relativeTimeRange:
+                from: 21600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: unwrap unprofitable
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_harvest_profitable
+                type: reduce
+          dashboardUid: f1a6b58a-3a4d-4b21-b90a-2b3ee1b82bfe
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 30m
+          annotations:
+            __dashboardUid__: f1a6b58a-3a4d-4b21-b90a-2b3ee1b82bfe
+            __panelId__: "1"
+          labels:
+            template: default
+            policy: one_shot
+          isPaused: false
+        - uid: e21d1911-76b4-4a70-9398-73d6b722fa24
+          title: Vault not harvested for too long
+          condition: last_error_serie_value
+          data:
+            - refId: should_harvest_but_not_harvested
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  SELECT
+                    date_trunc('hour', datetime) as time,
+                    vault_id,
+                    chain,
+                    summary_discord_vault_link,
+                    summary_discord_strategy_link,
+                    (
+                      coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                      and not summary_harvested
+                    ) :: integer as value
+                  FROM
+                    harvest_report_vault_details r
+                  WHERE
+                    $__timeFilter(datetime)
+                  ORDER BY
+                    datetime
+                refId: should_harvest_but_not_harvested
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_error_serie_value
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: should_harvest_but_not_harvested
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_error_serie_value
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 6h
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: alert_vault_harvest_in_error
+            policy: follow_up
+          isPaused: false
+        - uid: db80be8a-9edb-4e09-b93f-32598c6983ce
+          title: Harvest wasn't profitable after all
+          condition: last_error_serie_value
+          data:
+            - refId: harvest_should_have_been_profitable_but_is_not
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  SELECT
+                    date_trunc('hour', datetime) as time,
+                    vault_id,
+                    chain,
+                    summary_discord_vault_link,
+                    summary_discord_strategy_link,
+                    summary_discord_transaction_link,
+                    (
+                      coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                      and summary_harvested
+                      and simulation_gas_would_be_profitable
+                      and simulation_gas_estimated_call_rewards_wei < transaction_cost_wei
+                    ) :: integer as value
+                  FROM
+                    harvest_report_vault_details r
+                    JOIN chain c using (chain)
+                  WHERE
+                    $__timeFilter(datetime)
+                    and c.harvest_profitability_check
+                  ORDER BY
+                    datetime
+                refId: harvest_should_have_been_profitable_but_is_not
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_error_serie_value
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: harvest_should_have_been_profitable_but_is_not
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_error_serie_value
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 0s
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: default
+            policy: one_shot
+          isPaused: false
 
-deleteRules:
-  - orgId: 1
-    uid: a238c42c-cd5e-4050-86cf-64ac3a0954c9
-  - orgId: 1
-    uid: cacdfe7b-8b6e-4304-8dae-be3346e174c2
-  - orgId: 1
-    uid: db80be8a-9edb-4e09-b93f-32598c6983cd
-  - orgId: 1
-    uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e8
-  - orgId: 1
-    uid: e21d1911-76b4-4a70-9398-73d6b722fa23
-  - orgId: 1
-    uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03780
+
