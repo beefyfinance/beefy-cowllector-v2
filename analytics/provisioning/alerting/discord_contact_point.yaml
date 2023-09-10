@@ -1,7 +1,7 @@
 apiVersion: 1
 contactPoints:
     - orgId: 1
-      name: Discord
+      name: discord_follow_up
       receivers:
         - uid: a503176f-ebff-4771-a4ba-ee273a2d4eb0
           type: discord
@@ -11,3 +11,14 @@ contactPoints:
             url: ${DISCORD_ALERT_WEBHOOK_URL}
             use_discord_username: true
           disableResolveMessage: false
+    - orgId: 1
+      name: discord_one_shot
+      receivers:
+        - uid: a503176f-ebff-4771-a4ba-ee273a2d4eb0
+          type: discord
+          settings:
+            message: '{{- template "discord.message" . -}}'
+            title: '{{- template "discord.title" . -}}'
+            url: ${DISCORD_ALERT_WEBHOOK_URL}
+            use_discord_username: true
+          disableResolveMessage: true
