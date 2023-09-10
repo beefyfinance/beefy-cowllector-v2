@@ -154,6 +154,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
     minTvlThresholdUsd: 100,
+    profitabilityCheck: false,
     targetTimeBetweenHarvestsMs: HARVEST_AT_LEAST_EVERY_HOURS * 60 * 60 * 1000,
     balanceCheck: {
         gasLimitMultiplier: HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
@@ -199,6 +200,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 blockConfirmations: 1, // reduces the amount of TransactionReceiptNotFoundError we get
             },
         },
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
+        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
@@ -208,6 +213,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     base: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.BASE_RPC_URL || 'https://rpc.ankr.com/base',
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
+        },
     },
     bsc: {
         ...defaultConfig,
@@ -221,6 +230,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         harvest: {
             ...defaultHarvestConfig,
             minTvlThresholdUsd: 10_000,
+            profitabilityCheck: true,
             balanceCheck: {
                 ...defaultHarvestConfig.balanceCheck,
                 gasPriceMultiplier: 1.0,
@@ -235,6 +245,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'legacy',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 20.0),
             maxGasPricePerTransactionWei: null,
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
         },
         unwrap: {
             ...defaultUnwrapConfig,
@@ -288,6 +302,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     fantom: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.FANTOM_RPC_URL || 'https://rpc.ankr.com/fantom',
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
+        },
     },
     fuse: {
         ...defaultConfig,
@@ -297,6 +315,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'legacy',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 40.0),
             maxGasPricePerTransactionWei: null,
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
         },
     },
     heco: {
@@ -313,6 +335,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 3.0),
             maxGasPricePerTransactionWei: null,
         },
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
+        },
     },
     metis: {
         ...defaultConfig,
@@ -322,6 +348,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'legacy',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.17),
             maxGasPricePerTransactionWei: null,
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
         },
         unwrap: {
             ...defaultUnwrapConfig,
@@ -372,6 +402,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
             maxGasPricePerTransactionWei: null,
         },
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
+        },
     },
     polygon: {
         ...defaultConfig,
@@ -384,6 +418,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 ...defaultTransactionConfig.receipt,
                 blockConfirmations: 1, // we don't need to wait for 3 confirmations on polygon
             },
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: true,
         },
         unwrap: {
             ...defaultUnwrapConfig,

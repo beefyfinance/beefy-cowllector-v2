@@ -267,27 +267,6 @@ export async function harvestChain({
                 };
             }
 
-            // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
-            // so we removed our profitability check for now
-            if (item.simulation.gas.wouldBeProfitable) {
-                logger.info({
-                    msg: 'Harvesting would probably be profitable if we computed gas cost correctly. But we are not so we are not harvesting.',
-                    data: { gasEstimation: item.simulation.gas, simulation: item.simulation },
-                });
-            }
-
-            if (item.simulation.isLastHarvestRecent) {
-                return {
-                    shouldHarvest: false,
-                    level: 'info',
-                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
-                    wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
-                    callRewardsWei: item.simulation.estimatedCallRewardsWei,
-                    estimatedGainWei: item.simulation.gas.estimatedGainWei,
-                    notHarvestingReason: 'harvested too recently',
-                };
-            }
-
             if (
                 rpcConfig.transaction.type === 'legacy' &&
                 rpcConfig.transaction.maxNativePerTransactionWei &&
@@ -315,6 +294,38 @@ export async function harvestChain({
                     gasPrice: item.simulation.gas.gasPrice,
                     notHarvestingReason:
                         'estimated gas price would be too high, waiting until the network is less congested',
+                };
+            }
+
+            // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
+            // so we removed our profitability check for now
+            if (item.simulation.gas.wouldBeProfitable) {
+                if (rpcConfig.harvest.profitabilityCheck) {
+                    return {
+                        shouldHarvest: true,
+                        level: 'info',
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
+                        callRewardsWei: item.simulation.estimatedCallRewardsWei,
+                        estimatedGainWei: item.simulation.gas.estimatedGainWei,
+                    };
+                } else {
+                    logger.info({
+                        msg: 'Harvesting would probably be profitable if we computed gas cost correctly. But we are not so we are not harvesting.',
+                        data: { gasEstimation: item.simulation.gas, simulation: item.simulation },
+                    });
+                }
+            }
+
+            if (item.simulation.isLastHarvestRecent) {
+                return {
+                    shouldHarvest: false,
+                    level: 'info',
+                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                    wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
+                    callRewardsWei: item.simulation.estimatedCallRewardsWei,
+                    estimatedGainWei: item.simulation.gas.estimatedGainWei,
+                    notHarvestingReason: 'harvested too recently',
                 };
             }
 
