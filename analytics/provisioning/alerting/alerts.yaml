@@ -430,5 +430,69 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
           isPaused: false
+        - uid: db80be8a-9edb-4e09-b93f-32598c6983cd
+          title: Harvest wasn't profitable after all
+          condition: last_error_serie_value
+          data:
+            - refId: harvest_should_have_been_profitable_but_is_not
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: "SELECT\n  date_trunc('hour', datetime) as time,\n  vault_id,\n  chain,\n  (\n    coalesce(decision_should_harvest, true) -- if this is null, there was an error before \n    and summary_harvested\n    and simulation_gas_would_be_profitable\n    and simulation_gas_estimated_call_rewards_wei < transaction_cost_wei\n  ) :: integer as value\nFROM\n  harvest_report_vault_details r\n  JOIN chain c using (chain)\nWHERE\n  $__timeFilter(datetime)\n  and c.harvest_profitability_check\nORDER BY\n  datetime\n"
+                refId: harvest_should_have_been_profitable_but_is_not
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_error_serie_value
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: harvest_should_have_been_profitable_but_is_not
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_error_serie_value
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 0s
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          isPaused: false
+
 
 
