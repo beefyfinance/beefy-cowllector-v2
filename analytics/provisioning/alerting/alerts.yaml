@@ -7,4 +7,16 @@ groups:
       rules: []
       
 
-
+deleteRules:
+  - orgId: 1
+    uid: a238c42c-cd5e-4050-86cf-64ac3a0954c9
+  - orgId: 1
+    uid: cacdfe7b-8b6e-4304-8dae-be3346e174c2
+  - orgId: 1
+    uid: db80be8a-9edb-4e09-b93f-32598c6983cd
+  - orgId: 1
+    uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e8
+  - orgId: 1
+    uid: e21d1911-76b4-4a70-9398-73d6b722fa23
+  - orgId: 1
+    uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03780

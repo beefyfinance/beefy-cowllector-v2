@@ -76,8 +76,8 @@ templates:
       {{- print ""   }}{{- end -}}
 
 # List of alert rule UIDs that should be deleted
-deleteTemplates:
-  - orgId: 1
-    name: beefy.alert.status_emoji
-  - orgId: 1
-    name: beefy.alert_vault_harvest_in_error.message
+#deleteTemplates:
+#  - orgId: 1
+#    name: beefy.alert.status_emoji
+#  - orgId: 1
+#    name: beefy.alert_vault_harvest_in_error.message
