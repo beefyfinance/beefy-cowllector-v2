@@ -150,6 +150,9 @@ export async function db_migrate() {
         datetime timestamp with time zone NOT NULL,
         report_content jsonb NOT NULL
       );
+      CREATE INDEX IF NOT EXISTS raw_report_datetime_idx ON raw_report(datetime);
+      CREATE INDEX IF NOT EXISTS raw_report_report_type_idx ON raw_report(report_type);
+      CREATE INDEX IF NOT EXISTS raw_report_chain_idx ON raw_report(chain);
     `);
 
     await db_query(`
