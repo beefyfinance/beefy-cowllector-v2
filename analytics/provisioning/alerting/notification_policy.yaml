@@ -2,8 +2,6 @@ apiVersion: 1
 policies:
     - orgId: 1
       receiver: discord_follow_up
-      matchers:
-        - policy != "one_shot"
       group_by:
         - grafana_folder
         - alertname
@@ -11,15 +9,11 @@ policies:
       group_interval: 5m
       # only repeat alerts every 1 week if not solved in the meantime
       repeat_interval: 1w
-
-    - orgId: 1
-      receiver: discord_one_shot
-      matchers:
-        - policy = "one_shot"
-      group_by:
-        - grafana_folder
-        - alertname
-      group_wait: 30s
-      group_interval: 5m
-      # only repeat alerts every 1 week if not solved in the meantime
-      repeat_interval: 1w
+      routes:
+        - receiver: discord_one_shot
+          matchers:
+            - policy = "one_shot"
+        - receiver: discord_follow_up
+          matchers:
+            - policy != "one_shot"
+          
