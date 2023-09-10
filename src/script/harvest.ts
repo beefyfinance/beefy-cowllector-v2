@@ -6,7 +6,7 @@ import { rootLogger } from '../util/logger';
 import { getVaultsToMonitorByChain } from '../lib/vault-list';
 import { harvestChain } from '../lib/harvest-chain';
 import { Hex } from 'viem';
-import { createDefaultHarvestReport, extractHarvestReportItemErrorDiscordMessageDetails } from '../lib/harvest-report';
+import { createDefaultHarvestReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyError, notifyHarvestReport } from '../lib/notify';
@@ -19,6 +19,11 @@ import {
 } from '../lib/report-error-status';
 import { withDbClient } from '../lib/db/utils';
 import { insertHarvestReport } from '../lib/db/db-report';
+import {
+    extractHarvestReportItemErrorDiscordMessageDetails,
+    getStrategyDiscordMessageLink,
+    getVaultDiscordMessageLink,
+} from '../lib/discord-message';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -134,8 +139,12 @@ async function main() {
                                     ? item.transaction?.value.estimatedProfitWei
                                     : 0n,
                             discordMessage: null,
+                            discordVaultLink: null,
+                            discordStrategyLink: null,
                         };
                         item.summary.discordMessage = extractHarvestReportItemErrorDiscordMessageDetails(chain, item);
+                        item.summary.discordVaultLink = getVaultDiscordMessageLink(chain, item.vault);
+                        item.summary.discordStrategyLink = getStrategyDiscordMessageLink(chain, item.vault);
                     });
 
                     const statusCtx: ReportAsyncStatusContext = { chain, vault: null };

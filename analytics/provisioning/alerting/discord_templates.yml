@@ -17,6 +17,17 @@ templates:
     template: >
       {{- print ""   }}{{- if eq .Status "firing" }}🔥{{ end }}{{ if eq .Status "resolved" }}✅{{ end }} {{.Status -}}
   - orgID: 1
+    name: beefy.alert.vault_infos
+    template: >
+      {{- if .Labels.summary_discord_vault_link -}}
+        {{- .Labels.summary_discord_vault_link -}}
+      {{- else -}}
+        [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
+      {{- end -}}
+      {{- if .Labels.summary_discord_strategy_link -}}
+        ({{- .Labels.summary_discord_strategy_link -}})
+      {{- end -}}
+  - orgID: 1
     name: beefy.default.alert_print
     template: |-2
       {{- print ""   }}{{ template "beefy.alert.status" . }} {{ .Labels.alertname }} <@&__DISCORD_HARVESTERS_ROLE_ID__>: {{ template "beefy.alert.action_urls" . }}
@@ -48,7 +59,7 @@ templates:
     template: |-2
       {{- print "\n" }}### {{ .CommonLabels.alertname }}: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
       {{- print ""   }}{{ range .Alerts -}}
-      {{- print "\n" }}- {{ template "beefy.alert.status" . }}: [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
+      {{- print "\n" }}- {{ template "beefy.alert.status" . }}: {{ template "beefy.alert.vault_infos" . }}
       {{- print ""   }}{{ end }}
       {{- print "\n" }}<@&__DISCORD_HARVESTERS_ROLE_ID__> <@&__DISCORD_STRATEGISTS_ROLE_ID__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
   - orgID: 1

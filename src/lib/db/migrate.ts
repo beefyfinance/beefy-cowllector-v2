@@ -446,6 +446,8 @@ export async function db_migrate() {
           summary.skipped as summary_skipped,
           summary.status as summary_status,
           summary."discordMessage" as summary_discord_message,
+          summary."discordVaultLink" as summary_discord_vault_link,
+          summary."discordStrategyLink" as summary_discord_strategy_link,
           r.vault_report
         FROM 
           vault_report_jsonb r, 
@@ -496,7 +498,9 @@ export async function db_migrate() {
             harvested boolean,
             skipped boolean,
             status character varying,
-            "discordMessage" character varying
+            "discordMessage" character varying,
+            "discordVaultLink" character varying,
+            "discordStrategyLink" character varying
           )
       );
 

@@ -107,24 +107,26 @@ groups:
                 maxDataPoints: 43200
                 rawQuery: true
                 rawSql: |
-                    SELECT
-                      date_trunc('hour', datetime) as time,
-                      vault_id,
-                      chain,
-                      (
-                        coalesce(r.summary_status = 'error', false)
-                        -- remove the errors from the other alert that checks last harvest status
-                        and not (
-                          coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
-                          and not summary_harvested
-                        )
-                      ) :: integer as value
-                    FROM
-                      harvest_report_vault_details r
-                    WHERE
-                      $__timeFilter(datetime)
-                    ORDER BY
-                      datetime
+                  SELECT
+                    date_trunc('hour', datetime) as time,
+                    vault_id,
+                    summary_discord_vault_link,
+                    summary_discord_strategy_link,
+                    chain,
+                    (
+                      coalesce(r.summary_status = 'error', false)
+                      -- remove the errors from the other alert that checks last harvest status
+                      and not (
+                        coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                        and not summary_harvested
+                      )
+                    ) :: integer as value
+                  FROM
+                    harvest_report_vault_details r
+                  WHERE
+                    $__timeFilter(datetime)
+                  ORDER BY
+                    datetime
                 refId: vault_harvest_success_ts
                 sql:
                     columns:
@@ -371,6 +373,8 @@ groups:
                     date_trunc('hour', datetime) as time,
                     vault_id,
                     chain,
+                    summary_discord_vault_link,
+                    summary_discord_strategy_link,
                     (
                       coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
                       and not summary_harvested
@@ -445,7 +449,27 @@ groups:
                 intervalMs: 1000
                 maxDataPoints: 43200
                 rawQuery: true
-                rawSql: "SELECT\n  date_trunc('hour', datetime) as time,\n  vault_id,\n  chain,\n  (\n    coalesce(decision_should_harvest, true) -- if this is null, there was an error before \n    and summary_harvested\n    and simulation_gas_would_be_profitable\n    and simulation_gas_estimated_call_rewards_wei < transaction_cost_wei\n  ) :: integer as value\nFROM\n  harvest_report_vault_details r\n  JOIN chain c using (chain)\nWHERE\n  $__timeFilter(datetime)\n  and c.harvest_profitability_check\nORDER BY\n  datetime\n"
+                rawSql: |
+                  SELECT
+                    date_trunc('hour', datetime) as time,
+                    vault_id,
+                    chain,
+                    summary_discord_vault_link,
+                    summary_discord_strategy_link,
+                    (
+                      coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                      and summary_harvested
+                      and simulation_gas_would_be_profitable
+                      and simulation_gas_estimated_call_rewards_wei < transaction_cost_wei
+                    ) :: integer as value
+                  FROM
+                    harvest_report_vault_details r
+                    JOIN chain c using (chain)
+                  WHERE
+                    $__timeFilter(datetime)
+                    and c.harvest_profitability_check
+                  ORDER BY
+                    datetime
                 refId: harvest_should_have_been_profitable_but_is_not
                 sql:
                     columns:
