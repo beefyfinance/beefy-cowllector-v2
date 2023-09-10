@@ -1,7 +1,7 @@
 apiVersion: 1
 contactPoints:
     - orgId: 1
-      name: discord_follow_up
+      name: Discord
       receivers:
         - uid: a503176f-ebff-4771-a4ba-ee273a2d4eb0
           type: discord_follow_up
