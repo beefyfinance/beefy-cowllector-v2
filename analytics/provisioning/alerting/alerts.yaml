@@ -535,13 +535,13 @@ groups:
                 reducer: last
                 refId: last_error_serie_value
                 type: reduce
-          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          dashboardUid: f9a5269f-4a6b-4ff6-a3de-6f2753d4db4c
           panelId: 1
           noDataState: OK
           execErrState: Error
           for: 0s
           annotations:
-            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __dashboardUid__: f9a5269f-4a6b-4ff6-a3de-6f2753d4db4c
             __panelId__: "1"
           labels:
             template: default
