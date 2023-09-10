@@ -10,7 +10,7 @@ import { BeefyVault } from './vault';
 import { VAULT_IDS_WE_ARE_OK_NOT_HARVESTING } from './config';
 
 jest.mock('./config', () => ({
-    VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG: ['this-vault-has-a-bug'],
+    VAULT_IDS_WE_ARE_OK_NOT_HARVESTING: ['this-vault-has-a-bug'],
 }));
 
 describe('getReportAsyncStatus', () => {
@@ -59,7 +59,7 @@ describe('getReportAsyncStatus', () => {
         ).toEqual('error');
     });
 
-    it('should return notice when an async report is in rejected with a specific error and the vault is in VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG', () => {
+    it('should return notice when an async report is in rejected with a specific error and the vault is in VAULT_IDS_WE_ARE_OK_NOT_HARVESTING', () => {
         const localCtx = {
             ...ctx,
             vault: { id: 'this-vault-has-a-bug' } as any as BeefyVault,
