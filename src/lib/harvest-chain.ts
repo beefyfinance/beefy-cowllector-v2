@@ -259,6 +259,16 @@ export async function harvestChain({
                     };
                 }
 
+                if (VAULT_IDS_WE_ARE_OK_NOT_HARVESTING.includes(item.vault.id)) {
+                    return {
+                        shouldHarvest: false,
+                        level: 'notice',
+                        harvestReturnData: item.simulation.harvestResultData,
+                        blockNumber: item.simulation.blockNumber,
+                        notHarvestingReason: 'We are ok not harvesting this vault',
+                    };
+                }
+
                 return {
                     shouldHarvest: false,
                     level: 'error',
