@@ -83,17 +83,7 @@ export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['curve', 'balanc
 export const VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['joe-joe'];
 
 // just don't harvest those vaults for now
-export const VAULT_IDS_WE_ARE_OK_NOT_HARVESTING: string[] = [
-    // https://dashboard.tenderly.co/clemToune/project/simulator/a9d6a3ee-cb3c-4e4f-b4ab-04192a05d934
-    // no idea why there is a revert here
-    'ellipsis-2brl',
-
-    // has no rewards
-    'balancer-base-usdbc-dai',
-
-    // has no rewards
-    'aura-polygon-gyro-matic-maticx',
-];
+export const VAULT_IDS_WE_ARE_OK_NOT_HARVESTING: string[] = [];
 
 // some strategies do not have an `harvest(address rewardRecipient)` function that we can call to harvest rewards
 // instead, we have to call `harvest()` and then `withdraw(address rewardRecipient)` to get the rewards

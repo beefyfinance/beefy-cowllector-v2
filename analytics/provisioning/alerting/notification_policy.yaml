@@ -7,5 +7,5 @@ policies:
         - alertname
       group_wait: 30s
       group_interval: 5m
-      # only repeat alerts every 2 weeks if not solved in the meantime
-      repeat_interval: 2w
+      # only repeat alerts every 1 week if not solved in the meantime
+      repeat_interval: 1w
