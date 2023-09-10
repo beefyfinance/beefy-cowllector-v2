@@ -27,11 +27,11 @@ templates:
         {{- print " " -}}
       {{- end -}}
       {{- if .Labels.summary_discord_strategy_link -}}
-        ({{- .Labels.summary_discord_strategy_link -}})
+        strat: {{- .Labels.summary_discord_strategy_link -}}
         {{- print " " -}}
       {{- end -}}
       {{- if .Labels.summary_discord_transaction_link -}}
-        ({{- .Labels.summary_discord_transaction_link -}})
+        trx: {{- .Labels.summary_discord_transaction_link -}}
         {{- print " " -}}
       {{- end -}}
   - orgID: 1
