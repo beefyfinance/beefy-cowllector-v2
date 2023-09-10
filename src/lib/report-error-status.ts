@@ -3,7 +3,7 @@ import { Async } from '../util/async';
 import { Chain } from './chain';
 import { extractErrorMessage } from './error-message';
 import { BeefyVault } from './vault';
-import { VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG } from './config';
+import { VAULT_IDS_WE_ARE_OK_NOT_HARVESTING } from './config';
 
 // info: do not show or alert in the notifier message
 // notice: show in the notifier message but do not alert
@@ -41,7 +41,7 @@ export function getReportAsyncStatus<T>(
         if (chain === 'zkevm' && extractErrorMessage(report) === 'failed to execute the unsigned transaction') {
             return 'notice';
         }
-        if (vault && VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.includes(vault.id)) {
+        if (vault && VAULT_IDS_WE_ARE_OK_NOT_HARVESTING.includes(vault.id)) {
             return 'notice';
         }
         return 'error';

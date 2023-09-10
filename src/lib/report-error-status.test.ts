@@ -7,7 +7,7 @@ import {
 } from './report-error-status';
 import { BeefyVault } from './vault';
 
-import { VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG } from './config';
+import { VAULT_IDS_WE_ARE_OK_NOT_HARVESTING } from './config';
 
 jest.mock('./config', () => ({
     VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG: ['this-vault-has-a-bug'],
@@ -64,7 +64,7 @@ describe('getReportAsyncStatus', () => {
             ...ctx,
             vault: { id: 'this-vault-has-a-bug' } as any as BeefyVault,
         };
-        expect(VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG).toContain(localCtx.vault.id);
+        expect(VAULT_IDS_WE_ARE_OK_NOT_HARVESTING).toContain(localCtx.vault.id);
         expect(
             getReportAsyncStatus(localCtx, { status: 'rejected', reason: { details: 'This was a mistake' }, timing })
         ).toEqual('notice');

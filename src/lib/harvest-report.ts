@@ -75,7 +75,7 @@ export type HarvestReportDecision = Async<
           level: 'notice';
           harvestReturnData: Hex;
           blockNumber: bigint;
-          notHarvestingReason: 'Vault has a bug that makes it fail to harvest?';
+          notHarvestingReason: 'We are ok not harvesting this vault';
       }
     | {
           shouldHarvest: false;

@@ -83,13 +83,16 @@ export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['curve', 'balanc
 export const VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['joe-joe'];
 
 // just don't harvest those vaults for now
-export const VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG: string[] = [
+export const VAULT_IDS_WE_ARE_OK_NOT_HARVESTING: string[] = [
     // https://dashboard.tenderly.co/clemToune/project/simulator/a9d6a3ee-cb3c-4e4f-b4ab-04192a05d934
     // no idea why there is a revert here
-    //'ellipsis-2brl',
-    // harvest would fail (block: 18041014, data:       0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000014b00000000000000000000000000000000000000000000000000000000000000)
-    // abi.encodeWithSignature('Error(string)', 'K') -> 0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000014b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    //'ramses-frxeth-sfrxeth',
+    'ellipsis-2brl',
+
+    // has no rewards
+    'balancer-base-usdbc-dai',
+
+    // has no rewards
+    'aura-polygon-gyro-matic-maticx',
 ];
 
 // some strategies do not have an `harvest(address rewardRecipient)` function that we can call to harvest rewards

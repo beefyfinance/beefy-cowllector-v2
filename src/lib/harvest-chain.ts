@@ -7,7 +7,7 @@ import {
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
     PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
     VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION,
-    VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG,
+    VAULT_IDS_WE_ARE_OK_NOT_HARVESTING,
     VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
     SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS,
     VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
@@ -207,13 +207,13 @@ export async function harvestChain({
                     };
                 }
 
-                if (VAULT_IDS_WITH_A_KNOWN_HARVEST_BUG.includes(item.vault.id)) {
+                if (VAULT_IDS_WE_ARE_OK_NOT_HARVESTING.includes(item.vault.id)) {
                     return {
                         shouldHarvest: false,
                         level: 'notice',
                         harvestReturnData: item.simulation.harvestResultData,
                         blockNumber: item.simulation.blockNumber,
-                        notHarvestingReason: 'Vault has a bug that makes it fail to harvest?',
+                        notHarvestingReason: 'We are ok not harvesting this vault',
                     };
                 }
 
