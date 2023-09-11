@@ -147,7 +147,10 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
     minTvlThresholdUsd: 100,
-    profitabilityCheck: false,
+    profitabilityCheck: {
+        enabled: false,
+        minExpectedRewardsWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
+    },
     targetTimeBetweenHarvestsMs: HARVEST_AT_LEAST_EVERY_HOURS * 60 * 60 * 1000,
     balanceCheck: {
         gasLimitMultiplier: HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
@@ -195,7 +198,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
         },
         unwrap: {
             ...defaultUnwrapConfig,
@@ -208,7 +214,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.BASE_RPC_URL || 'https://rpc.ankr.com/base',
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
         },
     },
     bsc: {
@@ -223,7 +232,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         harvest: {
             ...defaultHarvestConfig,
             minTvlThresholdUsd: 10_000,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
             balanceCheck: {
                 ...defaultHarvestConfig.balanceCheck,
                 gasPriceMultiplier: 1.0,
@@ -241,7 +253,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
         },
         unwrap: {
             ...defaultUnwrapConfig,
@@ -307,7 +322,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
         },
     },
     heco: {
@@ -326,7 +344,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
         },
     },
     metis: {
@@ -340,7 +361,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
         },
         unwrap: {
             ...defaultUnwrapConfig,
@@ -406,7 +430,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: true,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
         },
         unwrap: {
             ...defaultUnwrapConfig,

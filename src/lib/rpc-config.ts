@@ -55,7 +55,10 @@ export type RpcConfig = {
         // profitability check is implemented for some chains only
         // it is especially difficult to implement for L2 chains that have various way of dealing with L1 gas
         // for example, zksync has a gas rebate, optimism has additional L1 fees, etc.
-        profitabilityCheck: boolean;
+        profitabilityCheck: {
+            enabled: boolean;
+            minExpectedRewardsWei: bigint;
+        };
 
         // we try to harvest at most every X ms (24h by default)
         targetTimeBetweenHarvestsMs: number;

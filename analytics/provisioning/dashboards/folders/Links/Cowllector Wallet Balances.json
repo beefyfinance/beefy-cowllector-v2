@@ -82,10 +82,246 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 9,
-                "w": 24,
+                "h": 11,
+                "w": 12,
                 "x": 0,
                 "y": 0
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "PAF11E62F20EEC83B"
+                    },
+                    "editorMode": "code",
+                    "format": "time_series",
+                    "rawQuery": true,
+                    "rawSql": "SELECT\n  chain,\n  date_trunc('hour', datetime) as time,\n  eth_wei_to_eth(min(balance_before_aggregated_wei)) as balance_before_total,\n  eth_wei_to_eth(min(balance_after_aggregated_wei)) as balance_after_total\nFROM\n  cowllector_run \nWHERE chain IN ( '$chain' ) and $__timeFilter(datetime) \nGROUP BY 1,2, datetime\nORDER BY\n  datetime",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    }
+                }
+            ],
+            "title": "Native+WNative Balance",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "PAF11E62F20EEC83B"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 11,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "id": 4,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "PAF11E62F20EEC83B"
+                    },
+                    "editorMode": "code",
+                    "format": "time_series",
+                    "rawQuery": true,
+                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_aggregated_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_aggregated_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ( '$chain' ) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) as balance_before_percent,\n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    }
+                }
+            ],
+            "title": "Native+WNative Balance",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 11
+            },
+            "id": 7,
+            "panels": [],
+            "title": "Details",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "PAF11E62F20EEC83B"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 8,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 12
             },
             "id": 1,
             "options": {
@@ -109,7 +345,119 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "SELECT\n  chain,\n  date_trunc('hour', datetime) as time,\n  eth_wei_to_eth(min(balance_before_native_wei)) as balance_before_native,\n  eth_wei_to_eth(min(balance_after_native_wei))  as balance_after_native\nFROM\n  cowllector_run \nWHERE chain IN ( $chain )\nGROUP BY 1,2, datetime\nORDER BY\n  datetime",
+                    "rawSql": "SELECT\n  chain,\n  date_trunc('hour', datetime) as time,\n  eth_wei_to_eth(min(balance_before_native_wei)) as balance_before_native,\n  eth_wei_to_eth(min(balance_after_native_wei))  as balance_after_native\nFROM\n  cowllector_run \nWHERE chain IN ( '$chain' ) and $__timeFilter(datetime) \nGROUP BY 1,2, datetime\nORDER BY\n  datetime",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    }
+                }
+            ],
+            "title": "Native Balance",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "PAF11E62F20EEC83B"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 12
+            },
+            "id": 5,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "PAF11E62F20EEC83B"
+                    },
+                    "editorMode": "code",
+                    "format": "time_series",
+                    "rawQuery": true,
+                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_native_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_native_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ( '$chain' ) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) as balance_before_percent,\n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -193,10 +541,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 9,
-                "w": 24,
+                "h": 8,
+                "w": 12,
                 "x": 0,
-                "y": 9
+                "y": 20
             },
             "id": 2,
             "options": {
@@ -220,7 +568,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "SELECT\n  chain,\n  date_trunc('hour', datetime) as time,\n  eth_wei_to_eth(min(balance_before_wnative_wei)) as balance_before_wnative,\n  eth_wei_to_eth(min(balance_after_wnative_wei)) as balance_after_wnative\nFROM\n  cowllector_run \nWHERE chain IN ( $chain )\nGROUP BY 1,2, datetime\nORDER BY\n  datetime",
+                    "rawSql": "SELECT\n  chain,\n  date_trunc('hour', datetime) as time,\n  eth_wei_to_eth(min(balance_before_wnative_wei)) as balance_before_wnative,\n  eth_wei_to_eth(min(balance_after_wnative_wei)) as balance_after_wnative\nFROM\n  cowllector_run \nWHERE chain IN ( '$chain' ) and $__timeFilter(datetime) \nGROUP BY 1,2, datetime\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -285,7 +633,7 @@
                             "mode": "off"
                         }
                     },
-                    "decimals": 8,
+                    "decimals": 2,
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
@@ -299,17 +647,18 @@
                                 "value": 80
                             }
                         ]
-                    }
+                    },
+                    "unit": "percentunit"
                 },
                 "overrides": []
             },
             "gridPos": {
-                "h": 9,
-                "w": 24,
-                "x": 0,
-                "y": 18
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 20
             },
-            "id": 3,
+            "id": 6,
             "options": {
                 "legend": {
                     "calcs": [],
@@ -331,7 +680,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "SELECT\n  chain,\n  date_trunc('hour', datetime) as time,\n  eth_wei_to_eth(min(balance_before_aggregated_wei)) as balance_before_total,\n  eth_wei_to_eth(min(balance_after_aggregated_wei)) as balance_after_total\nFROM\n  cowllector_run \nWHERE chain IN ( $chain )\nGROUP BY 1,2, datetime\nORDER BY\n  datetime",
+                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_wnative_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_wnative_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ( '$chain' ) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) as balance_before_percent,\n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -352,11 +701,11 @@
                     }
                 }
             ],
-            "title": "Native+WNative Balance",
+            "title": "Native Balance",
             "type": "timeseries"
         }
     ],
-    "refresh": "",
+    "refresh": false,
     "schemaVersion": 38,
     "style": "dark",
     "tags": [],
@@ -365,8 +714,8 @@
             {
                 "current": {
                     "selected": true,
-                    "text": ["base"],
-                    "value": ["base"]
+                    "text": "optimism",
+                    "value": "optimism"
                 },
                 "datasource": {
                     "type": "postgres",
@@ -374,8 +723,8 @@
                 },
                 "definition": "select c.chain from chain c where not c.eol",
                 "hide": 0,
-                "includeAll": true,
-                "multi": true,
+                "includeAll": false,
+                "multi": false,
                 "name": "chain",
                 "options": [],
                 "query": "select c.chain from chain c where not c.eol",
@@ -395,6 +744,6 @@
     "timezone": "",
     "title": "Cowllector Wallet Balances",
     "uid": "d671083c-022d-434b-9284-ba70f5a72f93",
-    "version": 9,
+    "version": 19,
     "weekStart": ""
 }
