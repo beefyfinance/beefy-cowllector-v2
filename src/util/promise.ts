@@ -37,7 +37,7 @@ export async function runSequentially<T, R>(
 }
 
 // copy-pasted from node_modules/viem/src/utils/promise/withRetry.ts and node_modules/viem/src/utils/wait.ts
-async function wait(time: number) {
+export async function wait(time: number) {
     return new Promise(res => setTimeout(res, time));
 }
 

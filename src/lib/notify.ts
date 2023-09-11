@@ -3,6 +3,7 @@ import { HarvestReport } from './harvest-report';
 import {
     DISCORD_PING_ROLE_IDS_ON_ERROR,
     DISCORD_REPORT_WEBHOOK_URL,
+    DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS,
     DISCORD_NOTIFY_UNEVENTFUL_HARVEST,
     DISCORD_ALERT_WEBHOOK_URL,
     REPORT_URL_TEMPLATE,
@@ -16,6 +17,7 @@ import { asyncResultGet } from '../util/async';
 import { removeSecretsFromString, serializeReport } from './reports';
 import { UnwrapReport } from './unwrap-report';
 import { extractErrorMessage } from './error-message';
+import { wait } from '../util/promise';
 
 const logger = rootLogger.child({ module: 'notify' });
 
@@ -114,7 +116,7 @@ ${rolePing}`),
         form.append('payload_json', JSON.stringify(params));
         form.append('file1', reportFile as any);
 
-        await axios.post(DISCORD_REPORT_WEBHOOK_URL, form);
+        await sendRateLimitedReport(form);
     } catch (e) {
         logger.error({ msg: 'something went wrong sending discord message', data: { e } });
         logger.trace(e);
@@ -179,7 +181,7 @@ ${rolePing}`),
         form.append('payload_json', JSON.stringify(params));
         form.append('file1', reportFile as any);
 
-        await axios.post(DISCORD_REPORT_WEBHOOK_URL, form);
+        await sendRateLimitedReport(form);
     } catch (e) {
         logger.error({ msg: 'something went wrong sending discord message', data: { e } });
         logger.trace(e);
@@ -251,4 +253,26 @@ ${codeSep}
         logger.error({ msg: 'something went wrong sending discord message', data: { e } });
         logger.trace(e);
     }
+}
+
+let lastSentTime: Date = new Date(0);
+
+async function sendRateLimitedReport(form: FormData) {
+    if (!DISCORD_REPORT_WEBHOOK_URL) {
+        logger.warn({ msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message' });
+        return;
+    }
+
+    const now = new Date();
+    const secondsSinceLastSent = (now.getTime() - lastSentTime.getTime()) / 1000;
+    if (secondsSinceLastSent < DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS) {
+        logger.info({
+            msg: 'rate limiting discord message',
+            data: { secondsSinceLastSent, DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS },
+        });
+        await wait(DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS * 1000 - secondsSinceLastSent * 1000);
+    }
+
+    lastSentTime = now;
+    return axios.post(DISCORD_REPORT_WEBHOOK_URL, form);
 }
