@@ -544,7 +544,7 @@ groups:
             __dashboardUid__: f9a5269f-4a6b-4ff6-a3de-6f2753d4db4c
             __panelId__: "1"
           labels:
-            template: default
+            template: alert_vault_harvest_in_error
             policy: one_shot
           isPaused: false
 
