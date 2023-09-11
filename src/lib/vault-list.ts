@@ -4,7 +4,7 @@ import { BeefyVault } from './vault';
 import { BEEFY_API_URL } from './config';
 import { rootLogger } from '../util/logger';
 import { Hex } from 'viem';
-import { groupBy, keyBy } from 'lodash';
+import { groupBy, mapValues, uniqBy } from 'lodash';
 
 const logger = rootLogger.child({ module: 'vault-list' });
 
@@ -60,20 +60,16 @@ export async function getVaultsToMonitorByChain(options: {
     const allVaults = await fetchVaults();
 
     logger.info({ msg: 'Got vaults from api', data: { vaultLength: allVaults.length } });
-
     // apply command line options
     let vaults = allVaults
         .filter(vault => options.chains.includes(vault.chain))
         .filter(vault => (options.strategyAddress ? vault.strategyAddress === options.strategyAddress : true));
     logger.info({ msg: 'Filtered vaults', data: { vaultLength: vaults.length } });
 
-    // remove duplicates
-    const vaultsByStrategyAddress = keyBy(vaults, 'strategyAddress');
-    vaults = Object.values(vaultsByStrategyAddress);
-
     // split by chain
     const vaultsByChain = groupBy(vaults, 'chain') as Record<Chain, BeefyVault[]>;
     logger.debug({ msg: 'Vaults by chain', data: vaultsByChain });
 
-    return vaultsByChain;
+    // remove duplicate vaults by strategy address
+    return mapValues(vaultsByChain, vaults => uniqBy(vaults, 'strategyAddress'));
 }
