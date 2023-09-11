@@ -61,6 +61,12 @@ export type HarvestReportDecision = Async<
     | {
           shouldHarvest: false;
           level: 'info';
+          hoursSinceLastHarvest: number;
+          notHarvestingReason: 'harvested would fail but the vault was harvested recently, there is probably no rewards to swap';
+      }
+    | {
+          shouldHarvest: false;
+          level: 'info';
           notHarvestingReason: 'vault not compatible with lens: missing `harvest(address recipient)` function';
       }
     | {

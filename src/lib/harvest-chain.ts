@@ -189,6 +189,16 @@ export async function harvestChain({
             }
 
             if (item.simulation.harvestWillSucceed === false) {
+                if (item.simulation.isLastHarvestRecent) {
+                    return {
+                        shouldHarvest: false,
+                        level: 'info',
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        notHarvestingReason:
+                            'harvested would fail but the vault was harvested recently, there is probably no rewards to swap',
+                    };
+                }
+
                 if (VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION.includes(item.vault.id)) {
                     return {
                         shouldHarvest: false,
