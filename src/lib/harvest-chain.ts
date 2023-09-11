@@ -320,7 +320,10 @@ export async function harvestChain({
             // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
             // so we removed our profitability check for now
             if (item.simulation.gas.wouldBeProfitable) {
-                if (rpcConfig.harvest.profitabilityCheck.enabled) {
+                if (
+                    rpcConfig.harvest.profitabilityCheck.enabled &&
+                    item.simulation.estimatedCallRewardsWei > rpcConfig.harvest.profitabilityCheck.minExpectedRewardsWei
+                ) {
                     return {
                         shouldHarvest: true,
                         level: 'info',
