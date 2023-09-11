@@ -37,7 +37,7 @@ templates:
   - orgID: 1
     name: beefy.default.alert_print
     template: |-2
-      {{- print ""   }}{{ template "beefy.alert.status" . }} {{ .Labels.alertname }} <@&__DISCORD_HARVESTERS_ROLE_ID__>: {{ template "beefy.alert.action_urls" . }}
+      {{- print ""   }}{{ template "beefy.alert.status" . }} {{ .Labels.alertname }} {{ if eq .Status "firing" }}<@&__DISCORD_HARVESTERS_ROLE_ID__>: {{end}}{{ template "beefy.alert.action_urls" . }}
       {{- print ""   }}{{ range .Labels.SortedPairs -}}
       {{- print "\n" }}- {{ .Name }}: {{ .Value }}
       {{- print ""   }}{{ end -}}
@@ -68,7 +68,7 @@ templates:
       {{- print ""   }}{{ range .Alerts -}}
       {{- print "\n" }}- {{ template "beefy.alert.status" . }}: {{ template "beefy.alert.vault_infos" . }}
       {{- print ""   }}{{ end }}
-      {{- print "\n" }}<@&__DISCORD_HARVESTERS_ROLE_ID__> <@&__DISCORD_STRATEGISTS_ROLE_ID__>: {{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
+      {{- print "\n" }}{{- if ne (len .Alerts.Firing) 0 -}}<@&__DISCORD_HARVESTERS_ROLE_ID__> <@&__DISCORD_STRATEGISTS_ROLE_ID__>: {{- end -}}{{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
   - orgID: 1
     name: discord.message
     template: |-2
