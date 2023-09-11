@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { HarvestReport } from './harvest-report';
+import AsyncLock from 'async-lock';
 import {
     DISCORD_PING_ROLE_IDS_ON_ERROR,
     DISCORD_REPORT_WEBHOOK_URL,
@@ -255,24 +256,31 @@ ${codeSep}
     }
 }
 
+const lock = new AsyncLock({
+    timeout: DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS * 30 * 1000,
+});
 let lastSentTime: Date = new Date(0);
 
 async function sendRateLimitedReport(form: FormData) {
     if (!DISCORD_REPORT_WEBHOOK_URL) {
         logger.warn({ msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message' });
-        return;
+        return null;
     }
+    const url = DISCORD_REPORT_WEBHOOK_URL;
 
-    const now = new Date();
-    const secondsSinceLastSent = (now.getTime() - lastSentTime.getTime()) / 1000;
-    if (secondsSinceLastSent < DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS) {
-        logger.info({
-            msg: 'rate limiting discord message',
-            data: { secondsSinceLastSent, DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS },
-        });
-        await wait(DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS * 1000 - secondsSinceLastSent * 1000);
-    }
+    let now = new Date();
+    return await lock.acquire('discord', async () => {
+        now = new Date();
+        const secondsSinceLastSent = (now.getTime() - lastSentTime.getTime()) / 1000;
+        if (secondsSinceLastSent < DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS) {
+            logger.info({
+                msg: 'rate limiting discord message',
+                data: { secondsSinceLastSent, DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS },
+            });
+            await wait(DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS * 1000 - secondsSinceLastSent * 1000);
+        }
+        lastSentTime = now;
 
-    lastSentTime = now;
-    return axios.post(DISCORD_REPORT_WEBHOOK_URL, form);
+        return axios.post(url, form);
+    });
 }

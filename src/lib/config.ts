@@ -33,7 +33,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
 export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = parseInt(
-    process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '5',
+    process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '10',
     10
 );
 export const DISCORD_ALERT_WEBHOOK_URL = process.env.DISCORD_ALERT_WEBHOOK_URL || null;
@@ -244,6 +244,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             balanceCheck: {
                 ...defaultHarvestConfig.balanceCheck,
                 gasPriceMultiplier: 1.0,
+                gasLimitMultiplier: 1.5, // try to avoid "gas is too high" errors
             },
         },
     },

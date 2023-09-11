@@ -11,16 +11,21 @@ export function extractHarvestReportItemErrorDiscordMessageDetails(
     if (stratReport.summary.status === 'not-started' || stratReport.summary.status === 'success') {
         return null;
     }
-    const vaultLink = getStrategyDiscordMessageLink(chain, stratReport.vault);
+    const vaultLink = getVaultDiscordMessageLink(chain, stratReport.vault);
     const stratLink = getStrategyDiscordMessageLink(chain, stratReport.vault);
+    let trxLink: string | null = null;
+    if (stratReport.transaction && stratReport.transaction.status === 'fulfilled') {
+        trxLink = getTransactionDiscordMessageLink(chain, stratReport.transaction.value.transactionHash);
+    }
+    const links = `${vaultLink} (strat: ${stratLink})${trxLink ? ` (trx: ${trxLink})` : ''}`;
 
     if (stratReport.simulation && stratReport.simulation.status === 'rejected') {
         const errorMsg = extractErrorMessage(stratReport.simulation);
-        return `- simulation 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+        return `- simulation 🔥 ${links}: ${errorMsg}`;
     }
     if (stratReport.decision && stratReport.decision.status === 'rejected') {
         const errorMsg = extractErrorMessage(stratReport.decision);
-        return `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+        return `- decision 🔥 ${links}: ${errorMsg}`;
     }
     if (stratReport.decision && stratReport.decision.status === 'fulfilled') {
         if (stratReport.decision.value.level === 'error') {
@@ -31,20 +36,20 @@ export function extractHarvestReportItemErrorDiscordMessageDetails(
                           stratReport.decision.value.harvestReturnData
                       })`
                     : '');
-            return `- decision 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+            return `- decision 🔥 ${links}: ${errorMsg}`;
         }
         if (stratReport.decision.value.level === 'warning') {
             const errorMsg = stratReport.decision.value.notHarvestingReason;
-            return `- decision ⚠️ ${vaultLink} (${stratLink}): ${errorMsg}`;
+            return `- decision ⚠️ ${links}: ${errorMsg}`;
         }
         if (stratReport.decision.value.level === 'notice') {
             const errorMsg = stratReport.decision.value.notHarvestingReason;
-            return `- decision ℹ️ ${vaultLink} (${stratLink}): ${errorMsg}`;
+            return `- decision ℹ️ ${links}: ${errorMsg}`;
         }
     }
     if (stratReport.transaction && stratReport.transaction.status === 'rejected') {
         const errorMsg = extractErrorMessage(stratReport.transaction);
-        return `- transaction 🔥 ${vaultLink} (${stratLink}): ${errorMsg}`;
+        return `- transaction 🔥 ${links}: ${errorMsg}`;
     }
 
     return null;
