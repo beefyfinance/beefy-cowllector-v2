@@ -494,7 +494,7 @@ groups:
                     JOIN chain c using (chain)
                   WHERE
                     $__timeFilter(datetime)
-                    and c.harvest_profitability_check
+                    and c.harvest_profitability_check_enabled
                   ORDER BY
                     datetime
                 refId: harvest_should_have_been_profitable_but_is_not

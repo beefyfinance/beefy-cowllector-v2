@@ -195,7 +195,7 @@ export async function db_migrate() {
             unwrap_min_amount_of_wnative_wei::bigint,
             unwrap_max_amount_of_native_wei::bigint,
             (harvest_enabled = 't')::boolean as harvest_enabled,
-            (harvest_profitability_check = 't')::boolean as harvest_profitability_check,
+            (harvest_profitability_check_enabled = 't')::boolean as harvest_profitability_check_enabled,
             (target_hours_between_harvests || ' hours')::interval as target_time_between_harvests,
             harvest_balance_gas_multiplier_threshold::double precision
           FROM (values %L) as c(
@@ -206,7 +206,7 @@ export async function db_migrate() {
             unwrap_min_amount_of_wnative_wei,
             unwrap_max_amount_of_native_wei,
             harvest_enabled,
-            harvest_profitability_check,
+            harvest_profitability_check_enabled,
             target_hours_between_harvests,
             harvest_balance_gas_multiplier_threshold)
         );
@@ -220,7 +220,7 @@ export async function db_migrate() {
                 RPC_CONFIG[c].unwrap.minAmountOfWNativeWei,
                 RPC_CONFIG[c].unwrap.maxAmountOfNativeWei,
                 RPC_CONFIG[c].harvest.enabled,
-                RPC_CONFIG[c].harvest.profitabilityCheck,
+                RPC_CONFIG[c].harvest.profitabilityCheck.enabled,
                 RPC_CONFIG[c].harvest.targetTimeBetweenHarvestsMs / 1000 / 60 / 60,
                 RPC_CONFIG[c].harvest.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost,
             ]),
