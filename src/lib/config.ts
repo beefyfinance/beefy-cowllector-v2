@@ -422,6 +422,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
             maxGasPricePerTransactionWei: null,
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+        },
     },
     polygon: {
         ...defaultConfig,
@@ -463,8 +468,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
-            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // 0.001 weth (~$1.5)
-            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.03),
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
         },
         harvest: {
             ...defaultHarvestConfig,
