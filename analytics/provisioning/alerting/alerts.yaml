@@ -33,12 +33,13 @@ groups:
                       t.max_trx_cost,
                       c.harvest_balance_gas_multiplier_threshold, 
                       r.balance_after_native_wei,
-                      (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold) as balance_threshold_1,
+                      (t.max_trx_cost * coalesce(c.harvest_balance_gas_multiplier_threshold, 2.5)) as balance_threshold_1,
+                      r.balance_after_native_wei > (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold) as balance_threshold_1_ok,
                       c.unwrap_max_amount_of_native_wei as balance_threshold_2,
-                      coalesce(
-                        r.balance_after_native_wei > (t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold),
-                        r.balance_after_native_wei > c.unwrap_max_amount_of_native_wei, -- not "right" but a good default if we don't have a max trx cost
-                        false
+                      r.balance_after_native_wei > c.unwrap_max_amount_of_native_wei as balance_threshold_2_ok,
+                      coalesce(r.balance_after_native_wei, 0) > greatest(
+                        coalesce(t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold, c.unwrap_max_amount_of_native_wei, '10000000000000000'::numeric),
+                        coalesce(c.unwrap_max_amount_of_native_wei, t.max_trx_cost * c.harvest_balance_gas_multiplier_threshold, '10000000000000000'::numeric)
                       ) as balance_ok
                     FROM transaction_max_cost t 
                     join chain c using (chain)
