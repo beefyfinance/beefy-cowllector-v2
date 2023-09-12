@@ -102,6 +102,7 @@ export const VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION = [
     'telxchange-quick-aave-tel',
     'nfty-nfty',
     'yel-yel-wbnb',
+    'venus-bnb',
 ];
 
 // 1 ether value in wei
