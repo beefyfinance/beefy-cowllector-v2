@@ -179,6 +179,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     arbitrum: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ARBITRUM_RPC_URL || 'https://rpc.ankr.com/arbitrum',
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+        },
     },
     aurora: {
         ...defaultConfig,
