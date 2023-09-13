@@ -93,17 +93,7 @@ export const VAULT_IDS_WE_ARE_OK_NOT_HARVESTING: string[] = [];
 // instead, we have to call `harvest()` and then `withdraw(address rewardRecipient)` to get the rewards
 // but this call has a different behavior and can send the rewards to trx.origin instead of msg.sender
 // for the sake of simplicity, we just don't harvest those vaults and plan to upgrade them since there is only a few of them
-export const VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION = [
-    'sushi-arb-eth-usdc',
-    'sushi-arb-magic-weth',
-    'curve-avax-atricrypto',
-    'curve-am3crv',
-    'curve-op-f-susd',
-    'telxchange-quick-aave-tel',
-    'nfty-nfty',
-    'yel-yel-wbnb',
-    'venus-bnb',
-];
+export const VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION: string[] = [];
 
 // 1 ether value in wei
 const ONE_ETHER = 1_000_000_000_000_000_000n;
