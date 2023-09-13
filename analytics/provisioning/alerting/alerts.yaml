@@ -548,5 +548,88 @@ groups:
             template: alert_vault_harvest_in_error
             policy: one_shot
           isPaused: false
+        - uid: f1394a40-5276-4d08-a5c9-c589f4fa5636
+          title: Vault harvested too often
+          condition: last_error_serie_value
+          data:
+            - refId: harvest_count_is_too_high
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                    SELECT
+                      now() as time,
+                      vault_id,
+                      chain,
+                      summary_discord_vault_link,
+                      summary_discord_strategy_link,
+                      (
+                       count(*) >= 3
+                      ) :: integer as value
+                    FROM
+                      harvest_report_vault_details r
+                    WHERE
+                      $__timeFilter(datetime)
+                      and summary_harvested
+                      and not simulation_gas_would_be_profitable
+                    group by 2,3,4,5
+                refId: harvest_count_is_too_high
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_error_serie_value
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: harvest_count_is_too_high
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_error_serie_value
+                type: reduce
+          dashboardUid: eceba98b-5444-477d-acf7-a459abfb7596
+          panelId: 2
+          noDataState: OK
+          execErrState: Error
+          for: 0s
+          annotations:
+            __dashboardUid__: eceba98b-5444-477d-acf7-a459abfb7596
+            __panelId__: "2"
+          labels:
+            policy: one_shot
+            template: alert_vault_harvest_in_error
+          isPaused: false
+
 
 
