@@ -13,7 +13,9 @@ policies:
         - receiver: discord_one_shot
           matchers:
             - policy = one_shot
+            - alertname != DatasourceError
         - receiver: discord_follow_up
           matchers:
             - policy != one_shot
+            - alertname != DatasourceError
           
