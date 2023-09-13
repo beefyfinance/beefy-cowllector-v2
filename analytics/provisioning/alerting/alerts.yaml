@@ -376,7 +376,7 @@ groups:
             __dashboardUid__: f1a6b58a-3a4d-4b21-b90a-2b3ee1b82bfe
             __panelId__: "1"
           labels:
-            template: default
+            template: chain_error
             policy: one_shot
           isPaused: false
         - uid: e21d1911-76b4-4a70-9398-73d6b722fa24
