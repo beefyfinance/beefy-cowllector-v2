@@ -97,7 +97,7 @@ groups:
             __dashboardUid__: d671083c-022d-434b-9284-ba70f5a72f93
             __panelId__: "1"
           labels:
-            template: default
+            template: chain_error
             policy: follow_up
           isPaused: false
         - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e9
@@ -376,7 +376,7 @@ groups:
             __dashboardUid__: f1a6b58a-3a4d-4b21-b90a-2b3ee1b82bfe
             __panelId__: "1"
           labels:
-            template: chain_error
+            template: default
             policy: one_shot
           isPaused: false
         - uid: e21d1911-76b4-4a70-9398-73d6b722fa24
