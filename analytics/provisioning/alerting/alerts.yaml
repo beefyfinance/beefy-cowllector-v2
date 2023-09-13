@@ -24,7 +24,7 @@ groups:
                   with transaction_max_cost as (
                     select chain, max(transaction_cost_wei) as max_trx_cost
                     FROM harvest_report_vault_details
-                    WHERE datetime between now() - '14 day'::interval and now()
+                    WHERE datetime between now() - '3 day'::interval and now()
                     GROUP BY chain
                   ),
                   balance_ok_by_chain as (
