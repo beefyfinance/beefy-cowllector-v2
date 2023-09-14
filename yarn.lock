@@ -2405,11 +2405,6 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
-isomorphic-ws@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-5.0.0.tgz#e5529148912ecb9b451b46ed44d53dae1ce04bbf"
-  integrity sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==
-
 istanbul-lib-coverage@^3.0.0, istanbul-lib-coverage@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/istanbul-lib-coverage/-/istanbul-lib-coverage-3.2.0.tgz#189e7909d0a39fa5a3dfad5b03f71947770191d3"
@@ -3376,10 +3371,10 @@ npm-bundled@^3.0.0:
   dependencies:
     npm-normalize-package-bin "^3.0.0"
 
-npm-check-updates@^16.14.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-16.14.0.tgz#e34b5af1176be2347b012946ad9bd0133bfed13e"
-  integrity sha512-0R4S0qsx2FhuSiIYloHc7RQwfZpzO4jdL3rUoYwbOkx5fBc9u77GHHS0FlXYpczHR/kPYmmB/CRkFElOofVeSg==
+npm-check-updates@^16.14.2:
+  version "16.14.2"
+  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-16.14.2.tgz#bf86ba1044a469c5ab6ec97a35c1ab0ed7402963"
+  integrity sha512-7zLXG5h4ZyAHxSKDRs864ugVPM40EpKDwInwZMvCRMJ+h2oyVlAKB69XuBKB4qnur+KR+yj5ndXIIDKZYzUX8A==
   dependencies:
     chalk "^5.3.0"
     cli-table3 "^0.6.3"
@@ -4676,6 +4671,11 @@ untildify@^4.0.0:
   resolved "https://registry.yarnpkg.com/untildify/-/untildify-4.0.0.tgz#2bc947b953652487e4600949fb091e3ae8cd919b"
   integrity sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==
 
+unws@0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/unws/-/unws-0.2.4.tgz#cb6f27a98a7fab4bf1c2f842648f9a2fc8be80f2"
+  integrity sha512-/N1ajiqrSp0A/26/LBg7r10fOcPtGXCqJRJ61sijUFoGZMr6ESWGYn7i0cwr7fR7eEECY5HsitqtjGHDZLAu2w==
+
 update-browserslist-db@^1.0.11:
   version "1.0.11"
   resolved "https://registry.yarnpkg.com/update-browserslist-db/-/update-browserslist-db-1.0.11.tgz#9a2a641ad2907ae7b3616506f4b977851db5b940"
@@ -4745,10 +4745,10 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-viem@^1.10.9:
-  version "1.10.9"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.10.9.tgz#9b16ade429b234f7b33a79544badddbb5498b13c"
-  integrity sha512-fhQxnMBFwGbyE/VOfcvcavxAPyqIHSgOB793gQcMPH1B9ahQvjMe3C3icqypC01ACaqpDPgYWGfvF/ExTeIPuA==
+viem@^1.10.12:
+  version "1.10.12"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.10.12.tgz#aefbd10acab48316290f6223d19defc4f03afa21"
+  integrity sha512-Q6v6rKxRiswAcLbHMaqmpEUKtgANjzBNEeco04WVX/yxFihDafLcuRmz17AtgvgbN+ROclZcbY3lsKOiSABUJg==
   dependencies:
     "@adraffy/ens-normalize" "1.9.4"
     "@noble/curves" "1.2.0"
@@ -4757,7 +4757,7 @@ viem@^1.10.9:
     "@scure/bip39" "1.2.1"
     "@types/ws" "^8.5.5"
     abitype "0.9.8"
-    isomorphic-ws "5.0.0"
+    unws "0.2.4"
     ws "8.13.0"
 
 walker@^1.0.8:
