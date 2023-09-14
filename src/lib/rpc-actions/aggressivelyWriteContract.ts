@@ -11,8 +11,8 @@ import { rootLogger } from '../../util/logger';
 import { getRpcActionParams } from '../rpc-client';
 import { Chain } from '../chain';
 import { bigintMultiplyFloat } from '../../util/bigint';
-import { RequiredBy } from 'viem/dist/types/types/utils';
 import { cloneDeep } from 'lodash';
+import { RequiredBy } from '../../util/types';
 
 export type AggressivelyWriteContractParameters<
     TAbi extends Abi | readonly unknown[],

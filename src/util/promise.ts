@@ -1,5 +1,5 @@
 import { get, isString } from 'lodash';
-import { Prettify } from 'viem/dist/types/types/utils';
+import { Prettify } from './types';
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

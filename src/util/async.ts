@@ -1,4 +1,4 @@
-import { Prettify } from 'viem/dist/types/types/utils';
+import { Prettify } from './types';
 
 export type TimingData = { startedAt: Date; endedAt: Date; durationMs: number };
 export type Async<T> = Prettify<PromiseSettledResult<T> & { timing: TimingData }>;

@@ -3,8 +3,8 @@ import { Async, AsyncSuccessType, promiseTimings } from '../util/async';
 import { get, set } from 'lodash';
 import { runSequentially, splitPromiseResultsByStatus } from '../util/promise';
 import { rootLogger } from '../util/logger';
-import { Prettify } from 'viem/dist/types/types/utils';
 import { CENSOR_SECRETS_FROM_REPORTS } from './config';
+import { Prettify } from '../util/types';
 
 const logger = rootLogger.child({ module: 'report' });
 
