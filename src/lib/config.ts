@@ -243,6 +243,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 gasLimitMultiplier: 1.5, // try to avoid "gas is too high" errors
             },
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+        },
     },
     canto: {
         ...defaultConfig,
