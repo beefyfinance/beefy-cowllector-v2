@@ -317,6 +317,13 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     fantom: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.FANTOM_RPC_URL || 'https://rpc.ankr.com/fantom',
+        transaction: {
+            ...defaultTransactionConfig,
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                notFoundErrorRetryCount: 5, // more retries
+            },
+        },
     },
     fuse: {
         ...defaultConfig,
@@ -421,6 +428,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'legacy',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
             maxGasPricePerTransactionWei: null,
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                notFoundErrorRetryCount: 5, // more retries
+            },
         },
         unwrap: {
             ...defaultUnwrapConfig,
