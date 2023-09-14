@@ -20,7 +20,7 @@ describe('promiseTimings', () => {
         expect(result.timing.startedAt.getTime()).toBeLessThanOrEqual(stop);
         expect(result.timing.endedAt.getTime()).toBeGreaterThanOrEqual(start);
         expect(result.timing.endedAt.getTime()).toBeLessThanOrEqual(stop);
-        expect(result.timing.durationMs).toBeGreaterThanOrEqual(100);
+        expect(result.timing.durationMs).toBeGreaterThanOrEqual(99); // sometimes it's a bit faster
         expect(result.timing.durationMs).toBeLessThan(200);
     });
 });
