@@ -66,7 +66,9 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
     'curve-arb-f-wsteth',
     'curve-op-f-wsteth',
     'thena-bnbx-wbnb',
-    'beefy-beopx', // can't be paused to allow users to burn their shares
+    // beefy-be* can't be paused to allow users to burn their shares
+    'beefy-beopx',
+    'beefy-beqi',
 ];
 
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
