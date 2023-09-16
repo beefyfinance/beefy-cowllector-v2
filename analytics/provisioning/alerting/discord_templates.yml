@@ -75,10 +75,10 @@ templates:
     name: beefy.alert_vault_harvest_in_error.message
     template: |-2
       {{- print "\n" }}### {{ .CommonLabels.alertname }}: {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+      {{- print "\n" }}{{- if ne (len .Alerts.Firing) 0 -}}<@&__DISCORD_HARVESTERS_ROLE_ID__> <@&__DISCORD_STRATEGISTS_ROLE_ID__>: {{ end -}}{{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
       {{- print ""   }}{{ range .Alerts -}}
       {{- print "\n" }}- {{ template "beefy.alert.status" . }}: {{ template "beefy.alert.vault_infos" . }}
       {{- print ""   }}{{ end }}
-      {{- print "\n" }}{{- if ne (len .Alerts.Firing) 0 -}}<@&__DISCORD_HARVESTERS_ROLE_ID__> <@&__DISCORD_STRATEGISTS_ROLE_ID__>: {{- end -}}{{with $a := index .Alerts 0}}{{ template "beefy.alert.action_urls" $a }}{{end}}
   - orgID: 1
     name: beefy.chain_error.message
     template: |-2
