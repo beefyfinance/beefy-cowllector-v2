@@ -114,12 +114,14 @@ export type HarvestReportDecision = Async<
           shouldHarvest: false;
           level: 'notice';
           hoursSinceLastHarvest: number;
+          mightNeedEOL: true;
           notHarvestingReason: 'estimated call rewards is 0, but this vault is notoriously slow to refill rewards';
       }
     | {
           shouldHarvest: false;
           hoursSinceLastHarvest: number;
           level: 'error';
+          mightNeedEOL: true;
           notHarvestingReason: 'estimated call rewards is 0 and vault has not been harvested in a long time';
       }
     | {

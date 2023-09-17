@@ -264,6 +264,7 @@ export async function harvestChain({
                         shouldHarvest: false,
                         level: 'notice',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        mightNeedEOL: true,
                         notHarvestingReason:
                             'estimated call rewards is 0, but this vault is notoriously slow to refill rewards',
                     };
@@ -283,6 +284,7 @@ export async function harvestChain({
                     shouldHarvest: false,
                     level: 'error',
                     hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                    mightNeedEOL: true,
                     notHarvestingReason: 'estimated call rewards is 0 and vault has not been harvested in a long time',
                 };
             }
