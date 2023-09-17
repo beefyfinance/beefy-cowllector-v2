@@ -416,7 +416,7 @@ export async function db_migrate() {
           dec_ok."shouldHarvest" as decision_should_harvest,
           dec_ok."level" as decision_level,
           dec_ok."notHarvestingReason" as decision_not_harvesting_reason,
-          dec_ok."mightNeedEOL" as decision_might_need_eol,
+          (dec_ok."mightNeedEOL" is not null and dec_ok."mightNeedEOL") as decision_might_need_eol,
           hexstr_to_bytea(dec_ok."harvestReturnData") as decision_harvest_return_data,
           case 
             -- abi.encodeWithSignature('Error(string)', 'SOME TEXT')
