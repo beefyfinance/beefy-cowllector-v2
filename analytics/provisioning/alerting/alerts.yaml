@@ -279,7 +279,7 @@ groups:
             __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
             __panelId__: "1"
           labels:
-            template: alert_vault_harvest_in_error
+            template: alert_vault_harvest_needs_eol
             policy: follow_up
           isPaused: false
 
