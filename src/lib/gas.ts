@@ -6,6 +6,7 @@ export type GasEstimationReport = {
     rawGasAmountEstimation: bigint;
     estimatedCallRewardsWei: bigint;
     gasPriceMultiplier: number;
+    minExpectedRewardsWei: bigint;
     // computed values
     gasPrice: bigint;
     transactionCostEstimationWei: bigint;
@@ -18,6 +19,7 @@ export function createGasEstimationReport({
     estimatedCallRewardsWei,
     rawGasAmountEstimation,
     gasPriceMultiplier,
+    minExpectedRewardsWei,
 }: {
     // current network gas price in wei
     rawGasPrice: bigint; // in wei
@@ -27,16 +29,19 @@ export function createGasEstimationReport({
     estimatedCallRewardsWei: bigint; // in wei
     // multiply the gas price by some value to overestimate the gas cost
     gasPriceMultiplier: number;
+    // is profitable if the estimated gain is greater than this value
+    minExpectedRewardsWei: bigint;
 }): GasEstimationReport {
     const gasPrice = bigintMultiplyFloat(rawGasPrice, gasPriceMultiplier);
     const transactionCostEstimationWei = rawGasAmountEstimation * gasPrice;
     const estimatedGainWei = estimatedCallRewardsWei - transactionCostEstimationWei;
-    const wouldBeProfitable = estimatedGainWei > 0;
+    const wouldBeProfitable = estimatedGainWei > minExpectedRewardsWei;
     return {
         rawGasPrice,
         rawGasAmountEstimation,
         estimatedCallRewardsWei,
         gasPriceMultiplier,
+        minExpectedRewardsWei,
         gasPrice,
         transactionCostEstimationWei,
         estimatedGainWei,

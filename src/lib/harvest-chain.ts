@@ -91,6 +91,7 @@ export async function harvestChain({
                         rawGasAmountEstimation: 0n,
                         estimatedCallRewardsWei: 0n,
                         gasPriceMultiplier: 1,
+                        minExpectedRewardsWei: 0n,
                     }),
                 };
             }
@@ -120,6 +121,7 @@ export async function harvestChain({
                     rawGasAmountEstimation: gasUsed,
                     estimatedCallRewardsWei: callReward,
                     gasPriceMultiplier: rpcConfig.harvest.balanceCheck.gasPriceMultiplier,
+                    minExpectedRewardsWei: rpcConfig.harvest.profitabilityCheck.minExpectedRewardsWei,
                 }),
             };
         }
@@ -322,10 +324,7 @@ export async function harvestChain({
             // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
             // so we removed our profitability check for now
             if (item.simulation.gas.wouldBeProfitable) {
-                if (
-                    rpcConfig.harvest.profitabilityCheck.enabled &&
-                    item.simulation.estimatedCallRewardsWei > rpcConfig.harvest.profitabilityCheck.minExpectedRewardsWei
-                ) {
+                if (rpcConfig.harvest.profitabilityCheck.enabled) {
                     return {
                         shouldHarvest: true,
                         level: 'info',
