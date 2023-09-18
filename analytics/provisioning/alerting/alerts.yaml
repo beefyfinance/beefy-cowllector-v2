@@ -99,6 +99,8 @@ groups:
           labels:
             template: chain_error
             policy: follow_up
+            ping_harvesters: "true"
+            ping_strategists: "false"
           isPaused: false
         - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e9 # Vault Harvest Failed
           title: Vault Harvest Failed
@@ -190,6 +192,8 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: follow_up
+            ping_harvesters: "false"
+            ping_strategists: "true"
           isPaused: false
         - uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84 # Vault might need EOL
           title: Vault might need EOL
@@ -281,6 +285,8 @@ groups:
           labels:
             template: alert_vault_harvest_needs_eol
             policy: follow_up
+            ping_harvesters: "true"
+            ping_strategists: "false"
           isPaused: false
         - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3 # Run Error Alert
           title: Run Error Alert
@@ -380,6 +386,8 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: follow_up
+            ping_harvesters: "true"
+            ping_strategists: "true"
           isPaused: false
         - uid: a238c42c-cd5e-4050-86cf-64ac3a0954c8 # Non-profitable unwrap
           title: Non-profitable unwrap
@@ -470,6 +478,8 @@ groups:
           labels:
             template: default
             policy: one_shot
+            ping_harvesters: "true"
+            ping_strategists: "false"
           isPaused: false
         - uid: e21d1911-76b4-4a70-9398-73d6b722fa24 # Vault not harvested for too long
           title: Vault not harvested for too long
@@ -552,6 +562,8 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: follow_up
+            ping_harvesters: "true"
+            ping_strategists: "true"
           isPaused: false
         - uid: db80be8a-9edb-4e09-b93f-32598c6983ce # Harvest wasn't profitable after all
           title: Harvest wasn't profitable after all
@@ -639,6 +651,8 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: one_shot
+            ping_harvesters: "true"
+            ping_strategists: "false"
           isPaused: false
         - uid: f1394a40-5276-4d08-a5c9-c589f4fa5636 # Vault harvested too often
           title: Vault harvested too often
@@ -721,6 +735,8 @@ groups:
           labels:
             policy: one_shot
             template: alert_vault_harvest_in_error
+            ping_harvesters: "true"
+            ping_strategists: "false"
           isPaused: false
 
 
