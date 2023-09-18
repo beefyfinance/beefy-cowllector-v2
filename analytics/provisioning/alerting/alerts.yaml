@@ -195,200 +195,200 @@ groups:
             ping_harvesters: "false"
             ping_strategists: "true"
           isPaused: false
-        # - uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84 # Vault might need EOL
-        #   title: Vault might need EOL
-        #   condition: last vault harvest status
-        #   data:
-        #     - refId: vault_harvest_success_ts
-        #       relativeTimeRange:
-        #         from: 14400
-        #         to: 0
-        #       datasourceUid: PAF11E62F20EEC83B
-        #       model:
-        #         editorMode: code
-        #         format: time_series
-        #         intervalMs: 1000
-        #         maxDataPoints: 43200
-        #         rawQuery: true
-        #         rawSql: |
-        #           SELECT
-        #             date_trunc('hour', datetime) as time,
-        #             vault_id,
-        #             summary_discord_vault_link,
-        #             summary_discord_strategy_link,
-        #             chain,
-        #             (
-        #               coalesce(r.summary_status = 'error', false)
-        #               and decision_might_need_eol
-        #               -- remove the errors from the other alert that checks last harvest status
-        #               and not (
-        #                 coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
-        #                 and not summary_harvested
-        #               )
-        #             ) :: integer as value
-        #           FROM
-        #             harvest_report_vault_details r
-        #           WHERE
-        #             $__timeFilter(datetime)
-        #           ORDER BY
-        #             datetime
-        #         refId: vault_harvest_success_ts
-        #         sql:
-        #             columns:
-        #                 - parameters: []
-        #                   type: function
-        #             groupBy:
-        #                 - property:
-        #                     type: string
-        #                   type: groupBy
-        #             limit: 50
-        #     - refId: last vault harvest status
-        #       relativeTimeRange:
-        #         from: 14400
-        #         to: 0
-        #       datasourceUid: __expr__
-        #       model:
-        #         conditions:
-        #             - evaluator:
-        #                 params:
-        #                     - 0
-        #                     - 0
-        #                 type: gt
-        #               operator:
-        #                 type: and
-        #               query:
-        #                 params: []
-        #               reducer:
-        #                 params: []
-        #                 type: avg
-        #               type: query
-        #         datasource:
-        #             name: Expression
-        #             type: __expr__
-        #             uid: __expr__
-        #         expression: vault_harvest_success_ts
-        #         intervalMs: 1000
-        #         maxDataPoints: 43200
-        #         reducer: last
-        #         refId: last vault harvest status
-        #         settings:
-        #             mode: ""
-        #         type: reduce
-        #   dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
-        #   panelId: 1
-        #   noDataState: OK
-        #   execErrState: Error
-        #   for: 6h
-        #   annotations:
-        #     __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
-        #     __panelId__: "1"
-        #   labels:
-        #     template: alert_vault_harvest_needs_eol
-        #     policy: follow_up
-        #     ping_harvesters: "true"
-        #     ping_strategists: "true"
-        #   isPaused: false
-        # - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3 # Run Error Alert
-        #   title: Run Error Alert
-        #   condition: last value error
-        #   data:
-        #     - refId: cowllector run errors
-        #       relativeTimeRange:
-        #         from: 14400
-        #         to: 0
-        #       datasourceUid: PAF11E62F20EEC83B
-        #       model:
-        #         editorMode: code
-        #         format: time_series
-        #         intervalMs: 1000
-        #         maxDataPoints: 43200
-        #         rawQuery: true
-        #         rawSql: |
-        #           with run_in_error as (
-        #             (
-        #               select 
-        #                 r.datetime,
-        #                 r.chain,
-        #                 'unwrap' as report_type,
-        #                 r.run_ok
-        #               from last_unwrap_run_by_chain r
-        #               join chain c using (chain)
-        #               where c.harvest_enabled and not c.eol
-        #                 and $__timeFilter(datetime) 
-        #             ) UNION ALL (
-        #               select 
-        #                 r.datetime,
-        #                 r.chain,
-        #                 'harvest' as report_type,
-        #                 r.run_ok
-        #               from last_harvest_run_by_chain r
-        #               join chain c using (chain)
-        #               where c.harvest_enabled and not c.eol
-        #                 and $__timeFilter(datetime)
-        #             )
-        #           )
-        #           select 
-        #             date_trunc('hour', datetime) as time, 
-        #             chain || '-' || report_type as report_key, 
-        #             (not run_ok)::integer as value
-        #           from run_in_error r
-        #           order by datetime
-        #         refId: cowllector run errors
-        #         sql:
-        #             columns:
-        #                 - parameters: []
-        #                   type: function
-        #             groupBy:
-        #                 - property:
-        #                     type: string
-        #                   type: groupBy
-        #             limit: 50
-        #     - refId: last value error
-        #       relativeTimeRange:
-        #         from: 14400
-        #         to: 0
-        #       datasourceUid: __expr__
-        #       model:
-        #         conditions:
-        #             - evaluator:
-        #                 params:
-        #                     - 0
-        #                     - 0
-        #                 type: gt
-        #               operator:
-        #                 type: and
-        #               query:
-        #                 params: []
-        #               reducer:
-        #                 params: []
-        #                 type: avg
-        #               type: query
-        #         datasource:
-        #             name: Expression
-        #             type: __expr__
-        #             uid: __expr__
-        #         expression: cowllector run errors
-        #         intervalMs: 1000
-        #         maxDataPoints: 43200
-        #         reducer: last
-        #         refId: last value error
-        #         settings:
-        #             mode: ""
-        #         type: reduce
-        #   dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
-        #   panelId: 1
-        #   noDataState: OK
-        #   execErrState: Error
-        #   for: 6h
-        #   annotations:
-        #     __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
-        #     __panelId__: "1"
-        #   labels:
-        #     template: alert_vault_harvest_in_error
-        #     policy: follow_up
-        #     ping_harvesters: "true"
-        #     ping_strategists: "false"
-        #   isPaused: false
+        - uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84 # Vault might need EOL
+          title: Vault might need EOL
+          condition: last vault harvest status
+          data:
+            - refId: vault_harvest_success_ts
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  SELECT
+                    date_trunc('hour', datetime) as time,
+                    vault_id,
+                    summary_discord_vault_link,
+                    summary_discord_strategy_link,
+                    chain,
+                    (
+                      coalesce(r.summary_status = 'error', false)
+                      and decision_might_need_eol
+                      -- remove the errors from the other alert that checks last harvest status
+                      and not (
+                        coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                        and not summary_harvested
+                      )
+                    ) :: integer as value
+                  FROM
+                    harvest_report_vault_details r
+                  WHERE
+                    $__timeFilter(datetime)
+                  ORDER BY
+                    datetime
+                refId: vault_harvest_success_ts
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last vault harvest status
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: vault_harvest_success_ts
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last vault harvest status
+                settings:
+                    mode: ""
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 6h
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: alert_vault_harvest_needs_eol
+            policy: follow_up
+            ping_harvesters: "true"
+            ping_strategists: "true"
+          isPaused: false
+        - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3 # Run Error Alert
+          title: Run Error Alert
+          condition: last value error
+          data:
+            - refId: cowllector run errors
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: |
+                  with run_in_error as (
+                    (
+                      select 
+                        r.datetime,
+                        r.chain,
+                        'unwrap' as report_type,
+                        r.run_ok
+                      from last_unwrap_run_by_chain r
+                      join chain c using (chain)
+                      where c.harvest_enabled and not c.eol
+                        and $__timeFilter(datetime) 
+                    ) UNION ALL (
+                      select 
+                        r.datetime,
+                        r.chain,
+                        'harvest' as report_type,
+                        r.run_ok
+                      from last_harvest_run_by_chain r
+                      join chain c using (chain)
+                      where c.harvest_enabled and not c.eol
+                        and $__timeFilter(datetime)
+                    )
+                  )
+                  select 
+                    date_trunc('hour', datetime) as time, 
+                    chain || '-' || report_type as report_key, 
+                    (not run_ok)::integer as value
+                  from run_in_error r
+                  order by datetime
+                refId: cowllector run errors
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last value error
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: cowllector run errors
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last value error
+                settings:
+                    mode: ""
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 6h
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            template: alert_vault_harvest_in_error
+            policy: follow_up
+            ping_harvesters: "true"
+            ping_strategists: "false"
+          isPaused: false
         - uid: a238c42c-cd5e-4050-86cf-64ac3a0954c8 # Non-profitable unwrap
           title: Non-profitable unwrap
           condition: last_harvest_profitable
@@ -741,15 +741,15 @@ groups:
 
 
 # List of alert rule UIDs that should be deleted
-deleteRules:
+# deleteRules:
 #   - orgId: 1
 #     uid: f170e2b1-2785-4bbe-8e6e-f5d04ce03781
 #   - orgId: 1
 #     uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e9
-  - orgId: 1
-    uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84
-  - orgId: 1
-    uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3
+#   - orgId: 1
+#     uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84
+#   - orgId: 1
+#     uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3
 #   - orgId: 1
 #     uid: a238c42c-cd5e-4050-86cf-64ac3a0954c8
 #   - orgId: 1
