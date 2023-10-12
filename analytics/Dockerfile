@@ -1,4 +1,4 @@
-FROM grafana/grafana:10.1.1
+FROM grafana/grafana:10.1.4
 
 # add custom configuration file
 COPY ./custom.ini /etc/grafana/grafana.ini
