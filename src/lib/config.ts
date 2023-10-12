@@ -468,6 +468,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             profitabilityCheck: {
                 ...defaultHarvestConfig.profitabilityCheck,
                 enabled: true,
+                minExpectedRewardsWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
             },
         },
         unwrap: {
