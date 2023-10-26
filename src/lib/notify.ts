@@ -200,7 +200,7 @@ export async function notifyRevenueBridgeHarvestReport(
         return;
     }
 
-    if (report.summary.success === true && report.summary.harvested === false) {
+    if (report.summary.success === true && report.summary.revenueBridgeHarvested === false) {
         logger.info({ msg: 'Did not revenue bridge harvest anything, not reporting', data: report.summary });
         if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
             return;
@@ -237,7 +237,7 @@ export async function notifyRevenueBridgeHarvestReport(
         content: removeSecretsFromString(`
 ### Revenue Bridge Harvest ${reportLevel} for ${report.chain.toLocaleUpperCase()}
 ${reportUrlMarkdown}
-${report.summary.harvested ? codeSep + getBalanceReportTable(report) + codeSep : ''}  
+${report.summary.revenueBridgeHarvested ? codeSep + getBalanceReportTable(report) + codeSep : ''}  
 ${errorDetails}
 ${rolePing}`),
     };

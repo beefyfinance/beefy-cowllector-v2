@@ -20,7 +20,7 @@ export type RevenueBridgeHarvestReport = {
     }> | null;
     summary: {
         success: boolean;
-        harvested: boolean;
+        revenueBridgeHarvested: boolean;
         nativeGasUsedWei: bigint;
         wnativeProfitWei: bigint;
         aggregatedProfitWei: bigint;
@@ -36,7 +36,7 @@ export function createDefaultRevenueBridgeHarvestReport({ chain }: { chain: Chai
         harvestTransaction: null,
         summary: {
             success: false,
-            harvested: false,
+            revenueBridgeHarvested: false,
             nativeGasUsedWei: 0n,
             wnativeProfitWei: 0n,
             aggregatedProfitWei: 0n,

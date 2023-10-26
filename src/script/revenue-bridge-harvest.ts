@@ -75,7 +75,7 @@ async function main() {
                     report.timing = result.timing;
                     report.summary = {
                         success: report.harvestTransaction?.status === 'fulfilled',
-                        harvested: report.harvestTransaction?.status === 'fulfilled',
+                        revenueBridgeHarvested: report.harvestTransaction?.status === 'fulfilled',
                         aggregatedProfitWei:
                             asyncResultGet(report.collectorBalanceAfter, ba =>
                                 asyncResultGet(
