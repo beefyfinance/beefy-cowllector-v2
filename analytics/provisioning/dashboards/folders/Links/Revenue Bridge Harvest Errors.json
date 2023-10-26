@@ -18,7 +18,7 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 11,
+    "id": 13,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -30,14 +30,38 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "mode": "palette-classic"
                     },
                     "custom": {
-                        "align": "auto",
-                        "cellOptions": {
-                            "type": "auto"
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
                         },
-                        "inspect": false
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
                     },
                     "mappings": [],
                     "thresholds": {
@@ -57,23 +81,24 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 16,
+                "h": 13,
                 "w": 24,
                 "x": 0,
                 "y": 0
             },
             "id": 1,
             "options": {
-                "cellHeight": "sm",
-                "footer": {
-                    "countRows": false,
-                    "fields": "",
-                    "reducer": ["sum"],
-                    "show": false
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
                 },
-                "showHeader": true
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
             },
-            "pluginVersion": "10.1.1",
             "targets": [
                 {
                     "datasource": {
@@ -83,7 +108,7 @@
                     "editorMode": "code",
                     "format": "table",
                     "rawQuery": true,
-                    "rawSql": "SELECT * \nFROM last_unwrap_run_by_chain \nWHERE not run_ok\nand $__timeFilter(datetime) ",
+                    "rawSql": "SELECT * \nFROM last_revenue_bridge_harvest_run_by_chain \nWHERE not run_ok\nand $__timeFilter(datetime) ",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -104,8 +129,8 @@
                     }
                 }
             ],
-            "title": "Unwrap failed reports",
-            "type": "table"
+            "title": "Last Failed Revenue Bridge Harvests",
+            "type": "timeseries"
         }
     ],
     "refresh": "",
@@ -116,13 +141,13 @@
         "list": []
     },
     "time": {
-        "from": "now-7d",
+        "from": "now-6h",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
-    "title": "Unwrap failed",
-    "uid": "f1a6b58a-3a4d-4b21-b90a-2b3ee1b82bfe",
+    "title": "Revenue Bridge Harvest Errors",
+    "uid": "caae62be-8b27-4b99-9728-9685fd7b53c9",
     "version": 1,
     "weekStart": ""
 }
