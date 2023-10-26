@@ -84,7 +84,7 @@ export async function aggressivelyWriteContract<
         });
         logger.trace({ msg: 'Simulation ok', data: { chain, address: args.address, request } });
         const transactionHash = await walletClient.writeContract(request as any); // TODO: fix typings
-        logger.debug({ msg: 'Harvested strat', data: { chain, transactionHash } });
+        logger.debug({ msg: 'Transaction ok', data: { chain, transactionHash } });
         allPendingTransactions.push(transactionHash);
         // wait for the transaction to be mined so we have a proper nonce for the next transaction
         logger.trace({

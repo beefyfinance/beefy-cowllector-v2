@@ -51,6 +51,9 @@ const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY
 const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
 const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
 const UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5');
+const REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(
+    process.env.REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5'
+);
 const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
 // some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
@@ -124,6 +127,7 @@ const defaultBatch: RpcConfig['batch'] = {
 const defaultContracts: RpcConfig['contracts'] = {
     harvestLens: '0x2fD8E72e488d6D2Bc770Cf6F74A5d60E44516aaD',
     deployer: '0xcc536552A6214d6667fBC3EC38965F7f556A6391',
+    revenueBridge: '0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B',
 };
 const defaultAccount: RpcConfig['account'] = {
     privateKey: PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -165,6 +169,13 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
         minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER,
     },
 };
+const defaultRevenueBridgeHarvestConfig: RpcConfig['revenueBridgeHarvest'] = {
+    enabled: true,
+    balanceCheck: {
+        minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost:
+            REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
+    },
+};
 const defaultConfig: RpcConfig = {
     eol: false,
     url: 'changeme',
@@ -175,6 +186,7 @@ const defaultConfig: RpcConfig = {
     account: defaultAccount,
     transaction: defaultTransactionConfig,
     unwrap: defaultUnwrapConfig,
+    revenueBridgeHarvest: defaultRevenueBridgeHarvestConfig,
 };
 
 export const RPC_CONFIG: Record<Chain, RpcConfig> = {
@@ -197,6 +209,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxGasPricePerTransactionWei: null,
         },
         eol: true,
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
     },
     avax: {
         ...defaultConfig,
@@ -292,6 +308,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             // celo's native token is also an erc20 contract
             enabled: false,
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
     },
     cronos: {
         ...defaultConfig,
@@ -312,6 +332,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxNativePerTransactionWei: null,
             maxGasPricePerTransactionWei: null,
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
     },
     ethereum: {
         ...defaultConfig,
@@ -323,6 +347,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
+            enabled: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
             enabled: false,
         },
     },
@@ -353,11 +381,19 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 enabled: true,
             },
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
     },
     heco: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.HECO_RPC_URL || 'https://http-mainnet.hecochain.com',
         eol: true,
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
     },
     kava: {
         ...defaultConfig,
@@ -408,6 +444,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 4.0),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 8.0),
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
     },
     moonriver: {
         ...defaultConfig,
@@ -420,6 +460,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 blockConfirmations: 1, // we don't need to wait for 3 confirmations on moonriver
             },
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
     },
     one: {
         ...defaultConfig,
@@ -430,6 +474,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'legacy',
             maxNativePerTransactionWei: null,
             maxGasPricePerTransactionWei: null,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
         },
     },
     optimism: {
@@ -510,6 +558,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultContracts,
             deployer: null,
             harvestLens: '0x525e2664d2d30ED068Ab83dC4e83594d51cd61fF',
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
         },
     },
 };

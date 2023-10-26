@@ -19,6 +19,8 @@ import { removeSecretsFromString, serializeReport } from './reports';
 import { UnwrapReport } from './unwrap-report';
 import { extractErrorMessage } from './error-message';
 import { wait } from '../util/promise';
+import { RevenueBridgeHarvestReport } from './revenue-bridge-harvest-report';
+import { AnyReport } from './db/report-types';
 
 const logger = rootLogger.child({ module: 'notify' });
 
@@ -189,7 +191,74 @@ ${rolePing}`),
     }
 }
 
-function getBalanceReportTable(report: HarvestReport | UnwrapReport) {
+export async function notifyRevenueBridgeHarvestReport(
+    report: RevenueBridgeHarvestReport,
+    db_raw_report_id: number | null
+) {
+    if (!DISCORD_REPORT_WEBHOOK_URL) {
+        logger.warn({ msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message' });
+        return;
+    }
+
+    if (report.summary.success === true && report.summary.harvested === false) {
+        logger.info({ msg: 'Did not revenue bridge harvest anything, not reporting', data: report.summary });
+        if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
+            return;
+        }
+    }
+
+    logger.info({ msg: 'notifying revenue bridge harvest report', data: { chain: report.chain } });
+
+    let reportLevel: string;
+    if (!report.summary.success) {
+        reportLevel = '🔥 ERROR';
+    } else {
+        reportLevel = 'ℹ️ INFO';
+    }
+
+    let errorDetails = '';
+    if (report.harvestTransaction && report.harvestTransaction.status === 'rejected') {
+        errorDetails += `- 🔥 Revenue bridge harvest transaction failed: ${extractErrorMessage(
+            report.harvestTransaction
+        )}\n`;
+    }
+
+    // disable role ping for now
+    const rolePing =
+        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR && false
+            ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
+            : '';
+
+    const reportUrl = db_raw_report_id ? REPORT_URL_TEMPLATE.replace('{{reportId}}', db_raw_report_id.toString()) : '';
+    const reportUrlMarkdown = `[full report](${reportUrl})`;
+
+    const codeSep = '```';
+    const params: DiscordWebhookParams = {
+        content: removeSecretsFromString(`
+### Revenue Bridge Harvest ${reportLevel} for ${report.chain.toLocaleUpperCase()}
+${reportUrlMarkdown}
+${report.summary.harvested ? codeSep + getBalanceReportTable(report) + codeSep : ''}  
+${errorDetails}
+${rolePing}`),
+    };
+
+    try {
+        const reportStr = serializeReport(report, true);
+        const reportBlob = new Blob([reportStr], { type: 'application/json' });
+        const reportFile = new File([reportBlob], `report_${report.chain}.json`);
+
+        const form = new FormData();
+        form.append('payload_json', JSON.stringify(params));
+        form.append('file1', reportFile as any);
+
+        await sendRateLimitedReport(form);
+    } catch (e) {
+        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
+        logger.trace(e);
+    }
+}
+
+function getBalanceReportTable(report: AnyReport) {
     const wnativeSymbol = getChainWNativeTokenSymbol(report.chain);
     const nativeSymbol = wnativeSymbol.slice(1); // remove "w" or "W" prefix
 

@@ -1,6 +1,7 @@
 import { rootLogger } from '../../util/logger';
 import { allChainIds } from '../chain';
 import { RPC_CONFIG } from '../config';
+import { allReportTypes } from './report-types';
 import { db_query, typeExists } from './utils';
 
 const logger = rootLogger.child({ module: 'db', component: 'migrate' });
@@ -138,10 +139,12 @@ export async function db_migrate() {
     // we can use views to filter by report type
 
     if (!(await typeExists('report_type'))) {
-        await db_query(`
-        CREATE TYPE report_type AS ENUM ('harvest', 'unwrap');
-    `);
+        await db_query(`CREATE TYPE report_type AS ENUM ('harvest');`);
     }
+    for (const reportType of allReportTypes) {
+        await db_query(`ALTER TYPE report_type ADD VALUE IF NOT EXISTS %L`, [reportType]);
+    }
+
     await db_query(`
       CREATE TABLE IF NOT EXISTS raw_report (
         raw_report_id serial PRIMARY KEY,
@@ -163,6 +166,10 @@ export async function db_migrate() {
       CREATE OR REPLACE VIEW raw_unwrap_report AS (
         SELECT * FROM raw_report WHERE report_type = 'unwrap'
       );
+
+      CREATE OR REPLACE VIEW raw_revenue_bridge_harvest_report AS (
+        SELECT * FROM raw_report WHERE report_type = 'revenue-bridge-harvest'
+      );
     `);
 
     await db_query(`
@@ -179,6 +186,17 @@ export async function db_migrate() {
         CREATE OR REPLACE VIEW last_unwrap_report_by_chain AS (
           (${allChainIds
               .map(chain => `SELECT * FROM raw_unwrap_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`)
+              .join(') UNION ALL (')})
+        );
+
+        drop view if exists last_revenue_bridge_harvest_report_by_chain cascade;
+        -- this is the most efficient top-k query
+        CREATE OR REPLACE VIEW last_revenue_bridge_harvest_report_by_chain AS (
+          (${allChainIds
+              .map(
+                  chain =>
+                      `SELECT * FROM raw_revenue_bridge_harvest_report WHERE chain = '${chain}' ORDER BY datetime DESC LIMIT 1`
+              )
               .join(') UNION ALL (')})
         );
     `);
@@ -357,6 +375,17 @@ export async function db_migrate() {
               .map(
                   chain =>
                       `SELECT * FROM cowllector_run WHERE chain = '${chain}' and report_type = 'unwrap' ORDER BY datetime DESC LIMIT 1`
+              )
+              .join(') UNION ALL (')})
+        );
+
+        drop view if exists last_revenue_bridge_harvest_run_by_chain cascade;
+        -- this is the most efficient top-k query
+        CREATE OR REPLACE VIEW last_revenue_bridge_harvest_run_by_chain AS (
+          (${allChainIds
+              .map(
+                  chain =>
+                      `SELECT * FROM cowllector_run WHERE chain = '${chain}' and report_type = 'revenue-bridge-harvest' ORDER BY datetime DESC LIMIT 1`
               )
               .join(') UNION ALL (')})
         );

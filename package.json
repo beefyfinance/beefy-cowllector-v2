@@ -12,6 +12,7 @@
         "test": "yarn --silent test:all",
         "heroku:harvest": "node ./dist/script/harvest.js -c all",
         "heroku:unwrap": "node ./dist/script/unwrap.js -c all",
+        "heroku:revenue": "node ./dist/script/revenue-bridge-harvest.js -c all",
         "heroku:db:migrate": "node ./dist/script/db/migrate.js",
         "heroku:db:apply-retention": "node ./dist/script/db/apply-retention.js",
         "precommit": "yarn --silent lint:format && yarn --silent test",

@@ -44,6 +44,7 @@ export type RpcConfig = {
     contracts: {
         harvestLens: Hex | null;
         deployer: Hex | null;
+        revenueBridge: Hex | null;
     };
     account: {
         privateKey: Hex;
@@ -89,6 +90,17 @@ export type RpcConfig = {
         minAmountOfWNativeWei: bigint;
         // but only if we are low on native
         maxAmountOfNativeWei: bigint;
+
+        // these parameters are used to know if we have enough gas to send a transaction
+        balanceCheck: {
+            // how much gas we need to have in our wallet to send a transaction
+            // on the basis of the current transaction estimated total cost
+            // setting this to 2 means that we need to have 2 times the estimated cost in our wallet
+            minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: number;
+        };
+    };
+    revenueBridgeHarvest: {
+        enabled: boolean;
 
         // these parameters are used to know if we have enough gas to send a transaction
         balanceCheck: {

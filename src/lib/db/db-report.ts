@@ -2,7 +2,9 @@ import { rootLogger } from '../../util/logger';
 import { DB_REPORTS_RETENTION_IN_DAYS } from '../config';
 import { HarvestReport } from '../harvest-report';
 import { serializeReport } from '../reports';
+import { RevenueBridgeHarvestReport } from '../revenue-bridge-harvest-report';
 import { UnwrapReport } from '../unwrap-report';
+import { AnyReport, ReportType } from './report-types';
 import { db_query, db_query_one } from './utils';
 
 const logger = rootLogger.child({ module: 'db-report' });
@@ -26,11 +28,11 @@ export function insertHarvestReport(report: HarvestReport) {
 export function insertUnwrapReport(report: UnwrapReport) {
     return insertReport('unwrap', report);
 }
+export function insertRevenueBridgeHarvestReport(report: RevenueBridgeHarvestReport) {
+    return insertReport('revenue-bridge-harvest', report);
+}
 
-async function insertReport(
-    reportType: 'harvest' | 'unwrap',
-    report: HarvestReport | UnwrapReport
-): Promise<{ raw_report_id: number }> {
+async function insertReport(reportType: ReportType, report: AnyReport): Promise<{ raw_report_id: number }> {
     logger.debug({ msg: 'Inserting harvest reports', data: { chain: report.chain, reportType } });
     const res = await db_query_one<{ raw_report_id: number }>(
         `
