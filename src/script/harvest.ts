@@ -196,7 +196,8 @@ async function main() {
                         await notifyError({ doing: 'insert harvest report', data: { chain: report.chain } }, e);
                     }
 
-                    await notifyHarvestReport(report, db_raw_report_id);
+                    //await notifyHarvestReport(report, db_raw_report_id);
+                    logger.debug({ msg: 'Harvesting done', data: { chain, db_raw_report_id, notifyHarvestReport } });
 
                     return report;
                 })
