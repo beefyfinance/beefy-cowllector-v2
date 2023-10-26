@@ -14,3 +14,7 @@ export function bigintFormat(n: bigint, decimal: number = 18, precision: number 
     const integerPart = (n / div).toString();
     return `${sign}${integerPart}.${decimalPart}`;
 }
+
+export function floatToBigint(n: number, decimal: number = 18): bigint {
+    return BigInt(Math.round(n * 10 ** decimal));
+}

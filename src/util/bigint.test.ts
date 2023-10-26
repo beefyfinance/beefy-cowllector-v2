@@ -1,4 +1,4 @@
-import { bigintFormat, bigintMultiplyFloat } from './bigint';
+import { bigintFormat, bigintMultiplyFloat, floatToBigint } from './bigint';
 
 describe('bigintPercent', () => {
     it('should calculate simple percent', () => {
@@ -30,5 +30,26 @@ describe('bigintFormat', () => {
     });
     it('should account for the desired precision', () => {
         expect(bigintFormat(123456789n, 4, 2)).toBe('12345.67');
+    });
+});
+
+describe('floatToBigint', () => {
+    it('should convert a float to a bigint', () => {
+        expect(floatToBigint(1.23456789).toString()).toBe('1234567890000000000');
+    });
+    it('should convert a float to a bigint with decimal 4', () => {
+        expect(floatToBigint(1.23456789, 4).toString()).toBe('12346');
+    });
+    it('should convert a float to a bigint with decimal 2', () => {
+        expect(floatToBigint(1.23456789, 2).toString()).toBe('123');
+    });
+    it('should convert a float to a bigint with decimal 10', () => {
+        expect(floatToBigint(1.23456789, 10).toString()).toBe('12345678900');
+    });
+    it('should convert a float to a bigint with decimal 18', () => {
+        expect(floatToBigint(1.23456789, 18).toString()).toBe('1234567890000000000');
+    });
+    it('should convert an actual very small value', () => {
+        expect(floatToBigint(0.04, 18).toString()).toBe('40000000000000000');
     });
 });
