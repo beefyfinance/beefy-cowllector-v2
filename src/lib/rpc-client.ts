@@ -2,7 +2,7 @@ import { createPublicClient, createWalletClient } from 'viem';
 import { type Chain } from './chain';
 import { privateKeyToAccount } from 'viem/accounts';
 import { RPC_CONFIG } from './config';
-import { type Chain as ViemChain } from 'viem/chains';
+import { gnosis, type Chain as ViemChain } from 'viem/chains';
 import {
     arbitrum,
     aurora,
@@ -110,6 +110,7 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     one: applyConfig('one', harmonyOne),
     heco: null,
     fuse: applyConfig('fuse', fuse),
+    gnosis: applyConfig('gnosis', gnosis),
     kava: applyConfig('kava', kava),
     polygon: applyConfig('polygon', polygon),
     moonbeam: applyConfig('moonbeam', moonbeam),

@@ -47,6 +47,8 @@ export const CENSOR_SECRETS_FROM_REPORTS = process.env.CENSOR_SECRETS_FROM_REPOR
     ? process.env.CENSOR_SECRETS_FROM_REPORTS.split(',')
     : [];
 
+export const LENS_DEPLOY_GAS_MULTIPLIER = parseFloat(process.env.LENS_DEPLOY_GAS_MULTIPLIER || '1.3');
+
 const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
 const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
 const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
@@ -399,6 +401,17 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             enabled: false,
         },
     },
+    gnosis: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.GNOSIS_RPC_URL || 'https://rpc.gnosis.io',
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
+        },
+    },
     heco: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.HECO_RPC_URL || 'https://http-mainnet.hecochain.com',
@@ -674,6 +687,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://explorer.fuse.io/tx/${hash}',
         apiUrl: process.env.FUSE_EXPLORER_API_URL || 'https://explorer.fuse.io/api?',
         type: 'blockscout',
+    },
+    gnosis: {
+        addressLinkTemplate: 'https://gnosisscan.io/address/${address}',
+        transactionLinkTemplate: 'https://gnosisscan.io/tx/${hash}',
+        apiUrl: process.env.GNOSIS_EXPLORER_API_URL || 'https://api.gnosisscan.io/api',
+        apiKey: process.env.GNOSIS_EXPLORER_API_KEY || '',
+        type: 'etherscan',
     },
     heco: {
         addressLinkTemplate: 'https://hecoinfo.com/address/${address}',

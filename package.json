@@ -42,7 +42,7 @@
         "@openzeppelin/contracts": "^4.9.3",
         "async-lock": "^1.4.0",
         "axios": "^1.5.0",
-        "blockchain-addressbook": "^0.44.16",
+        "blockchain-addressbook": "^0.44.34",
         "dotenv": "^16.3.1",
         "lodash": "^4.17.21",
         "pg": "^8.11.3",

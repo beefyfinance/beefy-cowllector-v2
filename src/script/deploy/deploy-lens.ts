@@ -4,10 +4,11 @@ import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../../lib/rpc-client';
 import { BeefyContractDeployerABI } from '../../abi/BeefyContractDeployerABI';
-import { EXPLORER_CONFIG, RPC_CONFIG } from '../../lib/config';
+import { EXPLORER_CONFIG, LENS_DEPLOY_GAS_MULTIPLIER, RPC_CONFIG } from '../../lib/config';
 import { getFoundryContractOptimizedBytecode, verifyFoundryContractForExplorer } from '../../util/foundry';
 import { Hex } from 'viem';
 import { rootLogger } from '../../util/logger';
+import { bigintMultiplyFloat } from '../../util/bigint';
 
 const logger = rootLogger.child({ module: 'deploy-lens' });
 
@@ -76,6 +77,10 @@ async function main() {
         args: [salt, bytecode],
         account: walletAccount,
     });
+    console.dir({ deployRequest, lensAddress }, { depth: null });
+    if (deployRequest.gas) {
+        deployRequest.gas = bigintMultiplyFloat(deployRequest.gas, LENS_DEPLOY_GAS_MULTIPLIER);
+    }
     const deployTransaction = await walletClient.writeContract(deployRequest);
     logger.info({ msg: 'Lens contract deploy trx', data: { deployTransaction, lensAddress } });
     const deployTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({ hash: deployTransaction });

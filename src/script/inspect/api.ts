@@ -1,5 +1,5 @@
 import { runMain } from '../../util/process';
-import { allChainIds } from '../../lib/chain';
+import { Chain, allChainIds } from '../../lib/chain';
 import { getVaultsToMonitorByChain } from '../../lib/vault-list';
 import yargs from 'yargs';
 import { rootLogger } from '../../util/logger';
@@ -7,11 +7,20 @@ import { rootLogger } from '../../util/logger';
 const logger = rootLogger.child({ module: 'inspect', component: 'api' });
 
 type CmdOptions = {
+    chains: Chain[];
     hoursSinceLastHarvest: number;
 };
 
 async function main() {
     const argv = await yargs.usage('$0 <cmd> [args]').options({
+        chain: {
+            type: 'string',
+            choices: [...allChainIds, 'all'],
+            alias: 'c',
+            demand: true,
+            default: 'all',
+            describe: 'Only show vaults for this chain',
+        },
         hoursSinceLastHarvest: {
             type: 'number',
             alias: 'h',
@@ -22,13 +31,14 @@ async function main() {
     }).argv;
 
     const options: CmdOptions = {
+        chains: argv.chain === 'all' ? allChainIds : [argv.chain as Chain],
         hoursSinceLastHarvest: argv.hoursSinceLastHarvest,
     };
     logger.trace({ msg: 'running with options', data: options });
 
-    const vaults = await getVaultsToMonitorByChain({ chains: allChainIds, strategyAddress: null });
+    const vaults = await getVaultsToMonitorByChain({ chains: options.chains, strategyAddress: null });
 
-    for (const chain of allChainIds) {
+    for (const chain of options.chains) {
         console.log(chain);
         for (const vault of vaults[chain]) {
             if (vault.eol) {

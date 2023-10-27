@@ -12,3 +12,4 @@ dist/
 typings/
 old
 .DS_Store
+compile.json
