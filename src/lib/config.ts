@@ -171,6 +171,7 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
 };
 const defaultRevenueBridgeHarvestConfig: RpcConfig['revenueBridgeHarvest'] = {
     enabled: true,
+    forceGasLimit: null,
     balanceCheck: {
         minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost:
             REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
@@ -197,6 +198,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            // example of a non bridging trx: https://arbiscan.io/tx/0x6ae25e4910226bbbbac61d4dac16b00f3b9332311238927eab13643459a46573
+            // example of a bridging trx: https://arbiscan.io/tx/0xe421daafb3e642913527fe3a9df5ff3f923cad66fe98ab8af52d39a3b46f8166
+            forceGasLimit: 2_000_000n,
         },
     },
     aurora: {
@@ -246,6 +253,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 ...defaultHarvestConfig.profitabilityCheck,
                 enabled: true,
             },
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            // example of a bridging transaction: https://basescan.org/tx/0x08992cd1e57a535a747418f813176a6b8a8f9b7dac8892f4889bf094c1a970a0
+            // example of a non bridging transaction: https://basescan.org/tx/0x4c06da47f27a0910737c6efe0ca54b493e0ab081effa8caa4641e11d458bff19
+            forceGasLimit: 1_500_000n,
         },
     },
     bsc: {

@@ -102,6 +102,10 @@ export type RpcConfig = {
     revenueBridgeHarvest: {
         enabled: boolean;
 
+        // some of the revenue bridge implementations estimateContractGas fail to succeed
+        // since this transaction has pretty stable gas cost, we can hardcode it
+        forceGasLimit: bigint | null;
+
         // these parameters are used to know if we have enough gas to send a transaction
         balanceCheck: {
             // how much gas we need to have in our wallet to send a transaction

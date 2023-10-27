@@ -53,16 +53,22 @@ export async function revenueBridgeHarvestChain({
         const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
 
         logger.info({ msg: 'Estimating gas for revenue bridge harvest call', data: { chain, strat: item } });
-        const rawGasEstimation = await publicClient.estimateContractGas({
-            abi: BeefyRevenueBridgeABI,
-            address: revenueBridgeAddress,
-            functionName: 'harvest',
-            account: walletAccount,
-        });
-        const gasLimit = bigintMultiplyFloat(
-            rawGasEstimation,
-            rpcConfig.revenueBridgeHarvest.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost
-        );
+
+        let gasLimit = RPC_CONFIG[chain].revenueBridgeHarvest.forceGasLimit;
+        let rawGasEstimation = gasLimit;
+        if (gasLimit === null) {
+            rawGasEstimation = await publicClient.estimateContractGas({
+                abi: BeefyRevenueBridgeABI,
+                address: revenueBridgeAddress,
+                functionName: 'harvest',
+                account: walletAccount,
+            });
+            gasLimit = bigintMultiplyFloat(
+                rawGasEstimation,
+                rpcConfig.revenueBridgeHarvest.balanceCheck
+                    .minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost
+            );
+        }
 
         logger.trace({ msg: 'Revenue Bridge harvesting', data: { chain, strat: item } });
         const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
@@ -83,7 +89,7 @@ export async function revenueBridgeHarvestChain({
         });
         return {
             transactionHash,
-            rawGasEstimation,
+            rawGasEstimation: rawGasEstimation ?? gasLimit,
             gasLimit,
             blockNumber: transactionReceipt.blockNumber,
             gasUsed: transactionReceipt.gasUsed,
