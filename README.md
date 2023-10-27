@@ -132,6 +132,7 @@ In case you want to contribute, please follow next steps:
 - test the harvest script: `LOG_LEVEL=trace yarn ts-node ./src/script/revenue-bridge-harvest.ts -c gnosis > revenue.log`
 - test the harvest script: `LOG_LEVEL=trace yarn ts-node ./src/script/harvest.ts -c <chain> -a <strat_address> > harvest.log`
 - test the unwrap script: `LOG_LEVEL=trace yarn ts-node ./src/script/unwrap.ts -c gnosis > unwrap.log`
+- add a custom rpc url to our heroku deployment <CHAIN>_RPC_URL
 - deploy the updated cowllector: `yarn deploy`
 
 ## 🍕 Community
