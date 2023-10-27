@@ -411,6 +411,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 enabled: true,
             },
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+        },
     },
     heco: {
         ...defaultConfig,
