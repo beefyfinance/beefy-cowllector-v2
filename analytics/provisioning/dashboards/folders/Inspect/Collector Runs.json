@@ -216,7 +216,7 @@
                         "value": "unwrap"
                     }
                 ],
-                "query": "harvest,unwrap",
+                "query": "harvest,unwrap,revenue-bridge-harvest",
                 "queryValue": "",
                 "skipUrlSync": false,
                 "type": "custom"
