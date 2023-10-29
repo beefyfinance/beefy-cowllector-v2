@@ -581,6 +581,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 gasPriceMultiplier: 1.1,
             },
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            // example of a non bridging tx https://zkevm.polygonscan.com/tx/0x0cd5164ce4284b0e4093e64da77ec0aa7ab542b685720a6d515982a12635acde
+            // example of a bridging tx https://zkevm.polygonscan.com/tx/0xe0f26db744b242661dfefe5447bc07ff23f7a46a5e06388043c029e94ae8c0d3
+            forceGasLimit: 1_000_000n,
+        },
     },
     zksync: {
         ...defaultConfig,
