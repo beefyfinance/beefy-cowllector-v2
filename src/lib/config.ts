@@ -583,6 +583,22 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
         },
     },
+    scroll: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+        },
+    },
     zkevm: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKEVM_RPC_URL || 'https://rpc.ankr.com/polygon_zkevm',
@@ -790,6 +806,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://polygonscan.com/tx/${hash}',
         apiUrl: process.env.POLYGON_EXPLORER_API_URL || 'https://api.polygonscan.com/api',
         apiKey: process.env.POLYGON_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    scroll: {
+        addressLinkTemplate: 'https://scrollscan.com/address/${address}',
+        transactionLinkTemplate: 'https://scrollscan.com/tx/${hash}',
+        apiUrl: process.env.SCROLL_EXPLORER_API_URL || 'https://api.scrollscan.com/api',
+        apiKey: process.env.SCROLL_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zkevm: {

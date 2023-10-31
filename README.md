@@ -111,9 +111,10 @@ In case you want to contribute, please follow next steps:
 
 - update the addressbook version: `npx ncu --upgrade blockchain-addressbook`
 - install the new addressbook: `yarn`
+- Fix TS errors `yarn test:ts`
+    - If needed update `viem/chains` with the new chain `npx ncu --upgrade viem` and `yarn`
 - create an explorer api key (important to verify the lens contract later on)
 - add the rpc url, explorer url and api key in `.env`
-- Fix TS errors `yarn test:ts`
 - apply migrations (only needed locally, migrations are applied on deploy): `yarn db:migrate`
 - inspect the final chain config: `LOG_LEVEL=error yarn --silent ts-node ./src/script/inspect/config.ts -c <chain>`
 - test the api is working: `LOG_LEVEL=trace yarn --silent ts-node ./src/script/inspect/api.ts -c <chain> -h 0 > api.log`
