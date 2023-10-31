@@ -449,6 +449,22 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             },
         },
     },
+    linea: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+        },
+    },
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
@@ -728,6 +744,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://kavascan.com/tx/${hash}',
         apiUrl: process.env.KAVA_EXPLORER_API_URL || 'https://kavascan.com/api?',
         type: 'blockscout',
+    },
+    linea: {
+        addressLinkTemplate: 'https://lineascan.build/address/${address}',
+        transactionLinkTemplate: 'https://lineascan.build/tx/${hash}',
+        apiUrl: process.env.LINEA_EXPLORER_API_URL || 'https://api.lineascan.build/api',
+        apiKey: process.env.LINEA_EXPLORER_API_KEY || '',
+        type: 'etherscan',
     },
     metis: {
         addressLinkTemplate: 'https://andromeda-explorer.metis.io/address/${address}',
