@@ -135,6 +135,8 @@ export const getReadOnlyRpcClient = cachedFactory(
             transport: loggingHttpTransport(rpcConfig.url, {
                 batch: rpcConfig.batch.jsonRpc,
                 timeout: rpcConfig.timeoutMs,
+                retryCount: rpcConfig.retry.maxAttempts,
+                retryDelay: rpcConfig.retry.exponentialDelayMs,
             }),
             batch: {
                 multicall: rpcConfig.batch.multicall,
@@ -159,6 +161,8 @@ export const getWalletClient = cachedFactory(
             transport: loggingHttpTransport(rpcConfig.url, {
                 batch: false,
                 timeout: rpcConfig.timeoutMs,
+                retryCount: rpcConfig.retry.maxAttempts,
+                retryDelay: rpcConfig.retry.exponentialDelayMs,
             }),
         })
             .extend(createCustomHarvestWalletActions({ chain }))

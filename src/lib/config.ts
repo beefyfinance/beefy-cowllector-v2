@@ -126,6 +126,11 @@ const defaultBatch: RpcConfig['batch'] = {
         wait: 100,
     },
 };
+const defaultRetry: RpcConfig['retry'] = {
+    // these are viem defaults
+    maxAttempts: 3,
+    exponentialDelayMs: 150,
+};
 const defaultContracts: RpcConfig['contracts'] = {
     harvestLens: '0x2fD8E72e488d6D2Bc770Cf6F74A5d60E44516aaD',
     deployer: '0xcc536552A6214d6667fBC3EC38965F7f556A6391',
@@ -182,6 +187,7 @@ const defaultRevenueBridgeHarvestConfig: RpcConfig['revenueBridgeHarvest'] = {
 const defaultConfig: RpcConfig = {
     eol: false,
     url: 'changeme',
+    retry: defaultRetry,
     harvest: defaultHarvestConfig,
     timeoutMs: defaultTimeoutMs,
     batch: defaultBatch,
@@ -483,6 +489,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     moonriver: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MOONRIVER_RPC_URL || 'https://moonriver.api.onfinality.io/public',
+        // moonriver has tighter rate limiting
+        retry: {
+            ...defaultRetry,
+            exponentialDelayMs: 1000,
+        },
         transaction: {
             ...defaultTransactionConfig,
             baseFeeMultiplier: 1.5, // moonriver is known to stall trx for days when base fee is too low

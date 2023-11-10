@@ -13,6 +13,10 @@ export type RpcConfig = {
         // only applies for the public client
         multicall: false | MulticallBatchOptions;
     };
+    retry: {
+        maxAttempts: number;
+        exponentialDelayMs: number; // delay between attempts in ms, multiplied by the attempt number
+    };
     transaction: (
         | {
               type: 'legacy';
