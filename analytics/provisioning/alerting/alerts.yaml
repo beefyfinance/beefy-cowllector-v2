@@ -192,7 +192,7 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: follow_up
-            ping_harvesters: "false"
+            ping_harvesters: "true"
             ping_strategists: "true"
           isPaused: false
         - uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84 # Vault might need EOL
