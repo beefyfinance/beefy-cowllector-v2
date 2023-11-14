@@ -5,7 +5,7 @@ policies:
       group_by:
         - grafana_folder
         - alertname
-      group_wait: 30s
+      group_wait: 1d
       group_interval: 1d # only warn once a day if anything changed
       # only repeat alerts every 1 week if not solved in the meantime
       repeat_interval: 1w
