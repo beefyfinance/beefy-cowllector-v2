@@ -34,7 +34,15 @@ contract BeefyHarvestLensTest is Test {
     function _helper_create_contracts() private returns (IStrategyV7 strat, BeefyHarvestLens lens) {
         strat = IStrategyV7(
             address(
-                new StrategyV7Mock(rewardToken, lastHarvestMock, pausedMock, harvestLoops, revertOnHarvest, revertOnLastHarvest, harvestRewards)
+                new StrategyV7Mock(
+                    rewardToken,
+                    lastHarvestMock,
+                    pausedMock,
+                    harvestLoops,
+                    revertOnHarvest,
+                    revertOnLastHarvest,
+                    harvestRewards
+                )
             )
         );
         rewardToken.safeTransfer(address(strat), 1000 ether);
