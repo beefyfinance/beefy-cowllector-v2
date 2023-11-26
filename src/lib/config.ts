@@ -5,6 +5,7 @@ import type { LogLevels } from '../util/logger-type';
 import type { RpcConfig } from './rpc-config';
 import { Hex } from 'viem';
 import { bigintMultiplyFloat } from '../util/bigint';
+import { StrategyTypeId } from './vault';
 dotenv.config();
 
 const timezone = process.env.TZ;
@@ -92,6 +93,17 @@ export const VAULT_IDS_WE_SHOULD_BLIND_HARVEST = [
 export const SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS = 14; // 2 weeks
 export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['curve', 'balancer'];
 export const VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['joe-joe'];
+
+// GMX v2 may not have harvest for up to 7 days
+// The strategy just holds the GM market tokens, waiting for the weekly ARB airdrop.
+// When the ARB is sent the next harvest will swap all ARB to ETH, charge fees, send a
+// small execution fee to GMX, swap half of the ETH to the long token and half to the short,
+// send both to the GMX vault and then submit a deposit request to the GMX keepers.
+// The GMX keepers will take a second and send new GM tokens to the strategy in a new tx
+// and callback the strategy, we sync the balances to say that there is extra GM tokens.
+// The extra GM tokens are recorded as profit and are linearly released over the next 7 days
+// (as the locked profit decays the balanceOf gets larger).
+export const STRATEGY_TYPE_IDS_THAT_CAN_BE_SLOW_TO_REFILL_REWARDS: StrategyTypeId[] = ['gmx-gm'];
 
 // just don't harvest those vaults for now
 export const VAULT_IDS_WE_ARE_OK_NOT_HARVESTING: string[] = [];

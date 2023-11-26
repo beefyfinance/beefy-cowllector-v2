@@ -12,6 +12,7 @@ import {
     SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS,
     VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
     BLIND_HARVEST_EVERY_X_HOURS,
+    STRATEGY_TYPE_IDS_THAT_CAN_BE_SLOW_TO_REFILL_REWARDS,
 } from './config';
 import { rootLogger } from '../util/logger';
 import { createGasEstimationReport } from './gas';
@@ -259,7 +260,11 @@ export async function harvestChain({
 
                 if (
                     (VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.id) ||
-                        PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.platformId)) &&
+                        PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.platformId) ||
+                        (item.vault.strategyTypeId &&
+                            STRATEGY_TYPE_IDS_THAT_CAN_BE_SLOW_TO_REFILL_REWARDS.includes(
+                                item.vault.strategyTypeId
+                            ))) &&
                     item.simulation.hoursSinceLastHarvest < 24 * SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS
                 ) {
                     return {

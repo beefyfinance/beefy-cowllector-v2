@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Chain } from './chain';
-import { BeefyVault } from './vault';
+import { BeefyVault, StrategyTypeId } from './vault';
 import { BEEFY_API_URL } from './config';
 import { rootLogger } from '../util/logger';
 import { Hex } from 'viem';
@@ -17,6 +17,7 @@ async function fetchVaults() {
         chain: Chain;
         platformId: string;
         lastHarvest: number;
+        strategyTypeId: StrategyTypeId;
         // + some other fields we don't care about
     }[];
 
@@ -42,6 +43,7 @@ async function fetchVaults() {
         platformId: vault.platformId,
         tvlUsd: rawTvls[vault.id] || 0,
         lastHarvest: new Date(vault.lastHarvest * 1000),
+        strategyTypeId: vault.strategyTypeId || null,
     }));
 }
 
