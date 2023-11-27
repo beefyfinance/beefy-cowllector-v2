@@ -6,6 +6,7 @@ import { rootLogger } from '../../util/logger';
 import { Hex } from 'viem';
 import { fetchCollectorBalance } from '../../lib/collector-balance';
 import { getChainWNativeTokenAddress } from '../../lib/addressbook';
+import { getWalletAccount } from '../../lib/rpc-client';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'balance' });
 type CmdOptions = {
@@ -44,6 +45,9 @@ async function main() {
     };
     logger.trace({ msg: 'running with options', data: options });
 
+    const walletAccount = getWalletAccount({ chain: options.chain });
+    // override the wallet account with the address provided
+    walletAccount.address = options.collectorAddress;
     const res = await Promise.allSettled([fetchCollectorBalance({ chain: options.chain })]);
 
     console.dir(

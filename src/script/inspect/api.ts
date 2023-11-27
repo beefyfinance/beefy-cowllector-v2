@@ -40,6 +40,9 @@ async function main() {
 
     for (const chain of options.chains) {
         console.log(chain);
+        if (!vaults[chain]) {
+            continue;
+        }
         for (const vault of vaults[chain]) {
             if (vault.eol) {
                 continue;

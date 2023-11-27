@@ -2,8 +2,8 @@ import { createPublicClient, createWalletClient } from 'viem';
 import { type Chain } from './chain';
 import { privateKeyToAccount } from 'viem/accounts';
 import { RPC_CONFIG } from './config';
-import { gnosis, type Chain as ViemChain } from 'viem/chains';
 import {
+    type Chain as ViemChain,
     arbitrum,
     aurora,
     avalanche,
@@ -21,6 +21,9 @@ import {
     metis,
     optimism,
     polygonZkEvm,
+    gnosis,
+    linea,
+    scroll,
     zkSync,
 } from 'viem/chains';
 import { addressBook } from 'blockchain-addressbook';
@@ -112,7 +115,9 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     fuse: applyConfig('fuse', fuse),
     gnosis: applyConfig('gnosis', gnosis),
     kava: applyConfig('kava', kava),
+    linea: applyConfig('linea', linea),
     polygon: applyConfig('polygon', polygon),
+    scroll: applyConfig('scroll', scroll),
     moonbeam: applyConfig('moonbeam', moonbeam),
     moonriver: applyConfig('moonriver', moonriver),
     metis: applyConfig('metis', metis),

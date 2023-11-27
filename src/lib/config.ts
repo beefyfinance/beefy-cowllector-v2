@@ -461,6 +461,22 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             },
         },
     },
+    linea: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+        },
+    },
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
@@ -577,6 +593,22 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 2.0), // 2 wmatic
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
+        },
+    },
+    scroll: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
+        harvest: {
+            ...defaultHarvestConfig,
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: true,
+            },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
         },
     },
     zkevm: {
@@ -741,6 +773,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         apiUrl: process.env.KAVA_EXPLORER_API_URL || 'https://kavascan.com/api?',
         type: 'blockscout',
     },
+    linea: {
+        addressLinkTemplate: 'https://lineascan.build/address/${address}',
+        transactionLinkTemplate: 'https://lineascan.build/tx/${hash}',
+        apiUrl: process.env.LINEA_EXPLORER_API_URL || 'https://api.lineascan.build/api',
+        apiKey: process.env.LINEA_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
     metis: {
         addressLinkTemplate: 'https://andromeda-explorer.metis.io/address/${address}',
         transactionLinkTemplate: 'https://andromeda-explorer.metis.io/tx/${hash}',
@@ -779,6 +818,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://polygonscan.com/tx/${hash}',
         apiUrl: process.env.POLYGON_EXPLORER_API_URL || 'https://api.polygonscan.com/api',
         apiKey: process.env.POLYGON_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    scroll: {
+        addressLinkTemplate: 'https://scrollscan.com/address/${address}',
+        transactionLinkTemplate: 'https://scrollscan.com/tx/${hash}',
+        apiUrl: process.env.SCROLL_EXPLORER_API_URL || 'https://api.scrollscan.com/api',
+        apiKey: process.env.SCROLL_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zkevm: {
