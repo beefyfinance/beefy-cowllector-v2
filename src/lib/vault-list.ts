@@ -23,7 +23,8 @@ async function fetchVaults() {
 
     type ApiBeefyTvlResponse = {
         [key: string]: {
-            [key: string]: number;
+            // chain id
+            [key: string]: number; // vault id -> tvl
         };
     };
 

@@ -109,7 +109,9 @@ async function main() {
                         await notifyError({ doing: 'insert unwrap report', data: { chain: report.chain } }, e);
                     }
 
-                    //await notifyUnwrapReport(report, db_raw_report_id);
+                    if (chain === 'gnosis') {
+                        await notifyUnwrapReport(report, db_raw_report_id);
+                    }
                     logger.debug({ msg: 'Unwrap done', data: { chain, db_raw_report_id, notifyUnwrapReport } });
 
                     return report;
