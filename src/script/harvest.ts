@@ -10,7 +10,7 @@ import { createDefaultHarvestReport } from '../lib/harvest-report';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyError, notifyHarvestReport } from '../lib/notify';
-import { DISABLE_COLLECTOR_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
+import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 import {
     ReportAsyncStatusContext,
     getMergedReportAsyncStatus,
@@ -196,7 +196,7 @@ async function main() {
                         await notifyError({ doing: 'insert harvest report', data: { chain: report.chain } }, e);
                     }
 
-                    if (chain === 'gnosis') {
+                    if (DISCORD_REPORT_ONLY_FOR_CHAINS.includes(chain)) {
                         await notifyHarvestReport(report, db_raw_report_id);
                     }
                     logger.debug({ msg: 'Harvesting done', data: { chain, db_raw_report_id, notifyHarvestReport } });

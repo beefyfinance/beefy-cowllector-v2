@@ -8,7 +8,7 @@ import { unwrapChain } from '../lib/unwrap-chain';
 import { createDefaultUnwrapReport } from '../lib/unwrap-report';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyError, notifyUnwrapReport } from '../lib/notify';
-import { DISABLE_COLLECTOR_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
+import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 import { withDbClient } from '../lib/db/utils';
 import { insertUnwrapReport } from '../lib/db/db-report';
 
@@ -109,7 +109,7 @@ async function main() {
                         await notifyError({ doing: 'insert unwrap report', data: { chain: report.chain } }, e);
                     }
 
-                    if (chain === 'gnosis') {
+                    if (DISCORD_REPORT_ONLY_FOR_CHAINS.includes(chain)) {
                         await notifyUnwrapReport(report, db_raw_report_id);
                     }
                     logger.debug({ msg: 'Unwrap done', data: { chain, db_raw_report_id, notifyUnwrapReport } });

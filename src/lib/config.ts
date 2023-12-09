@@ -33,6 +33,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['gnosis', 'linea'];
 export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = parseInt(
     process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '10',
     10
@@ -461,6 +462,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             },
         },
     },
+    linea: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
+    },
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
@@ -740,6 +745,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://kavascan.com/tx/${hash}',
         apiUrl: process.env.KAVA_EXPLORER_API_URL || 'https://kavascan.com/api?',
         type: 'blockscout',
+    },
+    linea: {
+        addressLinkTemplate: 'https://lineascan.build/address/${address}',
+        transactionLinkTemplate: 'https://lineascan.build/tx/${hash}',
+        apiUrl: process.env.LINEA_EXPLORER_API_URL || 'https://api.lineascan.build/api',
+        apiKey: process.env.LINEA_EXPLORER_API_KEY || '',
+        type: 'etherscan',
     },
     metis: {
         addressLinkTemplate: 'https://andromeda-explorer.metis.io/address/${address}',

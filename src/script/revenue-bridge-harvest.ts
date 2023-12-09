@@ -6,7 +6,7 @@ import { rootLogger } from '../util/logger';
 import { splitPromiseResultsByStatus } from '../util/promise';
 import { asyncResultGet, promiseTimings } from '../util/async';
 import { notifyError, notifyRevenueBridgeHarvestReport } from '../lib/notify';
-import { DISABLE_COLLECTOR_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
+import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 import { withDbClient } from '../lib/db/utils';
 import { insertRevenueBridgeHarvestReport } from '../lib/db/db-report';
 import { createDefaultRevenueBridgeHarvestReport } from '../lib/revenue-bridge-harvest-report';
@@ -106,7 +106,9 @@ async function main() {
                         await notifyError({ doing: 'insert unwrap report', data: { chain: report.chain } }, e);
                     }
 
-                    //await notifyRevenueBridgeHarvestReport(report, db_raw_report_id);
+                    if (DISCORD_REPORT_ONLY_FOR_CHAINS.includes(chain)) {
+                        await notifyRevenueBridgeHarvestReport(report, db_raw_report_id);
+                    }
                     logger.debug({
                         msg: 'Revenue bridge harvest done',
                         data: { chain, db_raw_report_id, notifyRevenueBridgeHarvestReport },
