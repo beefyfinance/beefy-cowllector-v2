@@ -135,14 +135,14 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
-          level: 'warning';
+          level: 'warning' | 'error';
           maxNativePerTransactionWei: bigint;
           transactionCostEstimationWei: bigint;
           notHarvestingReason: 'estimated transaction cost would be too high, waiting until the network is less congested';
       }
     | {
           shouldHarvest: false;
-          level: 'warning';
+          level: 'warning' | 'error';
           maxGasPricePerTransactionWei: bigint;
           gasPrice: bigint;
           notHarvestingReason: 'estimated gas price would be too high, waiting until the network is less congested';

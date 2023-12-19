@@ -197,6 +197,10 @@ const defaultRevenueBridgeHarvestConfig: RpcConfig['revenueBridgeHarvest'] = {
             REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
     },
 };
+const defaultAlertingConfig: RpcConfig['alerting'] = {
+    networkCongestionWaitInDays: 5,
+};
+
 const defaultConfig: RpcConfig = {
     eol: false,
     url: 'changeme',
@@ -209,6 +213,7 @@ const defaultConfig: RpcConfig = {
     transaction: defaultTransactionConfig,
     unwrap: defaultUnwrapConfig,
     revenueBridgeHarvest: defaultRevenueBridgeHarvestConfig,
+    alerting: defaultAlertingConfig,
 };
 
 export const RPC_CONFIG: Record<Chain, RpcConfig> = {

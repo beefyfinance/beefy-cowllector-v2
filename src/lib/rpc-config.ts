@@ -118,4 +118,8 @@ export type RpcConfig = {
             minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: number;
         };
     };
+    alerting: {
+        // days to wait before a network congestion requires a decision
+        networkCongestionWaitInDays: number;
+    };
 };

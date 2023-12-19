@@ -303,7 +303,10 @@ export async function harvestChain({
             ) {
                 return {
                     shouldHarvest: false,
-                    level: 'warning',
+                    level:
+                        item.simulation.hoursSinceLastHarvest > rpcConfig.alerting.networkCongestionWaitInDays * 24
+                            ? 'error'
+                            : 'warning',
                     maxNativePerTransactionWei: rpcConfig.transaction.maxNativePerTransactionWei,
                     transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
                     notHarvestingReason:
@@ -318,7 +321,10 @@ export async function harvestChain({
             ) {
                 return {
                     shouldHarvest: false,
-                    level: 'warning',
+                    level:
+                        item.simulation.hoursSinceLastHarvest > rpcConfig.alerting.networkCongestionWaitInDays * 24
+                            ? 'error'
+                            : 'warning',
                     maxGasPricePerTransactionWei: rpcConfig.transaction.maxGasPricePerTransactionWei,
                     gasPrice: item.simulation.gas.gasPrice,
                     notHarvestingReason:
