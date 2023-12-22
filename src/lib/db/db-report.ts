@@ -1,5 +1,5 @@
 import { rootLogger } from '../../util/logger';
-import { DB_REPORTS_RETENTION_IN_DAYS } from '../config';
+import { DB_REPORTS_FULL_RETENTION_IN_DAYS, DB_REPORTS_DAILY_RETENTION_IN_DAYS } from '../config';
 import { HarvestReport } from '../harvest-report';
 import { serializeReport } from '../reports';
 import { RevenueBridgeHarvestReport } from '../revenue-bridge-harvest-report';
@@ -10,15 +10,25 @@ import { db_query, db_query_one } from './utils';
 const logger = rootLogger.child({ module: 'db-report' });
 
 export async function applyRetention() {
-    logger.debug({ msg: 'Applying retention', data: { DB_REPORTS_RETENTION_IN_DAYS } });
+    logger.debug({
+        msg: 'Applying retention',
+        data: { DB_REPORTS_FULL_RETENTION_IN_DAYS, DB_REPORTS_DAILY_RETENTION_IN_DAYS },
+    });
     await db_query(
         `
             DELETE FROM raw_report
-            WHERE datetime < (NOW() - (%L || ' day')::interval)
+            WHERE 
+                (datetime < (NOW() - (%L || ' day')::interval) and extract(hour from datetime) != 0)
+                OR
+                (datetime < (NOW() - (%L || ' day')::interval))
+
         `,
-        [DB_REPORTS_RETENTION_IN_DAYS.toFixed()]
+        [DB_REPORTS_FULL_RETENTION_IN_DAYS.toFixed(), DB_REPORTS_DAILY_RETENTION_IN_DAYS.toFixed()]
     );
-    logger.info({ msg: 'Retention applied', data: { DB_REPORTS_RETENTION_IN_DAYS } });
+    logger.info({
+        msg: 'Retention applied',
+        data: { DB_REPORTS_FULL_RETENTION_IN_DAYS, DB_REPORTS_DAILY_RETENTION_IN_DAYS },
+    });
 }
 
 export function insertHarvestReport(report: HarvestReport) {

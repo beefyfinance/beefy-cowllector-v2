@@ -185,7 +185,7 @@ groups:
           panelId: 1
           noDataState: OK
           execErrState: Error
-          for: 6h
+          for: 14d
           annotations:
             __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
             __panelId__: "1"
@@ -278,7 +278,7 @@ groups:
           panelId: 1
           noDataState: OK
           execErrState: Error
-          for: 6h
+          for: 14d
           annotations:
             __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
             __panelId__: "1"

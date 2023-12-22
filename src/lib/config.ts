@@ -43,7 +43,12 @@ export const DISCORD_NOTIFY_UNEVENTFUL_HARVEST = process.env.DISCORD_NOTIFY_UNEV
 export const DISCORD_PING_ROLE_IDS_ON_ERROR = process.env.DISCORD_PING_ROLE_IDS_ON_ERROR
     ? process.env.DISCORD_PING_ROLE_IDS_ON_ERROR.split(',')
     : [];
-export const DB_REPORTS_RETENTION_IN_DAYS = parseInt(process.env.DB_REPORTS_RETENTION_IN_DAYS || '10', 10);
+
+// retain all reports for 7 days and daily reports for 30 days
+// we need to cleanup reports to avoid breaking heroku's 10k rows limit
+export const DB_REPORTS_FULL_RETENTION_IN_DAYS = parseInt(process.env.DB_REPORTS_RETENTION_IN_DAYS || '7', 10);
+export const DB_REPORTS_DAILY_RETENTION_IN_DAYS = parseInt(process.env.DB_REPORTS_DAILY_RETENTION_IN_DAYS || '30', 10);
+
 export const REPORT_URL_TEMPLATE = process.env.REPORT_URL_TEMPLATE || 'https://localhost/report/{{reportId}}';
 export const CENSOR_SECRETS_FROM_REPORTS = process.env.CENSOR_SECRETS_FROM_REPORTS
     ? process.env.CENSOR_SECRETS_FROM_REPORTS.split(',')
