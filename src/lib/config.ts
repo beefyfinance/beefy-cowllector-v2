@@ -363,7 +363,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 1.5), // 1.5 cro
-            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 3.5),
         },
     },
     emerald: {
