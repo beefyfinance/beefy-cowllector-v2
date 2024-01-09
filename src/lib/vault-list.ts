@@ -70,9 +70,17 @@ export async function getVaultsToMonitorByChain(options: {
     logger.info({ msg: 'Filtered vaults', data: { vaultLength: vaults.length } });
 
     // split by chain
-    const vaultsByChain = groupBy(vaults, 'chain') as Record<Chain, BeefyVault[]>;
+    let vaultsByChain = groupBy(vaults, 'chain') as Record<Chain, BeefyVault[]>;
     logger.debug({ msg: 'Vaults by chain', data: vaultsByChain });
 
     // remove duplicate vaults by strategy address
-    return mapValues(vaultsByChain, vaults => uniqBy(vaults, 'strategyAddress'));
+    vaultsByChain = mapValues(vaultsByChain, vaults => uniqBy(vaults, 'strategyAddress'));
+
+    for (const chain of options.chains) {
+        if (!vaultsByChain[chain]) {
+            vaultsByChain[chain] = [];
+        }
+    }
+
+    return vaultsByChain;
 }

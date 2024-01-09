@@ -476,6 +476,21 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
     },
+    mantle: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxGasPricePerTransactionWei: null,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 2.0),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
+        },
+    },
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
@@ -762,6 +777,12 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         apiUrl: process.env.LINEA_EXPLORER_API_URL || 'https://api.lineascan.build/api',
         apiKey: process.env.LINEA_EXPLORER_API_KEY || '',
         type: 'etherscan',
+    },
+    mantle: {
+        addressLinkTemplate: 'https://explorer.mantle.xyz/address/${address}',
+        transactionLinkTemplate: 'https://explorer.mantle.xyz/tx/${hash}',
+        apiUrl: process.env.MANTLE_EXPLORER_API_URL || 'https://explorer.mantle.xyz/api?',
+        type: 'blockscout',
     },
     metis: {
         addressLinkTemplate: 'https://andromeda-explorer.metis.io/address/${address}',
