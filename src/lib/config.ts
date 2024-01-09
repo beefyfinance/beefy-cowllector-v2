@@ -33,7 +33,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
-export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['gnosis', 'linea'];
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['mantle'];
 export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = parseInt(
     process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '10',
     10
