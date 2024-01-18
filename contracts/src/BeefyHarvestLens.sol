@@ -15,6 +15,8 @@ struct LensResult {
     bytes harvestResult;
 }
 
+error CallRewardTooLow(uint256 callReward, uint256 minCallReward);
+
 // Simulate a harvest while recieving a call reward. Return callReward amount and whether or not it was a success.
 contract BeefyHarvestLens {
     using SafeERC20 for IERC20;
@@ -22,7 +24,10 @@ contract BeefyHarvestLens {
     // Simulate harvest calling callStatic/simulateContract for return results.
     // this method will hide any harvest errors and it is not recommended to use it to do the harvesting
     // only the simulation using callStatic/simulateContract is recommended
-    function harvest(IStrategyV7 _strategy, IERC20 _rewardToken) external returns (LensResult memory res) {
+    function harvest(IStrategyV7 _strategy, IERC20 _rewardToken, uint256 _minCallReward)
+        external
+        returns (LensResult memory res)
+    {
         res.blockNumber = block.number;
         res.paused = _strategy.paused();
 
@@ -42,6 +47,10 @@ contract BeefyHarvestLens {
 
             if (res.success) {
                 res.callReward = IERC20(_rewardToken).balanceOf(address(this)) - rewardsBefore;
+                if (res.callReward < _minCallReward) {
+                    revert CallRewardTooLow({callReward: res.callReward, minCallReward: _minCallReward});
+                }
+
                 res.gasUsed = gasBefore - gasAfter;
 
                 // protection in case someone actually uses this contract to harvest despite our warnings

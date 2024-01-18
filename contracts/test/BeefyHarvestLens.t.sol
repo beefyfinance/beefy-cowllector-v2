@@ -53,7 +53,7 @@ contract BeefyHarvestLensTest is Test {
         revertOnHarvest = true;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken);
+        LensResult memory res = lens.harvest(strat, rewardToken, 0);
 
         assertEq(res.callReward, 0);
         assertEq(res.success, false);
@@ -67,7 +67,7 @@ contract BeefyHarvestLensTest is Test {
 
     function test_normal_harvest() public {
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken);
+        LensResult memory res = lens.harvest(strat, rewardToken, 0);
 
         assertEq(res.callReward, 987654);
         assertEq(res.success, true);
@@ -84,7 +84,7 @@ contract BeefyHarvestLensTest is Test {
         harvestRewards = 1 ether;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken);
+        LensResult memory res = lens.harvest(strat, rewardToken, 0);
 
         assertEq(res.callReward, 1 ether);
         assertEq(res.success, true);
@@ -101,7 +101,7 @@ contract BeefyHarvestLensTest is Test {
         pausedMock = true;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken);
+        LensResult memory res = lens.harvest(strat, rewardToken, 0);
 
         assertEq(res.callReward, 0);
         assertEq(res.success, false);
@@ -117,7 +117,7 @@ contract BeefyHarvestLensTest is Test {
         lastHarvestMock = 98765;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken);
+        LensResult memory res = lens.harvest(strat, rewardToken, 0);
 
         assertEq(res.callReward, 987654);
         assertEq(res.success, true);
@@ -134,7 +134,7 @@ contract BeefyHarvestLensTest is Test {
         harvestRewards = 0;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken);
+        LensResult memory res = lens.harvest(strat, rewardToken, 0);
 
         assertEq(res.callReward, 0);
         assertEq(res.success, true);
@@ -151,7 +151,7 @@ contract BeefyHarvestLensTest is Test {
         revertOnLastHarvest = true;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken);
+        LensResult memory res = lens.harvest(strat, rewardToken, 0);
 
         assertEq(res.callReward, 987654);
         assertEq(res.success, true);
@@ -162,5 +162,15 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.blockNumber, block.number);
         assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 987654);
+    }
+
+    function test_lens_reverts_when_call_reward_is_too_low() public {
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+
+        vm.expectRevert(abi.encodeWithSelector(CallRewardTooLow.selector, 987654, 987655));
+
+        LensResult memory res = lens.harvest(strat, rewardToken, 987655);
+
+        assertEq(res.callReward, 0);
     }
 }
