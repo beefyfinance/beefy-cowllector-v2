@@ -49,11 +49,11 @@ contract BeefyHarvestLensTest is Test {
         lens = new BeefyHarvestLens();
     }
 
-    function test_lens_do_not_throw_when_harvest_reverts() public {
+    function test_lens_simulation_do_not_throw_when_harvest_reverts() public {
         revertOnHarvest = true;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken, 0);
+        LensResult memory res = lens.harvestSimulation(strat, rewardToken);
 
         assertEq(res.callReward, 0);
         assertEq(res.success, false);
@@ -65,9 +65,9 @@ contract BeefyHarvestLensTest is Test {
         assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
-    function test_normal_harvest() public {
+    function test_lens_simulation_can_simulate_harvest() public {
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken, 0);
+        LensResult memory res = lens.harvestSimulation(strat, rewardToken);
 
         assertEq(res.callReward, 987654);
         assertEq(res.success, true);
@@ -80,11 +80,11 @@ contract BeefyHarvestLensTest is Test {
         assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 
-    function test_lens_returns_call_rewards() public {
+    function test_lens_simulation_returns_call_rewards() public {
         harvestRewards = 1 ether;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken, 0);
+        LensResult memory res = lens.harvestSimulation(strat, rewardToken);
 
         assertEq(res.callReward, 1 ether);
         assertEq(res.success, true);
@@ -97,11 +97,11 @@ contract BeefyHarvestLensTest is Test {
         assertEq(rewardToken.balanceOf(address(this)), 1 ether);
     }
 
-    function test_lens_returns_paused() public {
+    function test_lens_simulation_returns_paused() public {
         pausedMock = true;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken, 0);
+        LensResult memory res = lens.harvestSimulation(strat, rewardToken);
 
         assertEq(res.callReward, 0);
         assertEq(res.success, false);
@@ -113,11 +113,11 @@ contract BeefyHarvestLensTest is Test {
         assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
-    function test_lens_returns_last_harvest() public {
+    function test_lens_simulation_returns_last_harvest() public {
         lastHarvestMock = 98765;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken, 0);
+        LensResult memory res = lens.harvestSimulation(strat, rewardToken);
 
         assertEq(res.callReward, 987654);
         assertEq(res.success, true);
@@ -130,11 +130,11 @@ contract BeefyHarvestLensTest is Test {
         assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 
-    function test_lens_success_when_call_reward_is_zero() public {
+    function test_lens_simulation_success_when_call_reward_is_zero() public {
         harvestRewards = 0;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken, 0);
+        LensResult memory res = lens.harvestSimulation(strat, rewardToken);
 
         assertEq(res.callReward, 0);
         assertEq(res.success, true);
@@ -147,11 +147,11 @@ contract BeefyHarvestLensTest is Test {
         assertEq(rewardToken.balanceOf(address(this)), 0);
     }
 
-    function test_lens_do_not_crash_when_last_harvest_isnt_defined() public {
+    function test_lens_simulation_do_not_crash_when_last_harvest_isnt_defined() public {
         revertOnLastHarvest = true;
 
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
-        LensResult memory res = lens.harvest(strat, rewardToken, 0);
+        LensResult memory res = lens.harvestSimulation(strat, rewardToken);
 
         assertEq(res.callReward, 987654);
         assertEq(res.success, true);
@@ -164,13 +164,49 @@ contract BeefyHarvestLensTest is Test {
         assertEq(rewardToken.balanceOf(address(this)), 987654);
     }
 
-    function test_lens_reverts_when_call_reward_is_too_low() public {
+    function test_lens_safe_transfer_do_throw_when_harvest_reverts() public {
+        revertOnHarvest = true;
+
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+
+        vm.expectRevert("revertOnHarvest");
+
+        lens.safeHarvest(strat, rewardToken, 1000);
+    }
+
+    function test_lens_safe_transfer_can_simulate_harvest() public {
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        uint256 callReward = lens.safeHarvest(strat, rewardToken, 1000);
+
+        assertEq(callReward, 987654);
+        assertEq(rewardToken.balanceOf(address(this)), 987654);
+    }
+
+    function test_lens_safe_transfer_returns_call_rewards() public {
+        harvestRewards = 1 ether;
+
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        uint256 callReward = lens.safeHarvest(strat, rewardToken, 1000);
+
+        assertEq(callReward, 1 ether);
+        assertEq(rewardToken.balanceOf(address(this)), 1 ether);
+    }
+
+    function test_lens_safe_harvest_fails_when_expected_call_rewards_is_zero() public {
+        harvestRewards = 0;
+
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+
+        vm.expectRevert(abi.encodeWithSelector(MinCallRewardTooLow.selector, 0));
+
+        lens.safeHarvest(strat, rewardToken, 0);
+    }
+
+    function test_lens_safe_harvest_reverts_when_call_reward_is_too_low() public {
         (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
 
         vm.expectRevert(abi.encodeWithSelector(CallRewardTooLow.selector, 987654, 987655));
 
-        LensResult memory res = lens.harvest(strat, rewardToken, 987655);
-
-        assertEq(res.callReward, 0);
+        lens.safeHarvest(strat, rewardToken, 987655);
     }
 }
