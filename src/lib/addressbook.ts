@@ -2,6 +2,14 @@ import * as addressbook from 'blockchain-addressbook';
 import { Chain } from './chain';
 import { Hex } from 'viem';
 
+export function getChainWNativeTokenDecimals(chain: Chain): number {
+    if (chain === 'linea') {
+        return 18;
+    }
+    const tokens = addressbook.addressBook[chain].tokens;
+    return tokens.WNATIVE.decimals;
+}
+
 export function getChainWNativeTokenSymbol(chain: Chain): string {
     if (chain === 'linea') {
         return 'ETH';
