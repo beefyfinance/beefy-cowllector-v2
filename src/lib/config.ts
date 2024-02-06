@@ -93,6 +93,9 @@ export const VAULT_IDS_WE_SHOULD_BLIND_HARVEST = [
     'moonwell-xcusdt',
     'solarbeam-wstksm-xcksm',
     'solarbeam-xckbtc-wbtc',
+    // this one has a broken last harvest time, it never updates
+    // so this is a workaround to make sure we do NOT harvest it every hour
+    'vesync-usdc-weth',
 ];
 
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
