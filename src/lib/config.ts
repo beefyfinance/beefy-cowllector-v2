@@ -163,6 +163,8 @@ const defaultAccount: RpcConfig['account'] = {
 };
 const defaultTransactionConfig: RpcConfig['transaction'] = {
     type: 'eip1559' as const,
+    maxGasPricePerTransactionWei: null,
+    maxNativePerTransactionWei: null,
     totalTries: 1, // by default, only try the trx once
     retryGasMultiplier: 1.2, // up gas by 20% on each retry
     baseFeeMultiplier: 1.25, // 25% above base fee
@@ -294,6 +296,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             // example of a bridging transaction: https://basescan.org/tx/0x08992cd1e57a535a747418f813176a6b8a8f9b7dac8892f4889bf094c1a970a0
             // example of a non bridging transaction: https://basescan.org/tx/0x4c06da47f27a0910737c6efe0ca54b493e0ab081effa8caa4641e11d458bff19
             forceGasLimit: 1_500_000n,
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            maxGasPricePerTransactionWei: ONE_GWEI,
         },
     },
     bsc: {

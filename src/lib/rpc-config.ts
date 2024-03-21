@@ -25,6 +25,8 @@ export type RpcConfig = {
           }
         | {
               type: 'eip1559';
+              maxNativePerTransactionWei: bigint | null;
+              maxGasPricePerTransactionWei: bigint | null;
           }
     ) & {
         // @see aggressivelyWriteContract

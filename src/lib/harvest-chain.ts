@@ -297,7 +297,6 @@ export async function harvestChain({
             }
 
             if (
-                rpcConfig.transaction.type === 'legacy' &&
                 rpcConfig.transaction.maxNativePerTransactionWei &&
                 item.simulation.gas.transactionCostEstimationWei > rpcConfig.transaction.maxNativePerTransactionWei
             ) {
@@ -315,7 +314,6 @@ export async function harvestChain({
             }
 
             if (
-                rpcConfig.transaction.type === 'legacy' &&
                 rpcConfig.transaction.maxGasPricePerTransactionWei &&
                 item.simulation.gas.gasPrice > rpcConfig.transaction.maxGasPricePerTransactionWei
             ) {
