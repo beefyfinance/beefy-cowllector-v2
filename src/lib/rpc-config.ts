@@ -73,6 +73,9 @@ export type RpcConfig = {
         // We only harvest if the vault tvl is above this threshold
         minTvlThresholdUsd: number;
 
+        // wether we should set the transaction gas limit
+        setTransactionGasLimit: boolean;
+
         // these parameters are used to know if we have enough gas to send a transaction
         balanceCheck: {
             // by how much we should multiply our given gas price
@@ -96,6 +99,9 @@ export type RpcConfig = {
         minAmountOfWNativeWei: bigint;
         // but only if we are low on native
         maxAmountOfNativeWei: bigint;
+
+        // wether we should set the transaction gas limit
+        setTransactionGasLimit: boolean;
 
         // these parameters are used to know if we have enough gas to send a transaction
         balanceCheck: {

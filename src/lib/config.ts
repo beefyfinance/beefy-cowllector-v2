@@ -182,6 +182,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
     // default to 0.01 wnative (18 decimals)
     minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
     maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+    setTransactionGasLimit: true,
     balanceCheck: {
         minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER,
     },
@@ -194,6 +195,7 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
         minExpectedRewardsWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
     },
     targetTimeBetweenHarvestsMs: HARVEST_AT_LEAST_EVERY_HOURS * 60 * 60 * 1000,
+    setTransactionGasLimit: true,
     balanceCheck: {
         gasLimitMultiplier: HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
         gasPriceMultiplier: HARVEST_GAS_PRICE_MULTIPLIER,
@@ -489,6 +491,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     mantle: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: false,
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'eip1559',
@@ -498,6 +504,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 1),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 10),
+            setTransactionGasLimit: false,
         },
     },
     metis: {

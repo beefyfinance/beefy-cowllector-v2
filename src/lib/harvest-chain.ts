@@ -26,6 +26,7 @@ import { UnsupportedChainError } from './harvest-errors';
 import { fetchCollectorBalance } from './collector-balance';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { getChainWNativeTokenAddress } from './addressbook';
+import { HarvestParameters } from './harvest-actions/harvest';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -380,20 +381,24 @@ export async function harvestChain({
 
     logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
     await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', 'sequential', async item => {
-        const res = VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)
-            ? await walletClient.harvest({
-                  strategyAddress: item.vault.strategyAddress,
-                  transactionCostEstimationWei: null,
-                  transactionGasLimit: null,
-              })
-            : await walletClient.harvest({
-                  strategyAddress: item.vault.strategyAddress,
-                  transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
-                  transactionGasLimit: bigintMultiplyFloat(
-                      item.simulation.gas.rawGasAmountEstimation,
-                      rpcConfig.harvest.balanceCheck.gasLimitMultiplier
-                  ),
-              });
+        let harvestParams: HarvestParameters = {
+            strategyAddress: item.vault.strategyAddress,
+            transactionCostEstimationWei: null,
+            transactionGasLimit: null,
+        };
+
+        if (!VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id) && rpcConfig.harvest.setTransactionGasLimit) {
+            harvestParams = {
+                strategyAddress: item.vault.strategyAddress,
+                transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
+                transactionGasLimit: bigintMultiplyFloat(
+                    item.simulation.gas.rawGasAmountEstimation,
+                    rpcConfig.harvest.balanceCheck.gasLimitMultiplier
+                ),
+            };
+        }
+
+        const res = await walletClient.harvest(harvestParams);
 
         return {
             ...res,

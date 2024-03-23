@@ -94,7 +94,7 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
             functionName: 'withdraw',
             args: [item.unwrapDecision.actualAmount],
             account: walletAccount,
-            gas: gasLimit,
+            gas: rpcConfig.unwrap.setTransactionGasLimit ? gasLimit : undefined,
         });
         logger.debug({
             msg: 'Got transaction receipt',
