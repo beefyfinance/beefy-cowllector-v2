@@ -11,12 +11,3 @@
 export type Prettify<T> = {
     [K in keyof T]: T[K];
 } & {};
-
-/**
- * @description Creates a type with required keys K from T.
- *
- * @example
- * type Result = RequiredBy<{ a?: string, b?: number, c: number }, 'a' | 'c'>
- * //   ^? { a: string, b?: number, c: number }
- */
-export type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
