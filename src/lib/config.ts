@@ -491,9 +491,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
         transaction: {
             ...defaultTransactionConfig,
-            type: 'legacy',
+            type: 'eip1559',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
-            maxGasPricePerTransactionWei: null,
         },
         unwrap: {
             ...defaultUnwrapConfig,
