@@ -413,6 +413,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     fantom: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.FANTOM_RPC_URL || 'https://rpc.ankr.com/fantom',
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: ONE_ETHER,
+            maxAmountOfNativeWei: ONE_ETHER,
+        },
         transaction: {
             ...defaultTransactionConfig,
             receipt: {
