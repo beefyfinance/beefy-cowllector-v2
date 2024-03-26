@@ -301,7 +301,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         transaction: {
             ...defaultTransactionConfig,
-            maxGasPricePerTransactionWei: ONE_GWEI,
+            maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 0.4),
         },
     },
     bsc: {
