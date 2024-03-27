@@ -426,6 +426,25 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             },
         },
     },
+    fraxtal: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.FRAXTAL_RPC_URL || 'https://rpc.frax.com',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
+            maxGasPricePerTransactionWei: null,
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                notFoundErrorRetryCount: 5, // more retries
+            },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+        },
+    },
     fuse: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.FUSE_RPC_URL || 'https://rpc.fuse.io',
@@ -765,6 +784,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://ftmscan.com/tx/${hash}',
         apiUrl: process.env.FANTOM_EXPLORER_API_URL || 'https://api.ftmscan.com/api',
         apiKey: process.env.FANTOM_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    fraxtal: {
+        addressLinkTemplate: 'https://fraxscan.com/address/${address}',
+        transactionLinkTemplate: 'https://fraxscan.com/tx/${hash}',
+        apiUrl: process.env.FRAXTAL_EXPLORER_API_URL || 'https://fraxscan.com/api',
+        apiKey: process.env.FRAXTAL_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     fuse: {

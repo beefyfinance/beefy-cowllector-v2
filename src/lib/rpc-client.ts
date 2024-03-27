@@ -29,6 +29,31 @@ import { createCustomHarvestWalletActions } from './harvest-actions';
 import { cachedFactory } from '../util/cache';
 import { createCustomRpcPublicActions, createCustomRpcWalletActions } from './rpc-actions';
 
+const fraxtal = {
+    id: 252,
+    name: 'Fraxtal',
+    network: 'fraxtal',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'frxETH',
+        symbol: 'frxETH',
+    },
+    rpcUrls: {
+        // we will use our own http transport anyway
+        public: { http: [] },
+        default: { http: [] },
+    },
+    blockExplorers: {
+        default: { name: 'Fraxtal Explorer', url: 'https://fraxscan.com/' },
+    },
+    contracts: {
+        multicall3: {
+            address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+            blockCreated: 1,
+        },
+    },
+} as const satisfies ViemChain;
+
 const fuse = {
     id: addressBook.fuse.tokens.FUSE.chainId,
     name: 'Fuse',
@@ -104,21 +129,22 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     canto: applyConfig('canto', canto),
     celo: applyConfig('celo', celo),
     cronos: applyConfig('cronos', cronos),
-    fantom: applyConfig('fantom', fantom),
-    ethereum: applyConfig('ethereum', mainnet),
     emerald: null,
-    one: applyConfig('one', harmonyOne),
-    heco: null,
+    ethereum: applyConfig('ethereum', mainnet),
+    fantom: applyConfig('fantom', fantom),
+    fraxtal: applyConfig('fraxtal', fraxtal),
     fuse: applyConfig('fuse', fuse),
     gnosis: applyConfig('gnosis', gnosis),
+    heco: null,
     kava: applyConfig('kava', kava),
     linea: applyConfig('linea', linea),
-    polygon: applyConfig('polygon', polygon),
     mantle: applyConfig('mantle', mantle),
+    metis: applyConfig('metis', metis),
     moonbeam: applyConfig('moonbeam', moonbeam),
     moonriver: applyConfig('moonriver', moonriver),
-    metis: applyConfig('metis', metis),
+    one: applyConfig('one', harmonyOne),
     optimism: applyConfig('optimism', optimism),
+    polygon: applyConfig('polygon', polygon),
     zkevm: applyConfig('zkevm', polygonZkEvm),
     zksync: applyConfig('zksync', zkSync),
 };
