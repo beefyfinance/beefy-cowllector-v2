@@ -28,7 +28,7 @@ async function fetchVaults() {
         };
     };
 
-    const vaultResponse = await axios.get<ApiBeefyVaultResponse>(`${BEEFY_API_URL}/vaults`);
+    const vaultResponse = await axios.get<ApiBeefyVaultResponse>(`${BEEFY_API_URL}/harvestable-vaults`);
     const rawVaults = vaultResponse.data;
 
     const tvlResponse = await axios.get<ApiBeefyTvlResponse>(`${BEEFY_API_URL}/tvl`);
