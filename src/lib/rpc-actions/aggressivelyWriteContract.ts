@@ -217,6 +217,12 @@ export async function aggressivelyWriteContract<
                         rpcConfig.transaction.retryGasMultiplier
                     );
                 }
+                if (gasParams.maxFeePerGas) {
+                    gasParams.maxFeePerGas = bigintMultiplyFloat(
+                        gasParams.maxFeePerGas,
+                        rpcConfig.transaction.retryGasMultiplier
+                    );
+                }
                 logger.warn({
                     msg: 'minting failed, retrying',
                     data: { chain, address: args.address, previousGasParams, nextGasParams: gasParams },

@@ -648,10 +648,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 2.0), // 2 wmatic
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
         },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            forceGasLimit: 1_500_000n,
-        },
     },
     zkevm: {
         ...defaultConfig,
