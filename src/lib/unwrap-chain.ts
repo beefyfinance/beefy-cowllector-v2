@@ -2,7 +2,7 @@ import type { Chain } from './chain';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
 import { RPC_CONFIG } from './config';
 import { rootLogger } from '../util/logger';
-import { UnwrapReport, reportOnSingleUnwrapAsyncCall } from './unwrap-report';
+import { UnwrapReport, UnwrapReportShouldUnwrapDecision, reportOnSingleUnwrapAsyncCall } from './unwrap-report';
 import { fetchCollectorBalance } from './collector-balance';
 import { WETHABI } from '../abi/WETHABI';
 import { getChainWNativeTokenAddress } from './addressbook';
@@ -36,31 +36,35 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
     // unwrap decision
     // ===============
 
-    const unwrapDecision = await reportOnSingleUnwrapAsyncCall(item, 'unwrapDecision', async item => {
-        if (item.collectorBalanceBefore.wnativeBalanceWei < rpcConfig.unwrap.minAmountOfWNativeWei) {
+    const unwrapDecision = await reportOnSingleUnwrapAsyncCall(
+        item,
+        'unwrapDecision',
+        async (item): Promise<UnwrapReportShouldUnwrapDecision> => {
+            if (item.collectorBalanceBefore.wnativeBalanceWei < rpcConfig.unwrap.minAmountOfWNativeWei) {
+                return {
+                    shouldUnwrap: false,
+                    minAmountOfWNativeWei: rpcConfig.unwrap.minAmountOfWNativeWei,
+                    actualAmount: item.collectorBalanceBefore.wnativeBalanceWei,
+                    notUnwrappingReason: 'too few wnative to unwrap',
+                } as const;
+            }
+
+            if (item.collectorBalanceBefore.balanceWei > rpcConfig.unwrap.maxAmountOfNativeWei) {
+                return {
+                    shouldUnwrap: false,
+                    maxAmountOfNativeWei: rpcConfig.unwrap.maxAmountOfNativeWei,
+                    actualAmount: item.collectorBalanceBefore.balanceWei,
+                    notUnwrappingReason: 'still got plenty of native left',
+                } as const;
+            }
+
             return {
-                shouldUnwrap: false,
-                minAmountOfWNativeWei: rpcConfig.unwrap.minAmountOfWNativeWei,
+                shouldUnwrap: true,
+                triggerAmount: rpcConfig.unwrap.minAmountOfWNativeWei,
                 actualAmount: item.collectorBalanceBefore.wnativeBalanceWei,
-                notUnwrappingReason: 'too few wnative to unwrap',
-            };
+            } as const;
         }
-
-        if (item.collectorBalanceBefore.balanceWei > rpcConfig.unwrap.maxAmountOfNativeWei) {
-            return {
-                shouldUnwrap: false,
-                maxAmountOfNativeWei: rpcConfig.unwrap.maxAmountOfNativeWei,
-                actualAmount: item.collectorBalanceBefore.balanceWei,
-                notUnwrappingReason: 'still got plenty of native left',
-            };
-        }
-
-        return {
-            shouldUnwrap: true,
-            triggerAmount: rpcConfig.unwrap.minAmountOfWNativeWei,
-            actualAmount: item.collectorBalanceBefore.wnativeBalanceWei,
-        };
-    });
+    );
 
     // =======================
     // now unwrap if necessary

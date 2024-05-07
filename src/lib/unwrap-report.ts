@@ -4,7 +4,7 @@ import { Async, TimingData } from '../util/async';
 import { AItem, AKey, AVal, reportOnSingleAsyncCall } from './reports';
 import { CollectorBalance } from './collector-balance';
 
-type UnwrapReportShouldUnwrapDecision =
+export type UnwrapReportShouldUnwrapDecision =
     | {
           shouldUnwrap: false;
           minAmountOfWNativeWei: bigint;

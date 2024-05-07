@@ -28,8 +28,8 @@ import {
 } from 'viem/chains';
 import { loggingHttpTransport } from './rpc-transport';
 import { createCustomHarvestWalletActions } from './harvest-actions';
-import { cachedFactory } from '../util/cache';
 import { createCustomRpcPublicActions, createCustomRpcWalletActions } from './rpc-actions';
+import { memoize } from 'lodash';
 
 function applyConfig(chain: Chain, viemChain: ViemChain): ViemChain {
     const rpcConfig = RPC_CONFIG[chain];
@@ -77,9 +77,8 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
 };
 
 // the view read only client has more options for batching
-export const getReadOnlyRpcClient = cachedFactory(
-    ({ chain }: { chain: Chain }) => chain,
-    ({ chain }) => {
+export const getReadOnlyRpcClient = memoize(
+    ({ chain }: { chain: Chain }) => {
         const rpcConfig = RPC_CONFIG[chain];
         const viemChain = VIEM_CHAINS[chain];
         if (!viemChain) {
@@ -97,14 +96,14 @@ export const getReadOnlyRpcClient = cachedFactory(
                 multicall: rpcConfig.batch.multicall,
             },
         }).extend(createCustomRpcPublicActions({ chain }));
-    }
+    },
+    ({ chain }) => chain
 );
 
 type PublicClient = Awaited<ReturnType<typeof getReadOnlyRpcClient>>;
 
-export const getWalletClient = cachedFactory(
-    ({ chain }: { chain: Chain }) => chain,
-    ({ chain }) => {
+export const getWalletClient = memoize(
+    ({ chain }: { chain: Chain }) => {
         const rpcConfig = RPC_CONFIG[chain];
         const viemChain = VIEM_CHAINS[chain];
         if (!viemChain) {
@@ -122,17 +121,18 @@ export const getWalletClient = cachedFactory(
         })
             .extend(createCustomHarvestWalletActions({ chain }))
             .extend(createCustomRpcWalletActions({ chain }));
-    }
+    },
+    ({ chain }) => chain
 );
 type WalletClient = Awaited<ReturnType<typeof getWalletClient>>;
 
-export const getWalletAccount = cachedFactory(
-    ({ chain }: { chain: Chain }) => chain,
-    ({ chain }) => {
+export const getWalletAccount = memoize(
+    ({ chain }: { chain: Chain }) => {
         const rpcConfig = RPC_CONFIG[chain];
         const pk = rpcConfig.account.privateKey;
         return privateKeyToAccount(pk);
-    }
+    },
+    ({ chain }) => chain
 );
 
 type WalletAccount = Awaited<ReturnType<typeof getWalletAccount>>;
@@ -144,9 +144,8 @@ type RpcActionParams = {
     rpcConfig: (typeof RPC_CONFIG)[Chain];
 };
 
-export const getRpcActionParams = cachedFactory(
-    ({ chain }: { chain: Chain }) => chain,
-    ({ chain }): RpcActionParams => {
+export const getRpcActionParams = memoize(
+    ({ chain }: { chain: Chain }): RpcActionParams => {
         const rpcConfig = RPC_CONFIG[chain];
         return {
             publicClient: getReadOnlyRpcClient({ chain }),
@@ -154,5 +153,6 @@ export const getRpcActionParams = cachedFactory(
             walletAccount: getWalletAccount({ chain }),
             rpcConfig,
         };
-    }
+    },
+    ({ chain }) => chain
 );
