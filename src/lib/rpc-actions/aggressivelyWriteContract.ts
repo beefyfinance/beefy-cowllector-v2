@@ -5,6 +5,13 @@ import {
     type SimulateContractParameters,
     Hex,
     TransactionReceipt,
+    ContractFunctionName,
+    ContractFunctionArgs,
+    Account,
+    Address,
+    DeriveChain,
+    ExtractAbiFunctionForArgs,
+    ParseAccount,
 } from 'viem';
 import { type AggressivelyWaitForTransactionReceiptReturnType } from './aggressivelyWaitForTransactionReceipt';
 import { rootLogger } from '../../util/logger';
@@ -14,22 +21,60 @@ import { bigintMultiplyFloat } from '../../util/bigint';
 import { cloneDeep } from 'lodash';
 
 export type AggressivelyWriteContractParameters<
-    TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    TChain extends ViemChain | undefined,
-    TChainOverride extends ViemChain | undefined,
-> = SimulateContractParameters<TAbi, TFunctionName, TChain, TChainOverride>;
+    abi extends Abi | readonly unknown[] = Abi,
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'> = ContractFunctionName<
+        abi,
+        'nonpayable' | 'payable'
+    >,
+    args extends ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName> = ContractFunctionArgs<
+        abi,
+        'nonpayable' | 'payable',
+        functionName
+    >,
+    chain extends ViemChain | undefined = ViemChain | undefined,
+    chainOverride extends ViemChain | undefined = ViemChain | undefined,
+    accountOverride extends Account | Address | undefined = undefined,
+    ///
+    derivedChain extends ViemChain | undefined = DeriveChain<chain, chainOverride>,
+> = SimulateContractParameters<abi, functionName, args, chain, chainOverride, accountOverride, derivedChain>;
 
 // we return the simulation result and the transaction receipt and hash
 export type AggressivelyWriteContractReturnType<
-    TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    TChain extends ViemChain | undefined,
-    TChainOverride extends ViemChain | undefined,
+    abi extends Abi | readonly unknown[] = Abi,
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'> = ContractFunctionName<
+        abi,
+        'nonpayable' | 'payable'
+    >,
+    args extends ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName> = ContractFunctionArgs<
+        abi,
+        'nonpayable' | 'payable',
+        functionName
+    >,
+    chain extends ViemChain | undefined = ViemChain | undefined,
+    account extends Account | undefined = Account | undefined,
+    chainOverride extends ViemChain | undefined = ViemChain | undefined,
+    accountOverride extends Account | Address | undefined = Account | Address | undefined,
+    ///
+    minimizedAbi extends Abi = readonly [
+        ExtractAbiFunctionForArgs<abi extends Abi ? abi : Abi, 'nonpayable' | 'payable', functionName, args>,
+    ],
+    resolvedAccount extends Account | undefined = accountOverride extends Account | Address
+        ? ParseAccount<accountOverride>
+        : account,
 > = {
-    simulation: SimulateContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>['result'];
+    simulation: SimulateContractReturnType<
+        abi,
+        functionName,
+        args,
+        chain,
+        account,
+        chainOverride,
+        accountOverride,
+        minimizedAbi,
+        resolvedAccount
+    >['result'];
     transactionHash: Hex;
-    transactionReceipt: AggressivelyWaitForTransactionReceiptReturnType<TChain>;
+    transactionReceipt: AggressivelyWaitForTransactionReceiptReturnType<ViemChain>;
 };
 
 const logger = rootLogger.child({ module: 'rpc-actions', component: 'aggressivelyWriteContract' });
@@ -45,14 +90,52 @@ const logger = rootLogger.child({ module: 'rpc-actions', component: 'aggressivel
  * ... repeat R times until something go through or we hit the max number of retries.
  */
 export async function aggressivelyWriteContract<
-    TAbi extends Abi | readonly unknown[],
-    TFunctionName extends string,
-    TChain extends ViemChain | undefined,
-    TChainOverride extends ViemChain | undefined,
+    abi extends Abi | readonly unknown[] = Abi,
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'> = ContractFunctionName<
+        abi,
+        'nonpayable' | 'payable'
+    >,
+    args extends ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName> = ContractFunctionArgs<
+        abi,
+        'nonpayable' | 'payable',
+        functionName
+    >,
+    chain extends ViemChain | undefined = ViemChain | undefined,
+    account extends Account | undefined = Account | undefined,
+    chainOverride extends ViemChain | undefined = ViemChain | undefined,
+    accountOverride extends Account | Address | undefined = Account | Address | undefined,
+    ///
+    derivedChain extends ViemChain | undefined = DeriveChain<chain, chainOverride>,
+    minimizedAbi extends Abi = readonly [
+        ExtractAbiFunctionForArgs<abi extends Abi ? abi : Abi, 'nonpayable' | 'payable', functionName, args>,
+    ],
+    resolvedAccount extends Account | undefined = accountOverride extends Account | Address
+        ? ParseAccount<accountOverride>
+        : account,
 >(
     { chain }: { chain: Chain },
-    args: AggressivelyWriteContractParameters<TAbi, TFunctionName, TChain, TChainOverride>
-): Promise<AggressivelyWriteContractReturnType<TAbi, TFunctionName, TChain, TChainOverride>> {
+    args: AggressivelyWriteContractParameters<
+        abi,
+        functionName,
+        args,
+        chain,
+        chainOverride,
+        accountOverride,
+        derivedChain
+    >
+): Promise<
+    AggressivelyWriteContractReturnType<
+        abi,
+        functionName,
+        args,
+        chain,
+        account,
+        chainOverride,
+        accountOverride,
+        minimizedAbi,
+        resolvedAccount
+    >
+> {
     if (!args.gas) {
         // setting a gas limit is mandatory since the viem default is too low for larger protocols
         // and simulation will fail if we don't set it because the default gas parameter is very high

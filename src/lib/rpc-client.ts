@@ -13,6 +13,9 @@ import {
     celo,
     cronos,
     fantom,
+    fraxtal,
+    fuse,
+    kava,
     mainnet,
     harmonyOne,
     polygon,
@@ -23,86 +26,10 @@ import {
     polygonZkEvm,
     zkSync,
 } from 'viem/chains';
-import { addressBook } from 'blockchain-addressbook';
 import { loggingHttpTransport } from './rpc-transport';
 import { createCustomHarvestWalletActions } from './harvest-actions';
 import { cachedFactory } from '../util/cache';
 import { createCustomRpcPublicActions, createCustomRpcWalletActions } from './rpc-actions';
-
-const fraxtal = {
-    id: 252,
-    name: 'Fraxtal',
-    network: 'fraxtal',
-    nativeCurrency: {
-        decimals: 18,
-        name: 'frxETH',
-        symbol: 'frxETH',
-    },
-    rpcUrls: {
-        // we will use our own http transport anyway
-        public: { http: [] },
-        default: { http: [] },
-    },
-    blockExplorers: {
-        default: { name: 'Fraxtal Explorer', url: 'https://fraxscan.com/' },
-    },
-    contracts: {
-        multicall3: {
-            address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-            blockCreated: 1,
-        },
-    },
-} as const satisfies ViemChain;
-
-const fuse = {
-    id: addressBook.fuse.tokens.FUSE.chainId,
-    name: 'Fuse',
-    network: 'fuse',
-    nativeCurrency: {
-        decimals: addressBook.fuse.tokens.FUSE.decimals,
-        name: addressBook.fuse.tokens.FUSE.name,
-        symbol: addressBook.fuse.tokens.FUSE.name,
-    },
-    rpcUrls: {
-        // we will use our own http transport anyway
-        public: { http: [] },
-        default: { http: [] },
-    },
-    blockExplorers: {
-        default: { name: 'Fuse Explorer', url: 'https://explorer.fuse.io' },
-    },
-    contracts: {
-        multicall3: {
-            address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-            blockCreated: 16_146_628,
-        },
-    },
-} as const satisfies ViemChain;
-
-const kava = {
-    id: addressBook.kava.tokens.KAVA.chainId,
-    name: 'Kava',
-    network: 'kava',
-    nativeCurrency: {
-        decimals: addressBook.kava.tokens.KAVA.decimals,
-        name: addressBook.kava.tokens.KAVA.name,
-        symbol: addressBook.kava.tokens.KAVA.name,
-    },
-    rpcUrls: {
-        // we will use our own http transport anyway
-        public: { http: [] },
-        default: { http: [] },
-    },
-    blockExplorers: {
-        default: { name: 'Kava Explorer', url: 'https://explorer.kava.io/' },
-    },
-    contracts: {
-        multicall3: {
-            address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-            blockCreated: 3_661_165,
-        },
-    },
-} as const satisfies ViemChain;
 
 function applyConfig(chain: Chain, viemChain: ViemChain): ViemChain {
     const rpcConfig = RPC_CONFIG[chain];
