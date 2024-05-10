@@ -531,6 +531,25 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             setTransactionGasLimit: false,
         },
     },
+    mode: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.MODE_RPC_URL || 'https://mainnet.mode.network',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: false,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+    },
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
@@ -836,6 +855,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://andromeda-explorer.metis.io/tx/${hash}',
         apiUrl: process.env.METIS_EXPLORER_API_URL || 'https://andromeda-explorer.metis.io/api?',
         type: 'blockscout',
+    },
+    mode: {
+        addressLinkTemplate: 'https://modescan.io//address/${address}',
+        transactionLinkTemplate: 'https://modescan.io/tx/${hash}',
+        apiUrl: process.env.AVAX_EXPLORER_API_URL || 'https://api.modescan.io/api',
+        apiKey: process.env.AVAX_EXPLORER_API_KEY || '',
+        type: 'etherscan',
     },
     moonbeam: {
         addressLinkTemplate: 'https://moonbeam.moonscan.io/address/${address}',
