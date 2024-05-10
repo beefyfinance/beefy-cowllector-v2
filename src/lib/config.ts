@@ -33,7 +33,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
-export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['fraxtal'];
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['fraxtal', 'mode', 'scroll'];
 export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = parseInt(
     process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '10',
     10
@@ -668,6 +668,26 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
         },
     },
+    scroll: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxGasPricePerTransactionWei: null,
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: false,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+    },
     zkevm: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKEVM_RPC_URL || 'https://rpc.ankr.com/polygon_zkevm',
@@ -895,6 +915,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://polygonscan.com/tx/${hash}',
         apiUrl: process.env.POLYGON_EXPLORER_API_URL || 'https://api.polygonscan.com/api',
         apiKey: process.env.POLYGON_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    scroll: {
+        addressLinkTemplate: 'https://scrollscan.com/address/${address}',
+        transactionLinkTemplate: 'https://scrollscan.com/tx/${hash}',
+        apiUrl: process.env.SCROLL_EXPLORER_API_URL || 'https://api.scrollscan.com/api',
+        apiKey: process.env.SCROLL_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zkevm: {

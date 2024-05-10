@@ -24,6 +24,7 @@ import {
     metis,
     optimism,
     polygonZkEvm,
+    scroll,
     zkSync,
 } from 'viem/chains';
 import { loggingHttpTransport } from './rpc-transport';
@@ -73,6 +74,7 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     one: applyConfig('one', harmonyOne),
     optimism: applyConfig('optimism', optimism),
     polygon: applyConfig('polygon', polygon),
+    scroll: applyConfig('scroll', scroll),
     zkevm: applyConfig('zkevm', polygonZkEvm),
     zksync: applyConfig('zksync', zkSync),
 };

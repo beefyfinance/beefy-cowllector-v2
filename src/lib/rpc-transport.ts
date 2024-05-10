@@ -3,17 +3,19 @@ import { rootLogger } from '../util/logger';
 
 const logger = rootLogger.child({ module: 'rpc-transport' });
 
-export function loggingHttpTransport(
-    /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
-    url?: string,
-    config: HttpTransportConfig = {}
-): HttpTransport {
+export function loggingHttpTransport(url?: string, config: HttpTransportConfig = {}): HttpTransport {
     return http(url, {
-        onFetchRequest: request => {
-            logger.trace({ msg: 'rpc.http: request', data: request });
+        onFetchRequest: async request => {
+            const content = await request.json();
+            logger.trace({ msg: 'rpc.http: request', data: content });
+            // @ts-ignore: avoid `Body is unusable` error
+            request.json = async () => content;
         },
-        onFetchResponse(response) {
-            logger.debug({ msg: 'rpc.http: response', data: response });
+        onFetchResponse: async response => {
+            const content = await response.json();
+            logger.debug({ msg: 'rpc.http: response', data: content });
+            // @ts-ignore: avoid `Body is unusable` error
+            response.json = async () => content;
         },
         ...config,
     });
