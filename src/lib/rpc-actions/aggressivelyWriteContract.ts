@@ -151,13 +151,9 @@ export async function aggressivelyWriteContract<
     });
     logger.debug({ msg: 'Got nonce', data: { chain, address: args.address, nonce } });
 
-    let gasParams = await publicClient.estimateFeesPerGas({
+    const gasParams = await publicClient.estimateFeesPerGas({
         type: rpcConfig.transaction.type,
     });
-    if (chain === 'mode') {
-        // @ts-ignore
-        gasParams = {};
-    }
     logger.debug({ msg: 'Got gas params', data: { chain, address: args.address, gasParams } });
 
     const allPendingTransactions: Hex[] = [];
