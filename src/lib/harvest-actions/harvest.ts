@@ -16,7 +16,7 @@ export type HarvestParameters =
       }
     | {
           strategyAddress: Hex;
-          transactionCostEstimationWei: null;
+          transactionCostEstimationWei: bigint | null;
           transactionGasLimit: null;
       };
 

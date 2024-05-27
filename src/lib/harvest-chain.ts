@@ -383,7 +383,9 @@ export async function harvestChain({
     await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', 'sequential', async item => {
         let harvestParams: HarvestParameters = {
             strategyAddress: item.vault.strategyAddress,
-            transactionCostEstimationWei: null,
+            // mode fails to estimate gas because their eth_estimateGas method doesn't accept fee params
+            // and removing those in view is near impossible
+            transactionCostEstimationWei: chain === 'mode' ? item.simulation.gas.transactionCostEstimationWei : null,
             transactionGasLimit: null,
         };
 

@@ -2,7 +2,7 @@ import { createPublicClient, createWalletClient } from 'viem';
 import { type Chain } from './chain';
 import { privateKeyToAccount } from 'viem/accounts';
 import { RPC_CONFIG } from './config';
-import { gnosis, linea, mantle, mode, type Chain as ViemChain } from 'viem/chains';
+import { type Chain as ViemChain } from 'viem/chains';
 import {
     arbitrum,
     aurora,
@@ -15,14 +15,18 @@ import {
     fantom,
     fraxtal,
     fuse,
-    kava,
-    mainnet,
+    gnosis,
     harmonyOne,
-    polygon,
+    kava,
+    linea,
+    mainnet,
+    mantle,
+    metis,
+    mode,
     moonbeam,
     moonriver,
-    metis,
     optimism,
+    polygon,
     polygonZkEvm,
     scroll,
     zkSync,
