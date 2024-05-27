@@ -536,7 +536,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.MODE_RPC_URL || 'https://mainnet.mode.network',
         transaction: {
             ...defaultTransactionConfig,
-            type: 'legacy',
+            type: 'eip1559',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
         },
         harvest: {
