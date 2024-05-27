@@ -517,7 +517,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
         harvest: {
             ...defaultHarvestConfig,
-            setTransactionGasLimit: false,
+            setTransactionGasLimit: true,
         },
         transaction: {
             ...defaultTransactionConfig,
@@ -528,7 +528,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 1),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 10),
-            setTransactionGasLimit: false,
+            setTransactionGasLimit: true,
         },
     },
     mode: {
