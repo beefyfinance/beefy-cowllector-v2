@@ -517,7 +517,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
         harvest: {
             ...defaultHarvestConfig,
-            setTransactionGasLimit: true,
+            setTransactionGasLimit: false,
         },
         transaction: {
             ...defaultTransactionConfig,
