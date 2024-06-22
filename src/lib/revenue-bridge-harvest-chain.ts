@@ -93,7 +93,7 @@ export async function revenueBridgeHarvestChain({
             address: revenueBridgeAddress,
             functionName: 'harvest',
             account: walletAccount,
-            gas: gasLimit,
+            gas: rpcConfig.revenueBridgeHarvest.setTransactionGasLimit ? gasLimit : undefined,
         });
         logger.debug({
             msg: 'Got transaction receipt',

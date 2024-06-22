@@ -225,6 +225,7 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
 const defaultRevenueBridgeHarvestConfig: RpcConfig['revenueBridgeHarvest'] = {
     enabled: true,
     forceGasLimit: null,
+    setTransactionGasLimit: true,
     balanceCheck: {
         minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost:
             REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
@@ -548,7 +549,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 1),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 10),
-            setTransactionGasLimit: true,
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            setTransactionGasLimit: false,
         },
     },
     mode: {
@@ -567,6 +572,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
             setTransactionGasLimit: false,
         },
     },
@@ -705,6 +714,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
             setTransactionGasLimit: false,
         },
     },

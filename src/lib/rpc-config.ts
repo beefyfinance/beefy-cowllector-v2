@@ -118,6 +118,9 @@ export type RpcConfig = {
         // since this transaction has pretty stable gas cost, we can hardcode it
         forceGasLimit: bigint | null;
 
+        // wether we should set the transaction gas limit
+        setTransactionGasLimit: boolean;
+
         // these parameters are used to know if we have enough gas to send a transaction
         balanceCheck: {
             // how much gas we need to have in our wallet to send a transaction
