@@ -214,6 +214,11 @@
                         "selected": false,
                         "text": "unwrap",
                         "value": "unwrap"
+                    },
+                    {
+                        "selected": false,
+                        "text": "revenue-bridge-harvest",
+                        "value": "revenue-bridge-harvest"
                     }
                 ],
                 "query": "harvest,unwrap,revenue-bridge-harvest",

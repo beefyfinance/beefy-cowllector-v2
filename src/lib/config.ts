@@ -84,6 +84,23 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
     // beefy-be* can't be paused to allow users to burn their shares
     'beefy-beopx',
     'beefy-beqi',
+
+    // gmx vaults are unpredictable when it comes to rewards
+    // we don't want to be spammed
+    'gmx-arb-link-usdc',
+    'gmx-arb-ltc-usdc',
+    'gmx-arb-near-usdc',
+    'gmx-arb-sol-usdc',
+    'gmx-arb-uni-usdc',
+    'gmx-arb-usdc-usdt',
+    'gmx-arb-wbtc-usdc',
+    'gmx-arb-weth-usdc',
+    'gmx-arb-xrp-usdc',
+    'gmx-arb-aave-usdc',
+    'gmx-arb-arb-usdc',
+    'gmx-arb-atom-usdc',
+    'gmx-arb-bnb-usdc',
+    'gmx-arb-doge-usdc',
 ];
 
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
