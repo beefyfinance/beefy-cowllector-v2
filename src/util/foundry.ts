@@ -1,12 +1,12 @@
 import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { rootLogger } from './logger';
-import { Hex } from 'viem';
-import { Chain } from '../lib/chain';
-import { EXPLORER_CONFIG } from '../lib/config';
+import { promisify } from 'node:util';
+import type { Hex } from 'viem';
 import { getNetworkId } from '../lib/addressbook';
+import type { Chain } from '../lib/chain';
+import { EXPLORER_CONFIG } from '../lib/config';
+import { rootLogger } from './logger';
 
 const execAsync = promisify(exec);
 
@@ -18,13 +18,17 @@ export async function getFoundryContractOptimizedBytecode(
     contractName: string,
     foundryProfile: string = DEFAULT_FOUNDRY_PROFILE
 ): Promise<Hex> {
-    logger.info({ msg: 'Building contract', data: { contractName, foundryProfile } });
+    logger.info({
+        msg: 'Building contract',
+        data: { contractName, foundryProfile },
+    });
     const res = await execAsync(
         `FOUNDRY_PROFILE=${foundryProfile} forge build --extra-output evm.bytecode.object --extra-output-files evm.bytecode.object`
     );
     if (res.stderr) {
         throw new Error(`Failed to build ${contractName}: ${res.stderr}`);
-    } else if (res.stdout) {
+    }
+    if (res.stdout) {
         logger.info(res.stdout);
     }
 
@@ -34,7 +38,7 @@ export async function getFoundryContractOptimizedBytecode(
     }
 
     const bytecode = await fs.promises.readFile(bytecodeLocation, 'utf8');
-    return ('0x' + bytecode) as Hex;
+    return `0x${bytecode}` as Hex;
 }
 
 export async function verifyFoundryContractForExplorer({
@@ -83,7 +87,9 @@ export async function verifyFoundryContractForExplorer({
     const returnCode = res.stderr.trim();
     if (returnCode !== '0') {
         throw new Error(`Failed to verify ${contractName}: ${res.stderr}`);
-    } else {
-        logger.info({ msg: 'Successfully verified contract', data: { contractName, contractAddress } });
     }
+    logger.info({
+        msg: 'Successfully verified contract',
+        data: { contractName, contractAddress },
+    });
 }

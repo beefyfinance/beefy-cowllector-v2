@@ -3,7 +3,12 @@ export const BeefyContractDeployerABI = [
         anonymous: false,
         inputs: [
             { indexed: true, internalType: 'bytes32', name: 'salt', type: 'bytes32' },
-            { indexed: false, internalType: 'address', name: 'deploymentAddress', type: 'address' },
+            {
+                indexed: false,
+                internalType: 'address',
+                name: 'deploymentAddress',
+                type: 'address',
+            },
         ],
         name: 'ContractDeployed',
         type: 'event',

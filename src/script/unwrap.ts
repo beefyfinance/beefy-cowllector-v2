@@ -1,16 +1,16 @@
 import yargs from 'yargs';
-import { runMain } from '../util/process';
 import { allChainIds } from '../lib/chain';
 import type { Chain } from '../lib/chain';
-import { rootLogger } from '../util/logger';
-import { splitPromiseResultsByStatus } from '../util/promise';
+import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
+import { insertUnwrapReport } from '../lib/db/db-report';
+import { withDbClient } from '../lib/db/utils';
+import { notifyError, notifyUnwrapReport } from '../lib/notify';
 import { unwrapChain } from '../lib/unwrap-chain';
 import { createDefaultUnwrapReport } from '../lib/unwrap-report';
 import { asyncResultGet, promiseTimings } from '../util/async';
-import { notifyError, notifyUnwrapReport } from '../lib/notify';
-import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
-import { withDbClient } from '../lib/db/utils';
-import { insertUnwrapReport } from '../lib/db/db-report';
+import { rootLogger } from '../util/logger';
+import { runMain } from '../util/process';
+import { splitPromiseResultsByStatus } from '../util/promise';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -52,7 +52,10 @@ async function main() {
                 .filter(chain => {
                     const isChainDisabled = !RPC_CONFIG[chain].unwrap.enabled;
                     if (isChainDisabled) {
-                        logger.debug({ msg: 'Unwrap is disabled for chain', data: { chain } });
+                        logger.debug({
+                            msg: 'Unwrap is disabled for chain',
+                            data: { chain },
+                        });
                     }
                     return !isChainDisabled;
                 })
@@ -64,11 +67,14 @@ async function main() {
                     return !isChainEol;
                 })
                 .map(async chain => {
-                    let report = createDefaultUnwrapReport({ chain });
+                    const report = createDefaultUnwrapReport({ chain });
                     const result = await promiseTimings(() => unwrapChain({ report, chain }));
 
                     if (result.status === 'rejected') {
-                        logger.error({ msg: 'Unwrapping errored', data: { chain, error: result.reason } });
+                        logger.error({
+                            msg: 'Unwrapping errored',
+                            data: { chain, error: result.reason },
+                        });
                     }
 
                     // update the summary
@@ -104,37 +110,61 @@ async function main() {
                         const res = await insertUnwrapReport(report);
                         db_raw_report_id = res.raw_report_id;
                     } catch (e) {
-                        logger.error({ msg: 'Failed to insert report into db', data: { chain, error: e } });
+                        logger.error({
+                            msg: 'Failed to insert report into db',
+                            data: { chain, error: e },
+                        });
                         logger.trace(e);
-                        await notifyError({ doing: 'insert unwrap report', data: { chain: report.chain } }, e);
+                        await notifyError(
+                            {
+                                doing: 'insert unwrap report',
+                                data: { chain: report.chain },
+                            },
+                            e
+                        );
                     }
 
                     if (DISCORD_REPORT_ONLY_FOR_CHAINS.includes(chain)) {
                         await notifyUnwrapReport(report, db_raw_report_id);
                     }
-                    logger.debug({ msg: 'Unwrap done', data: { chain, db_raw_report_id, notifyUnwrapReport } });
+                    logger.debug({
+                        msg: 'Unwrap done',
+                        data: { chain, db_raw_report_id, notifyUnwrapReport },
+                    });
 
                     return report;
                 })
         )
     );
-    logger.trace({ msg: 'unwrap results', data: { successfulReports, rejectedReports } });
+    logger.trace({
+        msg: 'unwrap results',
+        data: { successfulReports, rejectedReports },
+    });
     const successfulChains = successfulReports.map(r => r.chain);
     logger.info({
         msg: 'unwrapping done',
-        data: { successfulChains, rejectedChains: options.chain.filter(c => !successfulChains.includes(c)) },
+        data: {
+            successfulChains,
+            rejectedChains: options.chain.filter(c => !successfulChains.includes(c)),
+        },
     });
     if (rejectedReports.length > 0) {
         logger.debug({
             msg: 'Some chains errored',
-            data: { count: rejectedReports.length, rejectedReports: rejectedReports.map(r => r + '') },
+            data: {
+                count: rejectedReports.length,
+                rejectedReports: rejectedReports.map(r => `${r}`),
+            },
         });
         for (const rejectedReportError of rejectedReports) {
             logger.error(rejectedReportError);
             try {
                 await notifyError({ doing: 'unwrap', data: { chain: rejectedReportError.chain } }, rejectedReportError);
             } catch (e) {
-                logger.error({ msg: 'Failed to notify error', data: { chain: rejectedReportError.chain, error: e } });
+                logger.error({
+                    msg: 'Failed to notify error',
+                    data: { chain: rejectedReportError.chain, error: e },
+                });
                 logger.trace(e);
             }
         }

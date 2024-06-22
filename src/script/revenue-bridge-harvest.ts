@@ -1,16 +1,16 @@
 import yargs from 'yargs';
-import { runMain } from '../util/process';
 import { allChainIds } from '../lib/chain';
 import type { Chain } from '../lib/chain';
-import { rootLogger } from '../util/logger';
-import { splitPromiseResultsByStatus } from '../util/promise';
-import { asyncResultGet, promiseTimings } from '../util/async';
-import { notifyError, notifyRevenueBridgeHarvestReport } from '../lib/notify';
 import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
-import { withDbClient } from '../lib/db/utils';
 import { insertRevenueBridgeHarvestReport } from '../lib/db/db-report';
-import { createDefaultRevenueBridgeHarvestReport } from '../lib/revenue-bridge-harvest-report';
+import { withDbClient } from '../lib/db/utils';
+import { notifyError, notifyRevenueBridgeHarvestReport } from '../lib/notify';
 import { revenueBridgeHarvestChain } from '../lib/revenue-bridge-harvest-chain';
+import { createDefaultRevenueBridgeHarvestReport } from '../lib/revenue-bridge-harvest-report';
+import { asyncResultGet, promiseTimings } from '../util/async';
+import { rootLogger } from '../util/logger';
+import { runMain } from '../util/process';
+import { splitPromiseResultsByStatus } from '../util/promise';
 
 const logger = rootLogger.child({ module: 'revenue-bridge-harvest-main' });
 
@@ -52,7 +52,10 @@ async function main() {
                 .filter(chain => {
                     const isChainDisabled = !RPC_CONFIG[chain].revenueBridgeHarvest.enabled;
                     if (isChainDisabled) {
-                        logger.debug({ msg: 'Unwrap is disabled for chain', data: { chain } });
+                        logger.debug({
+                            msg: 'Unwrap is disabled for chain',
+                            data: { chain },
+                        });
                     }
                     return !isChainDisabled;
                 })
@@ -64,11 +67,14 @@ async function main() {
                     return !isChainEol;
                 })
                 .map(async chain => {
-                    let report = createDefaultRevenueBridgeHarvestReport({ chain });
+                    const report = createDefaultRevenueBridgeHarvestReport({ chain });
                     const result = await promiseTimings(() => revenueBridgeHarvestChain({ report, chain }));
 
                     if (result.status === 'rejected') {
-                        logger.error({ msg: 'Revenue bridge harvest errored', data: { chain, error: result.reason } });
+                        logger.error({
+                            msg: 'Revenue bridge harvest errored',
+                            data: { chain, error: result.reason },
+                        });
                     }
 
                     // update the summary
@@ -101,9 +107,18 @@ async function main() {
                         const res = await insertRevenueBridgeHarvestReport(report);
                         db_raw_report_id = res.raw_report_id;
                     } catch (e) {
-                        logger.error({ msg: 'Failed to insert report into db', data: { chain, error: e } });
+                        logger.error({
+                            msg: 'Failed to insert report into db',
+                            data: { chain, error: e },
+                        });
                         logger.trace(e);
-                        await notifyError({ doing: 'insert unwrap report', data: { chain: report.chain } }, e);
+                        await notifyError(
+                            {
+                                doing: 'insert unwrap report',
+                                data: { chain: report.chain },
+                            },
+                            e
+                        );
                     }
 
                     if (DISCORD_REPORT_ONLY_FOR_CHAINS.includes(chain)) {
@@ -111,33 +126,52 @@ async function main() {
                     }
                     logger.debug({
                         msg: 'Revenue bridge harvest done',
-                        data: { chain, db_raw_report_id, notifyRevenueBridgeHarvestReport },
+                        data: {
+                            chain,
+                            db_raw_report_id,
+                            notifyRevenueBridgeHarvestReport,
+                        },
                     });
 
                     return report;
                 })
         )
     );
-    logger.trace({ msg: 'revenue bridge harvest results', data: { successfulReports, rejectedReports } });
+    logger.trace({
+        msg: 'revenue bridge harvest results',
+        data: { successfulReports, rejectedReports },
+    });
     const successfulChains = successfulReports.map(r => r.chain);
     logger.info({
         msg: 'revenue bridge harvest done',
-        data: { successfulChains, rejectedChains: options.chain.filter(c => !successfulChains.includes(c)) },
+        data: {
+            successfulChains,
+            rejectedChains: options.chain.filter(c => !successfulChains.includes(c)),
+        },
     });
     if (rejectedReports.length > 0) {
         logger.debug({
             msg: 'Some chains errored',
-            data: { count: rejectedReports.length, rejectedReports: rejectedReports.map(r => r + '') },
+            data: {
+                count: rejectedReports.length,
+                rejectedReports: rejectedReports.map(r => `${r}`),
+            },
         });
         for (const rejectedReportError of rejectedReports) {
             logger.error(rejectedReportError);
             try {
                 await notifyError(
-                    { doing: 'revenue-bridge-harvest', data: { chain: rejectedReportError.chain } },
+                    {
+                        doing: 'revenue-bridge-harvest',
+                        data: { chain: rejectedReportError.chain },
+                    },
                     rejectedReportError
                 );
             } catch (e) {
-                logger.error({ msg: 'Failed to notify error', data: { chain: rejectedReportError.chain, error: e } });
+                logger.error({
+                    msg: 'Failed to notify error',
+                    data: { chain: rejectedReportError.chain, error: e },
+                });
                 logger.trace(e);
             }
         }

@@ -1,11 +1,11 @@
-import { GasEstimationReport } from './gas';
-import { BeefyVault } from './vault';
-import { Hex } from 'viem';
-import { Chain } from './chain';
-import { Async, TimingData } from '../util/async';
-import { AItem, AKey, AVal, reportOnMultipleAsyncCall, reportOnSingleAsyncCall } from './reports';
-import { CollectorBalance } from './collector-balance';
-import { ReportAsyncStatus } from './report-error-status';
+import type { Hex } from 'viem';
+import type { Async, TimingData } from '../util/async';
+import type { Chain } from './chain';
+import type { CollectorBalance } from './collector-balance';
+import type { GasEstimationReport } from './gas';
+import type { ReportAsyncStatus } from './report-error-status';
+import { type AItem, type AKey, type AVal, reportOnMultipleAsyncCall, reportOnSingleAsyncCall } from './reports';
+import type { BeefyVault } from './vault';
 
 export type HarvestReport = {
     timing: TimingData | null;

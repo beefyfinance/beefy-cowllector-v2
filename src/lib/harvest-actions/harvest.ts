@@ -1,10 +1,10 @@
-import { Hex, TransactionReceipt } from 'viem';
-import { rootLogger } from '../../util/logger';
+import type { Hex, TransactionReceipt } from 'viem';
 import { IStrategyABI } from '../../abi/IStrategyABI';
-import { NotEnoughRemainingGasError } from '../harvest-errors';
-import { Chain } from '../chain';
-import { getRpcActionParams } from '../rpc-client';
 import { bigintMultiplyFloat } from '../../util/bigint';
+import { rootLogger } from '../../util/logger';
+import type { Chain } from '../chain';
+import { NotEnoughRemainingGasError } from '../harvest-errors';
+import { getRpcActionParams } from '../rpc-client';
 
 const logger = rootLogger.child({ module: 'harvest-actions' });
 
@@ -35,8 +35,13 @@ export async function harvest(
 ): Promise<HarvestReturnType> {
     const { publicClient, walletClient, walletAccount, rpcConfig } = getRpcActionParams({ chain });
 
-    logger.trace({ msg: 'Checking if we have enough gas to harvest', data: { chain, strategyAddress } });
-    const balanceBeforeWei = await publicClient.getBalance({ address: walletAccount.address });
+    logger.trace({
+        msg: 'Checking if we have enough gas to harvest',
+        data: { chain, strategyAddress },
+    });
+    const balanceBeforeWei = await publicClient.getBalance({
+        address: walletAccount.address,
+    });
     if (
         transactionCostEstimationWei !== null &&
         balanceBeforeWei <
@@ -45,7 +50,10 @@ export async function harvest(
                 rpcConfig.harvest.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost
             )
     ) {
-        logger.info({ msg: 'Not enough gas to harvest', data: { chain, balanceBeforeWei, strategyAddress } });
+        logger.info({
+            msg: 'Not enough gas to harvest',
+            data: { chain, balanceBeforeWei, strategyAddress },
+        });
         const error = new NotEnoughRemainingGasError({
             chain,
             remainingGasWei: balanceBeforeWei,
@@ -54,7 +62,10 @@ export async function harvest(
         });
         throw error;
     }
-    logger.debug({ msg: 'Enough gas to harvest', data: { chain, balanceBeforeWei, strategyAddress } });
+    logger.debug({
+        msg: 'Enough gas to harvest',
+        data: { chain, balanceBeforeWei, strategyAddress },
+    });
 
     logger.trace({ msg: 'Harvesting strat', data: { chain, strategyAddress } });
 
@@ -70,7 +81,9 @@ export async function harvest(
             args: [walletAccount.address],
             account: walletAccount,
         });
-        transactionReceipt = await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+        transactionReceipt = await publicClient.waitForTransactionReceipt({
+            hash: transactionHash,
+        });
     } else {
         const res = await walletClient.aggressivelyWriteContract({
             abi: IStrategyABI,
@@ -86,7 +99,10 @@ export async function harvest(
         transactionReceipt = res.transactionReceipt;
     }
 
-    logger.info({ msg: 'Harvested strat', data: { chain, strategyAddress, transactionHash, transactionReceipt } });
+    logger.info({
+        msg: 'Harvested strat',
+        data: { chain, strategyAddress, transactionHash, transactionReceipt },
+    });
 
     let transactionCostWei: bigint;
     if (transactionReceipt.gasUsed && transactionReceipt.effectiveGasPrice) {

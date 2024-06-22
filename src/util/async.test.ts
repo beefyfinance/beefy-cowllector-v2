@@ -1,15 +1,23 @@
-import { Async, AsyncSuccessType, promiseTimings } from './async';
+import { type Async, type AsyncSuccessType, promiseTimings } from './async';
 import { sleep } from './promise';
 
 describe('promiseTimings', () => {
     it('should return a successful result', async () => {
         const result = await promiseTimings(() => Promise.resolve('foo'));
-        expect(result).toEqual({ status: 'fulfilled', value: 'foo', timing: expect.anything() });
+        expect(result).toEqual({
+            status: 'fulfilled',
+            value: 'foo',
+            timing: expect.anything(),
+        });
     });
 
     it('should return a rejected result', async () => {
         const result = await promiseTimings(() => Promise.reject('foo'));
-        expect(result).toEqual({ status: 'rejected', reason: 'foo', timing: expect.anything() });
+        expect(result).toEqual({
+            status: 'rejected',
+            reason: 'foo',
+            timing: expect.anything(),
+        });
     });
 
     it('should properly time the call duration', async () => {

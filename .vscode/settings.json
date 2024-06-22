@@ -1,8 +1,5 @@
 {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": false,
-    "prettier.configPath": "${workspaceFolder}/.prettierrc",
-    "prettier.prettierPath": "${workspaceFolder}/node_modules/.bin/prettier",
+    "editor.defaultFormatter": "biomejs.biome",
     "githubPullRequests.ignoredPullRequestBranches": [
         "main"
     ],

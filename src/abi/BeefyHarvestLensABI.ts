@@ -1,8 +1,16 @@
 export const BeefyHarvestLensABI = [
     {
         inputs: [
-            { internalType: 'contract IStrategyV7', name: '_strategy', type: 'address' },
-            { internalType: 'contract IERC20', name: '_rewardToken', type: 'address' },
+            {
+                internalType: 'contract IStrategyV7',
+                name: '_strategy',
+                type: 'address',
+            },
+            {
+                internalType: 'contract IERC20',
+                name: '_rewardToken',
+                type: 'address',
+            },
         ],
         name: 'harvest',
         outputs: [

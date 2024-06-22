@@ -1,14 +1,14 @@
-import type { Chain } from './chain';
-import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
-import { RPC_CONFIG } from './config';
-import { rootLogger } from '../util/logger';
-import { fetchCollectorBalance } from './collector-balance';
+import { BeefyRevenueBridgeABI } from '../abi/BeefyRevenueBridgeABI';
 import { bigintMultiplyFloat } from '../util/bigint';
+import { rootLogger } from '../util/logger';
+import type { Chain } from './chain';
+import { fetchCollectorBalance } from './collector-balance';
+import { RPC_CONFIG } from './config';
 import {
-    RevenueBridgeHarvestReport,
+    type RevenueBridgeHarvestReport,
     reportOnSingleRevenueBridgeHarvestAsyncCall,
 } from './revenue-bridge-harvest-report';
-import { BeefyRevenueBridgeABI } from '../abi/BeefyRevenueBridgeABI';
+import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
 
 const logger = rootLogger.child({ module: 'revenue-bridge-harvest' });
 
@@ -20,7 +20,10 @@ export async function revenueBridgeHarvestChain({
     chain: Chain;
 }) {
     if (!RPC_CONFIG[chain].revenueBridgeHarvest.enabled) {
-        logger.debug({ msg: 'Revenue bridge harvest is disabled for chain', data: { chain } });
+        logger.debug({
+            msg: 'Revenue bridge harvest is disabled for chain',
+            data: { chain },
+        });
         return report;
     }
 
@@ -33,7 +36,10 @@ export async function revenueBridgeHarvestChain({
     const revenueBridgeAddress = RPC_CONFIG[chain].contracts.revenueBridge;
 
     if (!revenueBridgeAddress) {
-        logger.warn({ msg: 'No revenue bridge address for chain', data: { chain } });
+        logger.warn({
+            msg: 'No revenue bridge address for chain',
+            data: { chain },
+        });
         return report;
     }
 
@@ -49,10 +55,18 @@ export async function revenueBridgeHarvestChain({
     // now harvest if necessary
     // ========================
     await reportOnSingleRevenueBridgeHarvestAsyncCall(item, 'harvestTransaction', async item => {
-        logger.trace({ msg: 'Fetching total gas before', data: { chain, strat: item } });
-        const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
+        logger.trace({
+            msg: 'Fetching total gas before',
+            data: { chain, strat: item },
+        });
+        const remainingGasWei = await publicClient.getBalance({
+            address: walletAccount.address,
+        });
 
-        logger.info({ msg: 'Estimating gas for revenue bridge harvest call', data: { chain, strat: item } });
+        logger.info({
+            msg: 'Estimating gas for revenue bridge harvest call',
+            data: { chain, strat: item },
+        });
 
         let gasLimit = RPC_CONFIG[chain].revenueBridgeHarvest.forceGasLimit;
         let rawGasEstimation = gasLimit;
@@ -70,7 +84,10 @@ export async function revenueBridgeHarvestChain({
             );
         }
 
-        logger.trace({ msg: 'Revenue Bridge harvesting', data: { chain, strat: item } });
+        logger.trace({
+            msg: 'Revenue Bridge harvesting',
+            data: { chain, strat: item },
+        });
         const { transactionHash, transactionReceipt } = await walletClient.aggressivelyWriteContract({
             abi: BeefyRevenueBridgeABI,
             address: revenueBridgeAddress,
@@ -108,7 +125,10 @@ export async function revenueBridgeHarvestChain({
             fetchCollectorBalance({ chain })
         );
     } catch (e) {
-        logger.error({ msg: 'Error getting collector balance after', data: { chain, e } });
+        logger.error({
+            msg: 'Error getting collector balance after',
+            data: { chain, e },
+        });
     }
 
     return report;

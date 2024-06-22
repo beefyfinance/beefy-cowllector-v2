@@ -1,5 +1,5 @@
 import { get, isString } from 'lodash';
-import { Prettify } from './types';
+import type { Prettify } from './types';
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -8,7 +8,7 @@ export function sleep(ms: number) {
 export function splitPromiseResultsByStatus<T>(results: PromiseSettledResult<T>[]) {
     const rejected = results
         .filter(
-            (result): result is Prettify<Exclude<typeof result, PromiseFulfilledResult<any>>> =>
+            (result): result is Prettify<Exclude<typeof result, PromiseFulfilledResult<unknown>>> =>
                 result.status === 'rejected'
         )
         .map(result => result.reason);
@@ -80,7 +80,7 @@ export function withRetry<TData>(
 export class ConnectionTimeoutError extends Error {
     constructor(
         public readonly timeoutMs: number,
-        public readonly previousError?: any
+        public readonly previousError?: unknown
     ) {
         super(`Timeout after ${timeoutMs}ms`);
     }
@@ -103,7 +103,7 @@ export function withTimeout<TRes>(fn: () => Promise<TRes>, timeoutMs: number) {
     });
 }
 
-export function isConnectionTimeoutError(err: any) {
+export function isConnectionTimeoutError(err: unknown) {
     if (err instanceof ConnectionTimeoutError) {
         return true;
     }

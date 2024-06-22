@@ -1,9 +1,9 @@
+import type { Hex } from 'viem';
 import yargs from 'yargs';
-import { runMain } from '../../util/process';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
 import { verifyFoundryContractForExplorer } from '../../util/foundry';
-import { Hex } from 'viem';
+import { runMain } from '../../util/process';
 
 type CmdOptions = {
     chain: Chain;

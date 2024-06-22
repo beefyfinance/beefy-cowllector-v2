@@ -1,8 +1,8 @@
-import { Chain } from './chain';
+import type { Chain } from './chain';
 import { EXPLORER_CONFIG } from './config';
 import { extractErrorMessage } from './error-message';
-import { HarvestReportItem } from './harvest-report';
-import { BeefyVault } from './vault';
+import type { HarvestReportItem } from './harvest-report';
+import type { BeefyVault } from './vault';
 
 export function extractHarvestReportItemErrorDiscordMessageDetails(
     chain: Chain,
@@ -62,13 +62,13 @@ export function getVaultDiscordMessageLink(chain: Chain, vault: BeefyVault): str
 export function getStrategyDiscordMessageLink(chain: Chain, vault: BeefyVault): string {
     const explorerConfig = EXPLORER_CONFIG[chain];
     const stratExplorerLink = explorerConfig.addressLinkTemplate.replace('${address}', vault.strategyAddress);
-    const truncatedAddy = vault.strategyAddress.slice(0, 6) + '...' + vault.strategyAddress.slice(-4);
+    const truncatedAddy = `${vault.strategyAddress.slice(0, 6)}...${vault.strategyAddress.slice(-4)}`;
     return `[${truncatedAddy}](<${stratExplorerLink}>)`;
 }
 
 export function getTransactionDiscordMessageLink(chain: Chain, transactionHash: string): string {
     const explorerConfig = EXPLORER_CONFIG[chain];
     const transactionExplorerLink = explorerConfig.transactionLinkTemplate.replace('${hash}', transactionHash);
-    const truncatedHash = transactionHash.slice(0, 6) + '...' + transactionHash.slice(-4);
+    const truncatedHash = `${transactionHash.slice(0, 6)}...${transactionHash.slice(-4)}`;
     return `[${truncatedHash}](<${transactionExplorerLink}>)`;
 }

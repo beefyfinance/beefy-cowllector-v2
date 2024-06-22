@@ -1,32 +1,32 @@
-import type { Chain } from './chain';
-import type { BeefyVault } from './vault';
-import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
-import {
-    RPC_CONFIG,
-    VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
-    PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
-    VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION,
-    VAULT_IDS_WE_ARE_OK_NOT_HARVESTING,
-    VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
-    SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS,
-    VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
-    BLIND_HARVEST_EVERY_X_HOURS,
-    STRATEGY_TYPE_IDS_THAT_CAN_BE_SLOW_TO_REFILL_REWARDS,
-} from './config';
+import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
+import { bigintMultiplyFloat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
-import { createGasEstimationReport } from './gas';
+import { getChainWNativeTokenAddress } from './addressbook';
+import type { Chain } from './chain';
+import { fetchCollectorBalance } from './collector-balance';
 import {
-    HarvestReport,
+    BLIND_HARVEST_EVERY_X_HOURS,
+    PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
+    RPC_CONFIG,
+    SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS,
+    STRATEGY_TYPE_IDS_THAT_CAN_BE_SLOW_TO_REFILL_REWARDS,
+    VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
+    VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
+    VAULT_IDS_WE_ARE_OK_NOT_HARVESTING,
+    VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
+    VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION,
+} from './config';
+import { createGasEstimationReport } from './gas';
+import type { HarvestParameters } from './harvest-actions/harvest';
+import { UnsupportedChainError } from './harvest-errors';
+import {
+    type HarvestReport,
     createDefaultHarvestReportItem,
     reportOnMultipleHarvestAsyncCall,
     reportOnSingleHarvestAsyncCall,
 } from './harvest-report';
-import { UnsupportedChainError } from './harvest-errors';
-import { fetchCollectorBalance } from './collector-balance';
-import { bigintMultiplyFloat } from '../util/bigint';
-import { getChainWNativeTokenAddress } from './addressbook';
-import { HarvestParameters } from './harvest-actions/harvest';
+import type { BeefyVault } from './vault';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
 
@@ -41,7 +41,10 @@ export async function harvestChain({
     chain: Chain;
     vaults: BeefyVault[];
 }) {
-    logger.debug({ msg: 'Harvesting chain', data: { chain, vaults: vaults.length } });
+    logger.debug({
+        msg: 'Harvesting chain',
+        data: { chain, vaults: vaults.length },
+    });
 
     const wnative = getChainWNativeTokenAddress(chain);
     const publicClient = getReadOnlyRpcClient({ chain });
@@ -49,14 +52,20 @@ export async function harvestChain({
     const walletAccount = getWalletAccount({ chain });
     const rpcConfig = RPC_CONFIG[chain];
 
-    const items = vaults.map(vault => ({ vault, report: createDefaultHarvestReportItem({ vault }) }));
+    const items = vaults.map(vault => ({
+        vault,
+        report: createDefaultHarvestReportItem({ vault }),
+    }));
     report.details = items.map(({ report }) => report);
 
     // we need the harvest lense
     if (!rpcConfig.contracts.harvestLens) {
         throw new Error(`Missing harvest lens address for chain ${chain}`);
     }
-    const harvestLensContract = { abi: BeefyHarvestLensABI, address: rpcConfig.contracts.harvestLens };
+    const harvestLensContract = {
+        abi: BeefyHarvestLensABI,
+        address: rpcConfig.contracts.harvestLens,
+    };
 
     // ======================
     // get some context first
@@ -182,14 +191,13 @@ export async function harvestChain({
                         blindHarvestDate: truncatedDate,
                         level: 'info',
                     };
-                } else {
-                    return {
-                        shouldHarvest: false,
-                        blindHarvestDate: truncatedDate,
-                        level: 'info',
-                        notHarvestingReason: 'Blind harvest date not reached yet',
-                    };
                 }
+                return {
+                    shouldHarvest: false,
+                    blindHarvestDate: truncatedDate,
+                    level: 'info',
+                    notHarvestingReason: 'Blind harvest date not reached yet',
+                };
             }
 
             if (item.simulation.harvestWillSucceed === false) {
@@ -343,12 +351,14 @@ export async function harvestChain({
                         callRewardsWei: item.simulation.estimatedCallRewardsWei,
                         estimatedGainWei: item.simulation.gas.estimatedGainWei,
                     };
-                } else {
-                    logger.info({
-                        msg: 'Harvesting would probably be profitable if we computed gas cost correctly. But we are not so we are not harvesting.',
-                        data: { gasEstimation: item.simulation.gas, simulation: item.simulation },
-                    });
                 }
+                logger.info({
+                    msg: 'Harvesting would probably be profitable if we computed gas cost correctly. But we are not so we are not harvesting.',
+                    data: {
+                        gasEstimation: item.simulation.gas,
+                        simulation: item.simulation,
+                    },
+                });
             }
 
             if (item.simulation.isLastHarvestRecent) {
@@ -379,7 +389,10 @@ export async function harvestChain({
     // now do the havest dance
     // =======================
 
-    logger.debug({ msg: 'Harvesting strats', data: { chain, count: stratsToBeHarvested.length } });
+    logger.debug({
+        msg: 'Harvesting strats',
+        data: { chain, count: stratsToBeHarvested.length },
+    });
     await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', 'sequential', async item => {
         let harvestParams: HarvestParameters = {
             strategyAddress: item.vault.strategyAddress,
@@ -419,7 +432,10 @@ export async function harvestChain({
             fetchCollectorBalance({ chain })
         );
     } catch (e) {
-        logger.error({ msg: 'Error getting collector balance after', data: { chain, e } });
+        logger.error({
+            msg: 'Error getting collector balance after',
+            data: { chain, e },
+        });
     }
 
     return report;

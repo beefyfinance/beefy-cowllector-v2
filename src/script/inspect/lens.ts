@@ -1,15 +1,15 @@
+import type { Hex } from 'viem';
 import yargs from 'yargs';
-import { runMain } from '../../util/process';
+import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
+import { IStrategyABI } from '../../abi/IStrategyABI';
+import { getChainWNativeTokenAddress } from '../../lib/addressbook';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
-import { rootLogger } from '../../util/logger';
-import { getVault } from '../../lib/vault-list';
-import { Hex } from 'viem';
 import { RPC_CONFIG } from '../../lib/config';
 import { getReadOnlyRpcClient, getWalletAccount } from '../../lib/rpc-client';
-import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
-import { getChainWNativeTokenAddress } from '../../lib/addressbook';
-import { IStrategyABI } from '../../abi/IStrategyABI';
+import { getVault } from '../../lib/vault-list';
+import { rootLogger } from '../../util/logger';
+import { runMain } from '../../util/process';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'lens' });
 
@@ -67,8 +67,14 @@ async function main() {
         throw new Error(`Missing harvest lens address for chain ${options.chain}`);
     }
 
-    const harvestLensContract = { abi: BeefyHarvestLensABI, address: rpcConfig.contracts.harvestLens };
-    const strategyContract = { abi: IStrategyABI, address: vault.strategyAddress };
+    const harvestLensContract = {
+        abi: BeefyHarvestLensABI,
+        address: rpcConfig.contracts.harvestLens,
+    };
+    const strategyContract = {
+        abi: IStrategyABI,
+        address: vault.strategyAddress,
+    };
 
     const res = await Promise.allSettled([
         publicClient

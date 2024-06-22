@@ -1,8 +1,8 @@
-import { runMain } from '../../util/process';
-import { Chain, allChainIds } from '../../lib/chain';
-import { getVaultsToMonitorByChain } from '../../lib/vault-list';
 import yargs from 'yargs';
+import { type Chain, allChainIds } from '../../lib/chain';
+import { getVaultsToMonitorByChain } from '../../lib/vault-list';
 import { rootLogger } from '../../util/logger';
+import { runMain } from '../../util/process';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'api' });
 
@@ -36,7 +36,10 @@ async function main() {
     };
     logger.trace({ msg: 'running with options', data: options });
 
-    const vaults = await getVaultsToMonitorByChain({ chains: options.chains, strategyAddress: null });
+    const vaults = await getVaultsToMonitorByChain({
+        chains: options.chains,
+        strategyAddress: null,
+    });
 
     for (const chain of options.chains) {
         console.log(chain);

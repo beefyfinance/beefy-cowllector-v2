@@ -1,4 +1,4 @@
-import { HttpTransport, HttpTransportConfig, http } from 'viem';
+import { http, type HttpTransport, type HttpTransportConfig } from 'viem';
 import { rootLogger } from '../util/logger';
 
 const logger = rootLogger.child({ module: 'rpc-transport' });

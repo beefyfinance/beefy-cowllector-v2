@@ -1,17 +1,17 @@
-import { Chain, allChainIds } from '../lib/chain';
-import { BeefyVault } from '../lib/vault';
-import { getVaultsToMonitorByChain } from '../lib/vault-list';
-import { runMain } from '../util/process';
-import * as fs from 'fs';
-import { rootLogger } from '../util/logger';
+import * as fs from 'node:fs';
+import type { Hex } from 'viem';
 import yargs from 'yargs';
-import { getReadOnlyRpcClient, getWalletAccount } from '../lib/rpc-client';
-import { RPC_CONFIG } from '../lib/config';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import { getChainWNativeTokenAddress, getChainWNativeTokenDecimals } from '../lib/addressbook';
-import { AItem, AKey, AVal, reportOnMultipleAsyncCall, serializeReport } from '../lib/reports';
-import { Hex } from 'viem';
-import { Async } from '../util/async';
+import { type Chain, allChainIds } from '../lib/chain';
+import { RPC_CONFIG } from '../lib/config';
+import { type AItem, type AKey, type AVal, reportOnMultipleAsyncCall, serializeReport } from '../lib/reports';
+import { getReadOnlyRpcClient, getWalletAccount } from '../lib/rpc-client';
+import type { BeefyVault } from '../lib/vault';
+import { getVaultsToMonitorByChain } from '../lib/vault-list';
+import type { Async } from '../util/async';
+import { rootLogger } from '../util/logger';
+import { runMain } from '../util/process';
 
 class JsonFileKVStore<T> {
     private path: string;
@@ -28,12 +28,16 @@ class JsonFileKVStore<T> {
         if (!fs.existsSync(this.path)) {
             return;
         }
-        const dataIfExists = await fs.promises.readFile(this.path, { encoding: 'utf-8' });
+        const dataIfExists = await fs.promises.readFile(this.path, {
+            encoding: 'utf-8',
+        });
         this.data = JSON.parse(dataIfExists);
     }
 
     async persist() {
-        await fs.promises.writeFile(this.path, serializeReport(this.data, true), { encoding: 'utf-8' });
+        await fs.promises.writeFile(this.path, serializeReport(this.data, true), {
+            encoding: 'utf-8',
+        });
     }
 
     get(key: string) {
@@ -110,7 +114,10 @@ async function main() {
     await store.load();
 
     if (options.mode === 'fetch') {
-        const vaultsByChain = await getVaultsToMonitorByChain({ chains: options.chain, strategyAddress: null });
+        const vaultsByChain = await getVaultsToMonitorByChain({
+            chains: options.chain,
+            strategyAddress: null,
+        });
 
         const processPromises = Object.entries(vaultsByChain).map(async ([chain, vaults]) => {
             const rpcConfig = RPC_CONFIG[chain as Chain];
@@ -119,29 +126,44 @@ async function main() {
                 return;
             }
             if (!rpcConfig.harvest.enabled) {
-                logger.debug({ msg: 'skipping chain with harvest disabled', data: { chain } });
+                logger.debug({
+                    msg: 'skipping chain with harvest disabled',
+                    data: { chain },
+                });
                 return;
             }
 
-            logger.debug({ msg: 'processing chain', data: { chain, vaults: vaults.length } });
+            logger.debug({
+                msg: 'processing chain',
+                data: { chain, vaults: vaults.length },
+            });
 
             const vaultsToProcess: BeefyVault[] = [];
             for (const vault of vaults) {
                 if (!vault.eol) {
-                    logger.trace({ msg: 'vault is not eol', data: { vaultId: vault.id } });
+                    logger.trace({
+                        msg: 'vault is not eol',
+                        data: { vaultId: vault.id },
+                    });
                     continue;
                 }
                 if (store.has(vault.id)) {
                     const report = store.get(vault.id);
                     if (report.simulation && report.simulation.status === 'fulfilled') {
-                        logger.trace({ msg: 'vault already simulated successfully', data: { vaultId: vault.id } });
+                        logger.trace({
+                            msg: 'vault already simulated successfully',
+                            data: { vaultId: vault.id },
+                        });
                         continue;
                     }
                 }
                 vaultsToProcess.push(vault);
             }
 
-            logger.debug({ msg: 'processing vaults', data: { chain, vaultsToProcessCount: vaultsToProcess.length } });
+            logger.debug({
+                msg: 'processing vaults',
+                data: { chain, vaultsToProcessCount: vaultsToProcess.length },
+            });
 
             const result = await fetchLensResult(chain as Chain, vaultsToProcess);
 
@@ -165,17 +187,29 @@ async function main() {
             logger.trace({ msg: 'reporting summary', data: { vaultId } });
 
             if (item.simulation === null) {
-                summary.push({ chain: item.vault.chain, vaultId, status: 'not-simulated' });
+                summary.push({
+                    chain: item.vault.chain,
+                    vaultId,
+                    status: 'not-simulated',
+                });
                 continue;
             }
             if (item.simulation.status === 'rejected') {
-                summary.push({ chain: item.vault.chain, vaultId, status: 'unsuccessful-simulation' });
+                summary.push({
+                    chain: item.vault.chain,
+                    vaultId,
+                    status: 'unsuccessful-simulation',
+                });
                 continue;
             }
 
             const rewards = BigInt(item.simulation.value.estimatedCallRewardsWei);
             if (rewards === 0n) {
-                summary.push({ chain: item.vault.chain, vaultId, status: 'no-rewards-found' });
+                summary.push({
+                    chain: item.vault.chain,
+                    vaultId,
+                    status: 'no-rewards-found',
+                });
                 continue;
             }
 
@@ -211,13 +245,14 @@ async function main() {
                 }
                 const rewards = BigInt(cur.rewards || '0');
                 const wnativeDecimals = getChainWNativeTokenDecimals(cur.chain);
-                const divisor = BigInt('1' + '0'.repeat(wnativeDecimals));
-                const rewardsEth =
-                    (rewards / divisor).toString() + '.' + rewards.toString().padStart(wnativeDecimals, '0');
+                const divisor = BigInt(`1${'0'.repeat(wnativeDecimals)}`);
+                const rewardsEth = `${(rewards / divisor).toString()}.${rewards.toString().padStart(wnativeDecimals, '0')}`;
                 acc[cur.chain].push({ vaultId: cur.vaultId, rewards, rewardsEth });
                 return acc;
             },
-            {} as { [k: string]: { vaultId: string; rewards: BigInt; rewardsEth: string }[] }
+            {} as {
+                [k: string]: { vaultId: string; rewards: bigint; rewardsEth: string }[];
+            }
         );
 
         const top3VaultsByRewardsAndChain = Object.entries(vaultSummaryByChain).reduce(
@@ -225,7 +260,9 @@ async function main() {
                 acc[chain] = vaults.sort((a, b) => (a.rewards > b.rewards ? -1 : 0)).slice(0, 3);
                 return acc;
             },
-            {} as { [k: string]: { vaultId: string; rewards: BigInt; rewardsEth: string }[] }
+            {} as {
+                [k: string]: { vaultId: string; rewards: bigint; rewardsEth: string }[];
+            }
         );
         console.log(serializeReport(top3VaultsByRewardsAndChain, true));
 
@@ -240,7 +277,7 @@ async function main() {
             {} as { [k: string]: number }
         );
 
-        totalTvlByChain['__all__'] = Object.values(totalTvlByChain).reduce((acc, cur) => acc + cur, 0);
+        totalTvlByChain.__all__ = Object.values(totalTvlByChain).reduce((acc, cur) => acc + cur, 0);
         console.log(JSON.stringify(totalTvlByChain, null, 2));
     }
 }
@@ -263,9 +300,15 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
     if (!rpcConfig.contracts.harvestLens) {
         throw new Error(`Missing harvest lens address for chain ${chain}`);
     }
-    const harvestLensContract = { abi: BeefyHarvestLensABI, address: rpcConfig.contracts.harvestLens };
+    const harvestLensContract = {
+        abi: BeefyHarvestLensABI,
+        address: rpcConfig.contracts.harvestLens,
+    };
 
-    const items = vaults.map(vault => ({ vault, report: { vault, simulation: null } as EolWithRewardsReportItem }));
+    const items = vaults.map(vault => ({
+        vault,
+        report: { vault, simulation: null } as EolWithRewardsReportItem,
+    }));
 
     await reportOnMultipleEolRewardsAsyncCall(items, 'simulation', 'parallel', async item => {
         const {

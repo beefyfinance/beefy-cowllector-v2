@@ -1,12 +1,16 @@
-import type { Chain } from './chain';
-import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
-import { RPC_CONFIG } from './config';
-import { rootLogger } from '../util/logger';
-import { UnwrapReport, UnwrapReportShouldUnwrapDecision, reportOnSingleUnwrapAsyncCall } from './unwrap-report';
-import { fetchCollectorBalance } from './collector-balance';
 import { WETHABI } from '../abi/WETHABI';
-import { getChainWNativeTokenAddress } from './addressbook';
 import { bigintMultiplyFloat } from '../util/bigint';
+import { rootLogger } from '../util/logger';
+import { getChainWNativeTokenAddress } from './addressbook';
+import type { Chain } from './chain';
+import { fetchCollectorBalance } from './collector-balance';
+import { RPC_CONFIG } from './config';
+import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from './rpc-client';
+import {
+    type UnwrapReport,
+    type UnwrapReportShouldUnwrapDecision,
+    reportOnSingleUnwrapAsyncCall,
+} from './unwrap-report';
 
 const logger = rootLogger.child({ module: 'unwrap-wnative' });
 
@@ -75,10 +79,18 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
     }
 
     await reportOnSingleUnwrapAsyncCall(unwrapDecision, 'unwrapTransaction', async item => {
-        logger.trace({ msg: 'Fetching total gas before', data: { chain, strat: item } });
-        const remainingGasWei = await publicClient.getBalance({ address: walletAccount.address });
+        logger.trace({
+            msg: 'Fetching total gas before',
+            data: { chain, strat: item },
+        });
+        const remainingGasWei = await publicClient.getBalance({
+            address: walletAccount.address,
+        });
 
-        logger.info({ msg: 'Estimating gas for unwrap call', data: { chain, strat: item } });
+        logger.info({
+            msg: 'Estimating gas for unwrap call',
+            data: { chain, strat: item },
+        });
         const rawGasEstimation = await publicClient.estimateContractGas({
             abi: WETHABI,
             address: wnative,
@@ -105,7 +117,10 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
             data: { chain, strat: item, transactionHash, transactionReceipt },
         });
 
-        logger.info({ msg: 'Unwrapped wnative', data: { chain, strat: item, transactionHash, transactionReceipt } });
+        logger.info({
+            msg: 'Unwrapped wnative',
+            data: { chain, strat: item, transactionHash, transactionReceipt },
+        });
         return {
             transactionHash,
             rawGasEstimation,
@@ -128,7 +143,10 @@ export async function unwrapChain({ report, chain }: { report: UnwrapReport; cha
             fetchCollectorBalance({ chain })
         );
     } catch (e) {
-        logger.error({ msg: 'Error getting collector balance after', data: { chain, e } });
+        logger.error({
+            msg: 'Error getting collector balance after',
+            data: { chain, e },
+        });
     }
 
     return report;

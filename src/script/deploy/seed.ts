@@ -1,11 +1,11 @@
+import { randomInt } from 'node:crypto';
 import yargs from 'yargs';
-import { runMain } from '../../util/process';
+import { BeefyContractDeployerABI } from '../../abi/BeefyContractDeployerABI';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
-import { getReadOnlyRpcClient } from '../../lib/rpc-client';
-import { BeefyContractDeployerABI } from '../../abi/BeefyContractDeployerABI';
 import { RPC_CONFIG } from '../../lib/config';
-import { randomInt } from 'crypto';
+import { getReadOnlyRpcClient } from '../../lib/rpc-client';
+import { runMain } from '../../util/process';
 
 type CmdOptions = {
     chain: Chain;

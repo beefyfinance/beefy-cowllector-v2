@@ -1,4 +1,4 @@
-import { Prettify } from './types';
+import type { Prettify } from './types';
 
 export type TimingData = { startedAt: Date; endedAt: Date; durationMs: number };
 export type Async<T> = Prettify<PromiseSettledResult<T> & { timing: TimingData }>;
@@ -8,14 +8,14 @@ export type Async<T> = Prettify<PromiseSettledResult<T> & { timing: TimingData }
 export type AsyncSuccessType<TObj> = [TObj] extends [Async<infer TSuccessType> | null]
     ? TSuccessType
     : [TObj] extends [Promise<infer TSuccessType> | null]
-    ? TSuccessType
-    : [TObj] extends [Async<infer TSuccessType>]
-    ? TSuccessType
-    : [TObj] extends [Promise<infer TSuccessType>]
-    ? TSuccessType
-    : [TObj] extends [infer TSuccessType | null]
-    ? TSuccessType
-    : never;
+      ? TSuccessType
+      : [TObj] extends [Async<infer TSuccessType>]
+        ? TSuccessType
+        : [TObj] extends [Promise<infer TSuccessType>]
+          ? TSuccessType
+          : [TObj] extends [infer TSuccessType | null]
+            ? TSuccessType
+            : never;
 
 export function asyncResultGet<T, R>(result: Async<T> | null, getter: (o: T) => R): R | null {
     if (!result) {
@@ -42,6 +42,10 @@ export async function promiseTimings<T>(createPromise: () => Promise<T>): Promis
         const result = await createPromise();
         return { status: 'fulfilled', value: result, timing: timings(startedAt) };
     } catch (error) {
-        return { status: 'rejected', reason: error as any, timing: timings(startedAt) };
+        return {
+            status: 'rejected',
+            reason: error as unknown,
+            timing: timings(startedAt),
+        };
     }
 }

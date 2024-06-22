@@ -1,6 +1,6 @@
 import { WETHABI } from '../abi/WETHABI';
 import { getChainWNativeTokenAddress } from './addressbook';
-import { Chain } from './chain';
+import type { Chain } from './chain';
 import { getReadOnlyRpcClient, getWalletAccount } from './rpc-client';
 
 export interface CollectorBalance {
@@ -23,5 +23,9 @@ export async function fetchCollectorBalance({ chain }: { chain: Chain }): Promis
             args: [walletAccount.address],
         }),
     ]);
-    return { balanceWei, wnativeBalanceWei, aggregatedBalanceWei: balanceWei + wnativeBalanceWei };
+    return {
+        balanceWei,
+        wnativeBalanceWei,
+        aggregatedBalanceWei: balanceWei + wnativeBalanceWei,
+    };
 }

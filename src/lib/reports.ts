@@ -1,10 +1,10 @@
-import { BaseError, TimeoutError } from 'viem';
-import { Async, AsyncSuccessType, promiseTimings } from '../util/async';
 import { get, set } from 'lodash';
-import { runSequentially, splitPromiseResultsByStatus } from '../util/promise';
+import { BaseError, TimeoutError } from 'viem';
+import { type Async, type AsyncSuccessType, promiseTimings } from '../util/async';
 import { rootLogger } from '../util/logger';
+import { runSequentially, splitPromiseResultsByStatus } from '../util/promise';
+import type { Prettify } from '../util/types';
 import { CENSOR_SECRETS_FROM_REPORTS } from './config';
-import { Prettify } from '../util/types';
 
 const logger = rootLogger.child({ module: 'report' });
 
@@ -15,7 +15,7 @@ const logger = rootLogger.child({ module: 'report' });
 export type AItem<TReport> = { report: TReport };
 export type AKey<TReport> = keyof TReport & string;
 export type AVal<TReport, TReportKey> = TReportKey extends AKey<TReport>
-    ? TReport[TReportKey] extends Async<any> | null // prevent non async keys to be used
+    ? TReport[TReportKey] extends Async<unknown> | null // prevent non async keys to be used
         ? AsyncSuccessType<TReport[TReportKey]>
         : never
     : never;
@@ -40,16 +40,21 @@ export async function reportOnSingleAsyncCall<
     logger.info({ msg: 'Running async call', data: { reportKey } });
     const result = await promiseTimings(() => make(item));
     if (result.status === 'rejected') {
-        logger.error({ msg: 'Report step failed', data: { reportKey, item, error: result.reason } });
+        logger.error({
+            msg: 'Report step failed',
+            data: { reportKey, item, error: result.reason },
+        });
         item.report[reportKey] = formatAsyncResult(result) as TReport[TKey];
         throw result.reason;
-    } else {
-        logger.trace({ msg: 'Report step succeeded', data: { reportKey, item, result } });
-        item.report[reportKey] = formatAsyncResult(result) as TReport[TKey];
-        return { ...item, [reportKey]: result.value } as TItem & {
-            [k in TKey]: TVal;
-        };
     }
+    logger.trace({
+        msg: 'Report step succeeded',
+        data: { reportKey, item, result },
+    });
+    item.report[reportKey] = formatAsyncResult(result) as TReport[TKey];
+    return { ...item, [reportKey]: result.value } as TItem & {
+        [k in TKey]: TVal;
+    };
 }
 
 /**
@@ -75,22 +80,30 @@ export async function reportOnMultipleAsyncCall<
     mode: 'parallel' | 'sequential',
     make: (item: TItem) => Promise<TVal>
 ): Promise<Prettify<TItem & { [k in TKey]: TVal }>[]> {
-    logger.info({ msg: 'Running report step', data: { reportKey, itemsCount: items.length } });
+    logger.info({
+        msg: 'Running report step',
+        data: { reportKey, itemsCount: items.length },
+    });
 
     const processItem = async (item: TItem) => {
         const result = await promiseTimings(() => make(item));
         if (result.status === 'rejected') {
-            logger.error({ msg: 'Report step failed', data: { reportKey, item, error: result.reason } });
+            logger.error({
+                msg: 'Report step failed',
+                data: { reportKey, item, error: result.reason },
+            });
             logger.trace(result.reason);
             item.report[reportKey] = formatAsyncResult(result) as TReport[TKey];
             throw result.reason;
-        } else {
-            logger.trace({ msg: 'Report step succeeded', data: { reportKey, item, result } });
-            item.report[reportKey] = formatAsyncResult(result) as TReport[TKey];
-            return { ...item, [reportKey]: result.value } as TItem & {
-                [k in TKey]: TVal;
-            };
         }
+        logger.trace({
+            msg: 'Report step succeeded',
+            data: { reportKey, item, result },
+        });
+        item.report[reportKey] = formatAsyncResult(result) as TReport[TKey];
+        return { ...item, [reportKey]: result.value } as TItem & {
+            [k in TKey]: TVal;
+        };
     };
 
     const results = await (mode === 'parallel'
@@ -100,12 +113,23 @@ export async function reportOnMultipleAsyncCall<
 
     logger.info({
         msg: 'Report step results',
-        data: { reportKey, itemsCount: items.length, fulfilledCount: fulfilled.length, rejectedCount: rejected.length },
+        data: {
+            reportKey,
+            itemsCount: items.length,
+            fulfilledCount: fulfilled.length,
+            rejectedCount: rejected.length,
+        },
     });
     if (rejected.length > 0) {
-        logger.debug({ msg: 'Skipped items', data: { reportKey, items: rejected.length } });
+        logger.debug({
+            msg: 'Skipped items',
+            data: { reportKey, items: rejected.length },
+        });
     }
-    logger.trace({ msg: 'Report step finished', data: { reportKey, itemsCount: items.length, fulfilled, rejected } });
+    logger.trace({
+        msg: 'Report step finished',
+        data: { reportKey, itemsCount: items.length, fulfilled, rejected },
+    });
 
     return fulfilled;
 }
@@ -118,24 +142,43 @@ function formatAsyncResult<T>(asyncResult: Async<T>): Async<T> {
         // prettify the error
         const error = asyncResult.reason;
         if (error instanceof TimeoutError) {
-            return { status: 'rejected', reason: 'Request timed out', timing: asyncResult.timing } as Async<T>;
-        } else if (error instanceof BaseError) {
+            return {
+                status: 'rejected',
+                reason: 'Request timed out',
+                timing: asyncResult.timing,
+            } as Async<T>;
+        }
+        if (error instanceof BaseError) {
             // remove abi from the error object
             if (get(error, 'abi')) {
                 set(error, 'abi', undefined);
             }
-            return { status: 'rejected', reason: error, timing: asyncResult.timing } as Async<T>;
-        } else if (error instanceof Error) {
+            return {
+                status: 'rejected',
+                reason: error,
+                timing: asyncResult.timing,
+            } as Async<T>;
+        }
+        if (error instanceof Error) {
             error;
             return {
                 status: 'rejected',
-                reason: { name: error.name, message: error.message, cause: error.cause, stack: error.stack },
+                reason: {
+                    name: error.name,
+                    message: error.message,
+                    cause: error.cause,
+                    stack: error.stack,
+                },
                 timing: asyncResult.timing,
             } as Async<T>;
         }
         return asyncResult;
     }
-    return { status: 'fulfilled', value: asyncResult.value, timing: asyncResult.timing } as Async<T>;
+    return {
+        status: 'fulfilled',
+        value: asyncResult.value,
+        timing: asyncResult.timing,
+    } as Async<T>;
 }
 
 /**
@@ -144,8 +187,8 @@ function formatAsyncResult<T>(asyncResult: Async<T>): Async<T> {
 const SECRET_REGEXS = CENSOR_SECRETS_FROM_REPORTS.map(
     secret => new RegExp(secret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
 );
-export function serializeReport(o: object, pretty: boolean = false): string {
-    let reportStr = JSON.stringify(
+export function serializeReport(o: object, pretty = false): string {
+    const reportStr = JSON.stringify(
         o,
         (_, value) => {
             // handle BigInt

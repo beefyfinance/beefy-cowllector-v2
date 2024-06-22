@@ -1,8 +1,7 @@
+import { memoize } from 'lodash';
 import { createPublicClient, createWalletClient } from 'viem';
-import { type Chain } from './chain';
 import { privateKeyToAccount } from 'viem/accounts';
-import { RPC_CONFIG } from './config';
-import { type Chain as ViemChain } from 'viem/chains';
+import type { Chain as ViemChain } from 'viem/chains';
 import {
     arbitrum,
     aurora,
@@ -31,10 +30,11 @@ import {
     scroll,
     zkSync,
 } from 'viem/chains';
-import { loggingHttpTransport } from './rpc-transport';
+import type { Chain } from './chain';
+import { RPC_CONFIG } from './config';
 import { createCustomHarvestWalletActions } from './harvest-actions';
 import { createCustomRpcPublicActions, createCustomRpcWalletActions } from './rpc-actions';
-import { memoize } from 'lodash';
+import { loggingHttpTransport } from './rpc-transport';
 
 function applyConfig(chain: Chain, viemChain: ViemChain): ViemChain {
     const rpcConfig = RPC_CONFIG[chain];

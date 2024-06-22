@@ -1,8 +1,8 @@
-import { runMain } from '../../util/process';
 import { db_migrate } from '../../lib/db/migrate';
 import { withDbClient } from '../../lib/db/utils';
-import { rootLogger } from '../../util/logger';
 import { notifyError } from '../../lib/notify';
+import { rootLogger } from '../../util/logger';
+import { runMain } from '../../util/process';
 
 const logger = rootLogger.child({ module: 'db-migrate' });
 async function main() {
@@ -15,4 +15,9 @@ async function main() {
     }
 }
 
-runMain(withDbClient(main, { appName: 'cowllector-db-migrate', connectTimeoutMs: 10_000 }));
+runMain(
+    withDbClient(main, {
+        appName: 'cowllector-db-migrate',
+        connectTimeoutMs: 10_000,
+    })
+);

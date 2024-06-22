@@ -1,9 +1,9 @@
-import { Client as PgClient, ClientConfig as PgClientConfig } from 'pg';
+import { Client as PgClient, type ClientConfig as PgClientConfig } from 'pg';
 import * as pgcs from 'pg-connection-string';
 import pgf from 'pg-format';
 import { rootLogger } from '../../util/logger';
-import { DATABASE_SSL, DATABASE_URL } from '../config';
 import { ConnectionTimeoutError, isConnectionTimeoutError, withTimeout } from '../../util/promise';
+import { DATABASE_SSL, DATABASE_URL } from '../config';
 
 const logger = rootLogger.child({ module: 'db', component: 'query' });
 
@@ -29,11 +29,14 @@ async function getDbClient({
 
     if (sharedClient === null) {
         appNameCounters[appName] += 1;
-        const appNameToUse = appName + ':common:' + appNameCounters[appName];
+        const appNameToUse = `${appName}:common:${appNameCounters[appName]}`;
 
         const pgUrl = DATABASE_URL;
-        const config = pgcs.parse(pgUrl) as any as PgClientConfig;
-        logger.trace({ msg: 'Instantiating new shared pg client', data: { appNameToUse } });
+        const config = pgcs.parse(pgUrl) as PgClientConfig;
+        logger.trace({
+            msg: 'Instantiating new shared pg client',
+            data: { appNameToUse },
+        });
         sharedClient = new PgClient({
             ...config,
             application_name: appNameToUse,
@@ -43,18 +46,24 @@ async function getDbClient({
                   }
                 : undefined,
         });
-        sharedClient.on('error', (err: any) => {
-            logger.error({ msg: 'Postgres client error', data: { err, appNameToUse } });
+        sharedClient.on('error', (err: unknown) => {
+            logger.error({
+                msg: 'Postgres client error',
+                data: { err, appNameToUse },
+            });
             logger.error(err);
         });
     }
     if (freshClient) {
         appNameCounters[appName] += 1;
-        const appNameToUse = appName + ':fresh:' + appNameCounters[appName];
+        const appNameToUse = `${appName}:fresh:${appNameCounters[appName]}`;
 
         const pgUrl = DATABASE_URL;
-        const config = pgcs.parse(pgUrl) as any as PgClientConfig;
-        logger.trace({ msg: 'Instantiating new unique pg client', data: { appNameToUse } });
+        const config = pgcs.parse(pgUrl) as PgClientConfig;
+        logger.trace({
+            msg: 'Instantiating new unique pg client',
+            data: { appNameToUse },
+        });
         return new PgClient({ ...config, application_name: appNameToUse });
     }
 
@@ -62,7 +71,7 @@ async function getDbClient({
 }
 
 // inject pg client as first argument
-export function withDbClient<TArgs extends any[], TRes>(
+export function withDbClient<TArgs extends unknown[], TRes>(
     fn: (client: DbClient, ...args: TArgs) => Promise<TRes>,
     { appName, connectTimeoutMs = 10_000 }: { appName: string; connectTimeoutMs?: number }
 ): (...args: TArgs) => Promise<TRes> {
@@ -70,7 +79,10 @@ export function withDbClient<TArgs extends any[], TRes>(
         const pgClient = await getDbClient({ appName, freshClient: false });
         let res: TRes;
         try {
-            logger.trace({ msg: 'Connecting to pg', data: { appName, connectTimeoutMs } });
+            logger.trace({
+                msg: 'Connecting to pg',
+                data: { appName, connectTimeoutMs },
+            });
             await withTimeout(() => pgClient.connect(), connectTimeoutMs);
             res = await fn(pgClient, ...args);
         } finally {
@@ -82,7 +94,7 @@ export function withDbClient<TArgs extends any[], TRes>(
 
 export async function db_query<RowType>(
     sql: string,
-    params: any[] = [],
+    params: unknown[] = [],
     client: DbClient | null = null
 ): Promise<RowType[]> {
     logger.trace({ msg: 'Executing query', data: { sql, params } });
@@ -96,7 +108,10 @@ export async function db_query<RowType>(
     try {
         const res = await useClient.query(sql_w_params);
         const rows = res?.rows || null;
-        logger.trace({ msg: 'Query end', data: { sql, params, total: res?.rowCount } });
+        logger.trace({
+            msg: 'Query end',
+            data: { sql, params, total: res?.rowCount },
+        });
         return rows;
     } catch (error) {
         // if the query ended because of a connection timeout, we wrap it in a custom error
@@ -111,7 +126,7 @@ export async function db_query<RowType>(
 
 export async function db_query_one<RowType>(
     sql: string,
-    params: any[] = [],
+    params: unknown[] = [],
     client: DbClient | null = null
 ): Promise<RowType | null> {
     const rows = await db_query<RowType>(sql, params, client);
@@ -123,6 +138,6 @@ export async function db_query_one<RowType>(
 
 // postgresql don't have "create type/domain if not exists"
 export async function typeExists(typeName: string) {
-    const res = await db_query_one(`SELECT * FROM pg_type WHERE typname = %L`, [typeName]);
+    const res = await db_query_one('SELECT * FROM pg_type WHERE typname = %L', [typeName]);
     return res !== null;
 }

@@ -1,6 +1,6 @@
-import { Account, Chain as ViemChain, Client, Transport } from 'viem';
-import { Chain } from '../chain';
-import { HarvestParameters, HarvestReturnType, harvest } from './harvest';
+import type { Account, Client, Transport, Chain as ViemChain } from 'viem';
+import type { Chain } from '../chain';
+import { type HarvestParameters, type HarvestReturnType, harvest } from './harvest';
 
 type CustomHarvestWalletActions<
     TTransport extends Transport = Transport,

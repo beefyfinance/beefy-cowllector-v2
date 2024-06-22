@@ -1,11 +1,11 @@
+import type { Hex } from 'viem';
 import yargs from 'yargs';
-import { runMain } from '../../util/process';
+import { getChainWNativeTokenAddress } from '../../lib/addressbook';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
-import { rootLogger } from '../../util/logger';
-import { Hex } from 'viem';
 import { fetchCollectorBalance } from '../../lib/collector-balance';
-import { getChainWNativeTokenAddress } from '../../lib/addressbook';
+import { rootLogger } from '../../util/logger';
+import { runMain } from '../../util/process';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'balance' });
 type CmdOptions = {

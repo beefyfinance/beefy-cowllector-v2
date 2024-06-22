@@ -1,30 +1,30 @@
+import type { Hex } from 'viem';
 import yargs from 'yargs';
-import { runMain } from '../util/process';
 import { allChainIds } from '../lib/chain';
 import type { Chain } from '../lib/chain';
-import { rootLogger } from '../util/logger';
-import { getVaultsToMonitorByChain } from '../lib/vault-list';
-import { harvestChain } from '../lib/harvest-chain';
-import { Hex } from 'viem';
-import { createDefaultHarvestReport } from '../lib/harvest-report';
-import { splitPromiseResultsByStatus } from '../util/promise';
-import { asyncResultGet, promiseTimings } from '../util/async';
-import { notifyError, notifyHarvestReport } from '../lib/notify';
 import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
-import {
-    ReportAsyncStatusContext,
-    getMergedReportAsyncStatus,
-    getReportAsyncStatus,
-    getReportAsyncStatusCounts,
-} from '../lib/report-error-status';
-import { withDbClient } from '../lib/db/utils';
 import { insertHarvestReport } from '../lib/db/db-report';
+import { withDbClient } from '../lib/db/utils';
 import {
     extractHarvestReportItemErrorDiscordMessageDetails,
     getStrategyDiscordMessageLink,
     getTransactionDiscordMessageLink,
     getVaultDiscordMessageLink,
 } from '../lib/discord-message';
+import { harvestChain } from '../lib/harvest-chain';
+import { createDefaultHarvestReport } from '../lib/harvest-report';
+import { notifyError, notifyHarvestReport } from '../lib/notify';
+import {
+    type ReportAsyncStatusContext,
+    getMergedReportAsyncStatus,
+    getReportAsyncStatus,
+    getReportAsyncStatusCounts,
+} from '../lib/report-error-status';
+import { getVaultsToMonitorByChain } from '../lib/vault-list';
+import { asyncResultGet, promiseTimings } from '../util/async';
+import { rootLogger } from '../util/logger';
+import { runMain } from '../util/process';
+import { splitPromiseResultsByStatus } from '../util/promise';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -113,24 +113,32 @@ async function main() {
                 .filter(([_, vaults]) => vaults.length > 0)
                 .map(async ([chain, vaults]) => {
                     // create the report objects
-                    let report = createDefaultHarvestReport({ chain });
+                    const report = createDefaultHarvestReport({ chain });
                     const result = await promiseTimings(() =>
-                        harvestChain({ report, now: options.now, chain: chain as Chain, vaults })
+                        harvestChain({
+                            report,
+                            now: options.now,
+                            chain: chain as Chain,
+                            vaults,
+                        })
                     );
 
                     if (result.status === 'rejected') {
-                        logger.error({ msg: 'Harvesting errored', data: { chain, error: result.reason } });
+                        logger.error({
+                            msg: 'Harvesting errored',
+                            data: { chain, error: result.reason },
+                        });
                         logger.trace(result.reason);
                     }
 
                     // update the summary
                     report.timing = result.timing;
-                    report.details.forEach(item => {
+                    for (const item of report.details) {
                         const trxStatus = getReportAsyncStatus({ chain, vault: item.vault }, item.transaction);
                         item.summary = {
                             harvested: trxStatus === 'success',
                             skipped: trxStatus === 'not-started',
-                            status: getMergedReportAsyncStatus<any>({ chain, vault: item.vault }, [
+                            status: getMergedReportAsyncStatus({ chain, vault: item.vault }, [
                                 item.simulation,
                                 item.decision,
                                 item.transaction,
@@ -153,7 +161,7 @@ async function main() {
                                 item.transaction.value.transactionHash
                             );
                         }
-                    });
+                    }
 
                     const statusCtx: ReportAsyncStatusContext = { chain, vault: null };
                     report.summary = {
@@ -191,37 +199,61 @@ async function main() {
                         const res = await insertHarvestReport(report);
                         db_raw_report_id = res.raw_report_id;
                     } catch (e) {
-                        logger.error({ msg: 'Failed to insert report into db', data: { chain, error: e } });
+                        logger.error({
+                            msg: 'Failed to insert report into db',
+                            data: { chain, error: e },
+                        });
                         logger.trace(e);
-                        await notifyError({ doing: 'insert harvest report', data: { chain: report.chain } }, e);
+                        await notifyError(
+                            {
+                                doing: 'insert harvest report',
+                                data: { chain: report.chain },
+                            },
+                            e
+                        );
                     }
 
                     if (DISCORD_REPORT_ONLY_FOR_CHAINS.includes(chain)) {
                         await notifyHarvestReport(report, db_raw_report_id);
                     }
-                    logger.debug({ msg: 'Harvesting done', data: { chain, db_raw_report_id, notifyHarvestReport } });
+                    logger.debug({
+                        msg: 'Harvesting done',
+                        data: { chain, db_raw_report_id, notifyHarvestReport },
+                    });
 
                     return report;
                 })
         )
     );
-    logger.trace({ msg: 'harvest results', data: { successfulReports, rejectedReports } });
+    logger.trace({
+        msg: 'harvest results',
+        data: { successfulReports, rejectedReports },
+    });
     const successfulChains = successfulReports.map(r => r.chain);
     logger.info({
         msg: 'Harvesting done',
-        data: { successfulChains, rejectedChains: options.chain.filter(c => !successfulChains.includes(c)) },
+        data: {
+            successfulChains,
+            rejectedChains: options.chain.filter(c => !successfulChains.includes(c)),
+        },
     });
     if (rejectedReports.length > 0) {
         logger.debug({
             msg: 'Some chains errored',
-            data: { count: rejectedReports.length, rejectedReports: rejectedReports.map(r => r + '') },
+            data: {
+                count: rejectedReports.length,
+                rejectedReports: rejectedReports.map(r => `${r}`),
+            },
         });
         for (const rejectedReport of rejectedReports) {
             logger.error(rejectedReport);
             try {
                 await notifyError({ doing: 'harvest', data: { chain: rejectedReport.chain } }, rejectedReport);
             } catch (e) {
-                logger.error({ msg: 'Failed to notify error', data: { chain: rejectedReport.chain, error: e } });
+                logger.error({
+                    msg: 'Failed to notify error',
+                    data: { chain: rejectedReport.chain, error: e },
+                });
                 logger.trace(e);
             }
         }

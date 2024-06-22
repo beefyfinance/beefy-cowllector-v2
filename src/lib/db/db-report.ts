@@ -1,10 +1,10 @@
 import { rootLogger } from '../../util/logger';
-import { DB_REPORTS_FULL_RETENTION_IN_DAYS, DB_REPORTS_DAILY_RETENTION_IN_DAYS } from '../config';
-import { HarvestReport } from '../harvest-report';
+import { DB_REPORTS_DAILY_RETENTION_IN_DAYS, DB_REPORTS_FULL_RETENTION_IN_DAYS } from '../config';
+import type { HarvestReport } from '../harvest-report';
 import { serializeReport } from '../reports';
-import { RevenueBridgeHarvestReport } from '../revenue-bridge-harvest-report';
-import { UnwrapReport } from '../unwrap-report';
-import { AnyReport, ReportType } from './report-types';
+import type { RevenueBridgeHarvestReport } from '../revenue-bridge-harvest-report';
+import type { UnwrapReport } from '../unwrap-report';
+import type { AnyReport, ReportType } from './report-types';
 import { db_query, db_query_one } from './utils';
 
 const logger = rootLogger.child({ module: 'db-report' });
@@ -12,7 +12,10 @@ const logger = rootLogger.child({ module: 'db-report' });
 export async function applyRetention() {
     logger.debug({
         msg: 'Applying retention',
-        data: { DB_REPORTS_FULL_RETENTION_IN_DAYS, DB_REPORTS_DAILY_RETENTION_IN_DAYS },
+        data: {
+            DB_REPORTS_FULL_RETENTION_IN_DAYS,
+            DB_REPORTS_DAILY_RETENTION_IN_DAYS,
+        },
     });
     await db_query(
         `
@@ -27,7 +30,10 @@ export async function applyRetention() {
     );
     logger.info({
         msg: 'Retention applied',
-        data: { DB_REPORTS_FULL_RETENTION_IN_DAYS, DB_REPORTS_DAILY_RETENTION_IN_DAYS },
+        data: {
+            DB_REPORTS_FULL_RETENTION_IN_DAYS,
+            DB_REPORTS_DAILY_RETENTION_IN_DAYS,
+        },
     });
 }
 
@@ -43,7 +49,10 @@ export function insertRevenueBridgeHarvestReport(report: RevenueBridgeHarvestRep
 }
 
 async function insertReport(reportType: ReportType, report: AnyReport): Promise<{ raw_report_id: number }> {
-    logger.debug({ msg: 'Inserting harvest reports', data: { chain: report.chain, reportType } });
+    logger.debug({
+        msg: 'Inserting harvest reports',
+        data: { chain: report.chain, reportType },
+    });
     const res = await db_query_one<{ raw_report_id: number }>(
         `
             INSERT INTO raw_report (report_type, chain, datetime, report_content)
@@ -55,6 +64,9 @@ async function insertReport(reportType: ReportType, report: AnyReport): Promise<
     if (!res) {
         throw new Error('Failed to insert harvest report');
     }
-    logger.info({ msg: 'Harvest reports inserted', data: { chain: report.chain, reportType } });
+    logger.info({
+        msg: 'Harvest reports inserted',
+        data: { chain: report.chain, reportType },
+    });
     return res;
 }

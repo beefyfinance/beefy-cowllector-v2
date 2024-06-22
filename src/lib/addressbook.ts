@@ -1,6 +1,6 @@
 import * as addressbook from 'blockchain-addressbook';
-import { Chain } from './chain';
-import { Hex } from 'viem';
+import type { Hex } from 'viem';
+import type { Chain } from './chain';
 
 export function getChainWNativeTokenDecimals(chain: Chain): number {
     if (chain === 'mode') {

@@ -26,12 +26,12 @@
         "db:apply-retention": "TS_NODE_FILES=true TS_NODE_TRANSPILE_ONLY=true ts-node ./src/script/db/apply-retention.ts",
         "lint:format": "yarn --silent lint:format:solidity && yarn --silent lint:format:typescript",
         "lint:format:solidity": "forge fmt",
-        "lint:format:typescript": "prettier ./src --write --no-color --log-level silent",
+        "lint:format:typescript": "biome check --write --unsafe ./src",
         "test:unit": "yarn --silent test:unit:typescript && yarn --silent test:unit:solidity",
         "test:unit:typescript": "DATABASE_URL=ok LOG_LEVEL=error TZ=UTC jest --maxConcurrency=1 2>&1",
         "test:unit:solidity": "NO_COLOR=1 forge test --match-contract BeefyHarvestLensTest -vvv",
         "test:lint": "yarn --silent test:lint:typescript && yarn --silent test:lint:solidity",
-        "test:lint:typescript": "prettier ./src --check",
+        "test:lint:typescript": "biome check ./src",
         "test:lint:solidity": "NO_COLOR=1 forge fmt --check",
         "test:ts": "tsc --noEmit",
         "test:outdated": "ncu",
@@ -55,6 +55,7 @@
         "yargs": "^17.7.2"
     },
     "devDependencies": {
+        "@biomejs/biome": "1.8.2",
         "@types/async-lock": "^1.4.0",
         "@types/jest": "^29.5.4",
         "@types/lodash": "^4.14.198",
@@ -67,14 +68,13 @@
         "lint-staged": "^14.0.1",
         "npm-check-updates": "^16.14.2",
         "pino-pretty": "^10.2.0",
-        "prettier": "^3.0.3",
         "ts-jest": "^29.1.1",
         "ts-node": "^10.9.1",
         "ts-unused-exports": "^10.0.1",
         "typescript": "^5.4.5"
     },
     "lint-staged": {
-        "*.{js,ts,json}": "prettier ./src --write",
+        "*.{js,ts,json}": "biome format --write ./src",
         "*.sol": "forge fmt"
     }
 }

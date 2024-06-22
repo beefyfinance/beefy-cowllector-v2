@@ -1,26 +1,26 @@
-import axios from 'axios';
-import { HarvestReport } from './harvest-report';
+import { Blob, File } from 'node:buffer';
 import AsyncLock from 'async-lock';
-import {
-    DISCORD_PING_ROLE_IDS_ON_ERROR,
-    DISCORD_REPORT_WEBHOOK_URL,
-    DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS,
-    DISCORD_NOTIFY_UNEVENTFUL_HARVEST,
-    DISCORD_ALERT_WEBHOOK_URL,
-    REPORT_URL_TEMPLATE,
-} from './config';
-import { rootLogger } from '../util/logger';
-import { Blob, File } from 'buffer';
-import { bigintFormat } from '../util/bigint';
-import { getChainWNativeTokenSymbol } from './addressbook';
+import axios from 'axios';
 import { table } from 'table';
 import { asyncResultGet } from '../util/async';
-import { removeSecretsFromString, serializeReport } from './reports';
-import { UnwrapReport } from './unwrap-report';
-import { extractErrorMessage } from './error-message';
+import { bigintFormat } from '../util/bigint';
+import { rootLogger } from '../util/logger';
 import { wait } from '../util/promise';
-import { RevenueBridgeHarvestReport } from './revenue-bridge-harvest-report';
-import { AnyReport } from './db/report-types';
+import { getChainWNativeTokenSymbol } from './addressbook';
+import {
+    DISCORD_ALERT_WEBHOOK_URL,
+    DISCORD_NOTIFY_UNEVENTFUL_HARVEST,
+    DISCORD_PING_ROLE_IDS_ON_ERROR,
+    DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS,
+    DISCORD_REPORT_WEBHOOK_URL,
+    REPORT_URL_TEMPLATE,
+} from './config';
+import type { AnyReport } from './db/report-types';
+import { extractErrorMessage } from './error-message';
+import type { HarvestReport } from './harvest-report';
+import { removeSecretsFromString, serializeReport } from './reports';
+import type { RevenueBridgeHarvestReport } from './revenue-bridge-harvest-report';
+import type { UnwrapReport } from './unwrap-report';
 
 const logger = rootLogger.child({ module: 'notify' });
 
@@ -32,7 +32,9 @@ type DiscordWebhookParams = {
 
 export async function notifyHarvestReport(report: HarvestReport, db_raw_report_id: number | null) {
     if (!DISCORD_REPORT_WEBHOOK_URL) {
-        logger.warn({ msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message' });
+        logger.warn({
+            msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message',
+        });
         return;
     }
 
@@ -42,13 +44,19 @@ export async function notifyHarvestReport(report: HarvestReport, db_raw_report_i
         report.summary.statuses.warning === 0 &&
         report.summary.statuses.notice === 0
     ) {
-        logger.info({ msg: 'All strats were skipped, not reporting', data: report.summary });
+        logger.info({
+            msg: 'All strats were skipped, not reporting',
+            data: report.summary,
+        });
         if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
             return;
         }
     }
 
-    logger.info({ msg: 'notifying harvest for report', data: { chain: report.chain } });
+    logger.info({
+        msg: 'notifying harvest for report',
+        data: { chain: report.chain },
+    });
 
     let reportLevel: string;
     if (report.summary.statuses.error > 0) {
@@ -80,7 +88,7 @@ export async function notifyHarvestReport(report: HarvestReport, db_raw_report_i
     let errorDetails = '';
     for (const stratReport of report.details) {
         if (stratReport.summary.discordMessage) {
-            errorDetails += stratReport.summary.discordMessage + '\n';
+            errorDetails += `${stratReport.summary.discordMessage}\n`;
         }
     }
 
@@ -89,8 +97,7 @@ export async function notifyHarvestReport(report: HarvestReport, db_raw_report_i
         (report.summary.statuses.error > 0 ||
             report.summary.statuses.warning > 0 ||
             DISCORD_NOTIFY_UNEVENTFUL_HARVEST) &&
-        DISCORD_PING_ROLE_IDS_ON_ERROR &&
-        false
+        DISCORD_PING_ROLE_IDS_ON_ERROR.length
             ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
             : '';
 
@@ -117,29 +124,41 @@ ${rolePing}`),
 
         const form = new FormData();
         form.append('payload_json', JSON.stringify(params));
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         form.append('file1', reportFile as any);
 
         await sendRateLimitedReport(form);
     } catch (e) {
-        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
+        logger.error({
+            msg: 'something went wrong sending discord message',
+            data: { e },
+        });
         logger.trace(e);
     }
 }
 
 export async function notifyUnwrapReport(report: UnwrapReport, db_raw_report_id: number | null) {
     if (!DISCORD_REPORT_WEBHOOK_URL) {
-        logger.warn({ msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message' });
+        logger.warn({
+            msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message',
+        });
         return;
     }
 
     if (report.summary.success === true && report.summary.unwrapped === false) {
-        logger.info({ msg: 'Did not unwrap anything, not reporting', data: report.summary });
+        logger.info({
+            msg: 'Did not unwrap anything, not reporting',
+            data: report.summary,
+        });
         if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
             return;
         }
     }
 
-    logger.info({ msg: 'notifying unwrap report', data: { chain: report.chain } });
+    logger.info({
+        msg: 'notifying unwrap report',
+        data: { chain: report.chain },
+    });
 
     let reportLevel: string;
     if (!report.summary.success) {
@@ -158,7 +177,7 @@ export async function notifyUnwrapReport(report: UnwrapReport, db_raw_report_id:
 
     // disable role ping for now
     const rolePing =
-        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR && false
+        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR.length
             ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
             : '';
 
@@ -182,11 +201,15 @@ ${rolePing}`),
 
         const form = new FormData();
         form.append('payload_json', JSON.stringify(params));
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         form.append('file1', reportFile as any);
 
         await sendRateLimitedReport(form);
     } catch (e) {
-        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
+        logger.error({
+            msg: 'something went wrong sending discord message',
+            data: { e },
+        });
         logger.trace(e);
     }
 }
@@ -196,18 +219,26 @@ export async function notifyRevenueBridgeHarvestReport(
     db_raw_report_id: number | null
 ) {
     if (!DISCORD_REPORT_WEBHOOK_URL) {
-        logger.warn({ msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message' });
+        logger.warn({
+            msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message',
+        });
         return;
     }
 
     if (report.summary.success === true && report.summary.revenueBridgeHarvested === false) {
-        logger.info({ msg: 'Did not revenue bridge harvest anything, not reporting', data: report.summary });
+        logger.info({
+            msg: 'Did not revenue bridge harvest anything, not reporting',
+            data: report.summary,
+        });
         if (!DISCORD_NOTIFY_UNEVENTFUL_HARVEST) {
             return;
         }
     }
 
-    logger.info({ msg: 'notifying revenue bridge harvest report', data: { chain: report.chain } });
+    logger.info({
+        msg: 'notifying revenue bridge harvest report',
+        data: { chain: report.chain },
+    });
 
     let reportLevel: string;
     if (!report.summary.success) {
@@ -225,7 +256,7 @@ export async function notifyRevenueBridgeHarvestReport(
 
     // disable role ping for now
     const rolePing =
-        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR && false
+        (!report.summary.success || DISCORD_NOTIFY_UNEVENTFUL_HARVEST) && DISCORD_PING_ROLE_IDS_ON_ERROR.length
             ? DISCORD_PING_ROLE_IDS_ON_ERROR.map(roleId => `<@&${roleId}>`)
             : '';
 
@@ -249,11 +280,15 @@ ${rolePing}`),
 
         const form = new FormData();
         form.append('payload_json', JSON.stringify(params));
+        // biome-ignore lint/suspicious/noExplicitAny: this works
         form.append('file1', reportFile as any);
 
         await sendRateLimitedReport(form);
     } catch (e) {
-        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
+        logger.error({
+            msg: 'something went wrong sending discord message',
+            data: { e },
+        });
         logger.trace(e);
     }
 }
@@ -264,7 +299,7 @@ function getBalanceReportTable(report: AnyReport) {
 
     return table(
         [
-            ['', nativeSymbol, wnativeSymbol, `sum`],
+            ['', nativeSymbol, wnativeSymbol, 'sum'],
             [
                 'before',
                 asyncResultGet(report.collectorBalanceBefore, b => bigintFormat(b.balanceWei, 18, 6)) || '??',
@@ -293,9 +328,11 @@ function getBalanceReportTable(report: AnyReport) {
     );
 }
 
-export async function notifyError(ctx: { doing: string; data: any }, error: unknown) {
+export async function notifyError(ctx: { doing: string; data: unknown }, error: unknown) {
     if (!DISCORD_ALERT_WEBHOOK_URL) {
-        logger.warn({ msg: 'DISCORD_ALERT_WEBHOOK_URL not set, not sending any discord message' });
+        logger.warn({
+            msg: 'DISCORD_ALERT_WEBHOOK_URL not set, not sending any discord message',
+        });
         return;
     }
 
@@ -320,7 +357,10 @@ ${codeSep}
 
         await axios.post(DISCORD_ALERT_WEBHOOK_URL, form);
     } catch (e) {
-        logger.error({ msg: 'something went wrong sending discord message', data: { e } });
+        logger.error({
+            msg: 'something went wrong sending discord message',
+            data: { e },
+        });
         logger.trace(e);
     }
 }
@@ -332,7 +372,9 @@ let lastSentTime: Date = new Date(0);
 
 async function sendRateLimitedReport(form: FormData) {
     if (!DISCORD_REPORT_WEBHOOK_URL) {
-        logger.warn({ msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message' });
+        logger.warn({
+            msg: 'DISCORD_REPORT_WEBHOOK_URL not set, not sending any discord message',
+        });
         return null;
     }
     const url = DISCORD_REPORT_WEBHOOK_URL;
@@ -344,7 +386,10 @@ async function sendRateLimitedReport(form: FormData) {
         if (secondsSinceLastSent < DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS) {
             logger.info({
                 msg: 'rate limiting discord message',
-                data: { secondsSinceLastSent, DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS },
+                data: {
+                    secondsSinceLastSent,
+                    DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS,
+                },
             });
             await wait(DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS * 1000 - secondsSinceLastSent * 1000);
         }

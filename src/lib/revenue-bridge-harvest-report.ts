@@ -1,8 +1,8 @@
-import { Hex } from 'viem';
-import { Chain } from './chain';
-import { Async, TimingData } from '../util/async';
-import { AItem, AKey, AVal, reportOnSingleAsyncCall } from './reports';
-import { CollectorBalance } from './collector-balance';
+import type { Hex } from 'viem';
+import type { Async, TimingData } from '../util/async';
+import type { Chain } from './chain';
+import type { CollectorBalance } from './collector-balance';
+import { type AItem, type AKey, type AVal, reportOnSingleAsyncCall } from './reports';
 
 export type RevenueBridgeHarvestReport = {
     timing: TimingData | null;

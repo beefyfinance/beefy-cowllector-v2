@@ -1,24 +1,24 @@
-import {
-    type Chain as ViemChain,
-    type SimulateContractReturnType,
-    type Abi,
-    type SimulateContractParameters,
-    Hex,
-    TransactionReceipt,
-    ContractFunctionName,
-    ContractFunctionArgs,
+import { cloneDeep } from 'lodash';
+import type {
+    Abi,
     Account,
     Address,
+    ContractFunctionArgs,
+    ContractFunctionName,
     DeriveChain,
     ExtractAbiFunctionForArgs,
+    Hex,
     ParseAccount,
+    SimulateContractParameters,
+    SimulateContractReturnType,
+    TransactionReceipt,
+    Chain as ViemChain,
 } from 'viem';
-import { type AggressivelyWaitForTransactionReceiptReturnType } from './aggressivelyWaitForTransactionReceipt';
-import { rootLogger } from '../../util/logger';
-import { getRpcActionParams } from '../rpc-client';
-import { Chain } from '../chain';
 import { bigintMultiplyFloat } from '../../util/bigint';
-import { cloneDeep } from 'lodash';
+import { rootLogger } from '../../util/logger';
+import type { Chain } from '../chain';
+import { getRpcActionParams } from '../rpc-client';
+import type { AggressivelyWaitForTransactionReceiptReturnType } from './aggressivelyWaitForTransactionReceipt';
 
 export type AggressivelyWriteContractParameters<
     abi extends Abi | readonly unknown[] = Abi,
@@ -77,7 +77,10 @@ export type AggressivelyWriteContractReturnType<
     transactionReceipt: AggressivelyWaitForTransactionReceiptReturnType<ViemChain>;
 };
 
-const logger = rootLogger.child({ module: 'rpc-actions', component: 'aggressivelyWriteContract' });
+const logger = rootLogger.child({
+    module: 'rpc-actions',
+    component: 'aggressivelyWriteContract',
+});
 
 /**
  * How this method works:
@@ -149,12 +152,18 @@ export async function aggressivelyWriteContract<
         address: walletAccount.address,
         blockTag: 'pending',
     });
-    logger.debug({ msg: 'Got nonce', data: { chain, address: args.address, nonce } });
+    logger.debug({
+        msg: 'Got nonce',
+        data: { chain, address: args.address, nonce },
+    });
 
     const gasParams = await publicClient.estimateFeesPerGas({
         type: rpcConfig.transaction.type,
     });
-    logger.debug({ msg: 'Got gas params', data: { chain, address: args.address, gasParams } });
+    logger.debug({
+        msg: 'Got gas params',
+        data: { chain, address: args.address, gasParams },
+    });
 
     const allPendingTransactions: Hex[] = [];
 
@@ -162,9 +171,14 @@ export async function aggressivelyWriteContract<
         const { request, result: simulationResult } = await publicClient.simulateContract({
             nonce,
             ...gasParams,
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
             ...(args as any), // TODO: fix typings
         });
-        logger.trace({ msg: 'Simulation ok', data: { chain, address: args.address, request } });
+        logger.trace({
+            msg: 'Simulation ok',
+            data: { chain, address: args.address, request },
+        });
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const transactionHash = await walletClient.writeContract(request as any); // TODO: fix typings
         logger.debug({ msg: 'Transaction ok', data: { chain, transactionHash } });
         allPendingTransactions.push(transactionHash);
@@ -191,15 +205,20 @@ export async function aggressivelyWriteContract<
         });
 
         return {
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
             simulation: simulationResult as any, // TODO: fix typings
             transactionHash: receipt.transactionHash,
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
             transactionReceipt: receipt as any, // TODO: fix typings
         };
     };
 
     for (let i = 0; i < rpcConfig.transaction.totalTries; i++) {
         try {
-            logger.trace({ msg: 'Trying to mint', data: { chain, address: args.address, try: i, gasParams } });
+            logger.trace({
+                msg: 'Trying to mint',
+                data: { chain, address: args.address, try: i, gasParams },
+            });
             return await mint();
         } catch (err) {
             if (i < rpcConfig.transaction.totalTries - 1) {
@@ -225,10 +244,18 @@ export async function aggressivelyWriteContract<
                 }
                 logger.warn({
                     msg: 'minting failed, retrying',
-                    data: { chain, address: args.address, previousGasParams, nextGasParams: gasParams },
+                    data: {
+                        chain,
+                        address: args.address,
+                        previousGasParams,
+                        nextGasParams: gasParams,
+                    },
                 });
             } else {
-                logger.warn({ msg: 'Minting failed, exiting', data: { chain, address: args.address, err } });
+                logger.warn({
+                    msg: 'Minting failed, exiting',
+                    data: { chain, address: args.address, err },
+                });
                 throw err;
             }
         }

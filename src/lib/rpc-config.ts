@@ -1,5 +1,5 @@
 import type { Hex, MulticallBatchOptions } from 'viem';
-import { BatchOptions } from 'viem/_types/clients/transports/http';
+import type { BatchOptions } from 'viem/_types/clients/transports/http';
 
 export type RpcConfig = {
     url: string;

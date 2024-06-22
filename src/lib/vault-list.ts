@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { Chain } from './chain';
-import { BeefyVault, StrategyTypeId } from './vault';
-import { BEEFY_API_URL } from './config';
-import { rootLogger } from '../util/logger';
-import { Hex } from 'viem';
 import { groupBy, mapValues, uniqBy } from 'lodash';
+import type { Hex } from 'viem';
+import { rootLogger } from '../util/logger';
+import type { Chain } from './chain';
+import { BEEFY_API_URL } from './config';
+import type { BeefyVault, StrategyTypeId } from './vault';
 
 const logger = rootLogger.child({ module: 'vault-list' });
 
@@ -33,7 +33,7 @@ async function fetchVaults() {
 
     const tvlResponse = await axios.get<ApiBeefyTvlResponse>(`${BEEFY_API_URL}/tvl`);
     const rawTvlByChains = tvlResponse.data;
-    const rawTvls = Object.values(rawTvlByChains).reduce((acc, tvl) => ({ ...acc, ...tvl }), {});
+    const rawTvls = Object.values(rawTvlByChains).reduce((acc, tvl) => Object.assign({}, acc, tvl), {});
 
     // map to a simpler format
     return rawVaults.map(vault => ({
@@ -48,7 +48,10 @@ async function fetchVaults() {
     }));
 }
 
-export async function getVault(options: { chain: Chain; strategyAddress: Hex }): Promise<BeefyVault | null> {
+export async function getVault(options: {
+    chain: Chain;
+    strategyAddress: Hex;
+}): Promise<BeefyVault | null> {
     const vaults = await fetchVaults();
     const vault = vaults.find(
         vault => vault.chain === options.chain && vault.strategyAddress === options.strategyAddress
@@ -62,9 +65,12 @@ export async function getVaultsToMonitorByChain(options: {
 }): Promise<Record<Chain, BeefyVault[]>> {
     const allVaults = await fetchVaults();
 
-    logger.info({ msg: 'Got vaults from api', data: { vaultLength: allVaults.length } });
+    logger.info({
+        msg: 'Got vaults from api',
+        data: { vaultLength: allVaults.length },
+    });
     // apply command line options
-    let vaults = allVaults
+    const vaults = allVaults
         .filter(vault => options.chains.includes(vault.chain))
         .filter(vault => (options.strategyAddress ? vault.strategyAddress === options.strategyAddress : true));
     logger.info({ msg: 'Filtered vaults', data: { vaultLength: vaults.length } });

@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 
-export function extractErrorMessage(e: any): string {
+export function extractErrorMessage(e: unknown): string {
     const keys = [
         'reason.details',
         'reason.shortMessage',

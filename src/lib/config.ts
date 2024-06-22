@@ -1,11 +1,11 @@
 import dotenv from 'dotenv';
-import { allChainIds, type Chain } from './chain';
+import type { Hex } from 'viem';
+import { bigintMultiplyFloat } from '../util/bigint';
 import { allLogLevels } from '../util/logger-type';
 import type { LogLevels } from '../util/logger-type';
+import { type Chain, allChainIds } from './chain';
 import type { RpcConfig } from './rpc-config';
-import { Hex } from 'viem';
-import { bigintMultiplyFloat } from '../util/bigint';
-import { StrategyTypeId } from './vault';
+import type { StrategyTypeId } from './vault';
 dotenv.config();
 
 const timezone = process.env.TZ;
@@ -34,7 +34,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
 export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['fraxtal', 'mode', 'scroll'];
-export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = parseInt(
+export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = Number.parseInt(
     process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '10',
     10
 );
@@ -46,24 +46,27 @@ export const DISCORD_PING_ROLE_IDS_ON_ERROR = process.env.DISCORD_PING_ROLE_IDS_
 
 // retain all reports for 7 days and daily reports for 30 days
 // we need to cleanup reports to avoid breaking heroku's 10k rows limit
-export const DB_REPORTS_FULL_RETENTION_IN_DAYS = parseInt(process.env.DB_REPORTS_RETENTION_IN_DAYS || '7', 10);
-export const DB_REPORTS_DAILY_RETENTION_IN_DAYS = parseInt(process.env.DB_REPORTS_DAILY_RETENTION_IN_DAYS || '30', 10);
+export const DB_REPORTS_FULL_RETENTION_IN_DAYS = Number.parseInt(process.env.DB_REPORTS_RETENTION_IN_DAYS || '7', 10);
+export const DB_REPORTS_DAILY_RETENTION_IN_DAYS = Number.parseInt(
+    process.env.DB_REPORTS_DAILY_RETENTION_IN_DAYS || '30',
+    10
+);
 
 export const REPORT_URL_TEMPLATE = process.env.REPORT_URL_TEMPLATE || 'https://localhost/report/{{reportId}}';
 export const CENSOR_SECRETS_FROM_REPORTS = process.env.CENSOR_SECRETS_FROM_REPORTS
     ? process.env.CENSOR_SECRETS_FROM_REPORTS.split(',')
     : [];
 
-export const LENS_DEPLOY_GAS_MULTIPLIER = parseFloat(process.env.LENS_DEPLOY_GAS_MULTIPLIER || '1.3');
+export const LENS_DEPLOY_GAS_MULTIPLIER = Number.parseFloat(process.env.LENS_DEPLOY_GAS_MULTIPLIER || '1.3');
 
-const HARVEST_AT_LEAST_EVERY_HOURS = parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
-const HARVEST_GAS_PRICE_MULTIPLIER = parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
-const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
-const UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(process.env.UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5');
-const REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = parseFloat(
+const HARVEST_AT_LEAST_EVERY_HOURS = Number.parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '24', 10);
+const HARVEST_GAS_PRICE_MULTIPLIER = Number.parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
+const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = Number.parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
+const UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER = Number.parseFloat(process.env.UNWRAP_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5');
+const REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = Number.parseFloat(
     process.env.REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5'
 );
-const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
+const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = Number.parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
 // some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately

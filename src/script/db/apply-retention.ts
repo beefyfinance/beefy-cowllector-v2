@@ -1,8 +1,8 @@
-import { runMain } from '../../util/process';
-import { withDbClient } from '../../lib/db/utils';
 import { applyRetention } from '../../lib/db/db-report';
-import { rootLogger } from '../../util/logger';
+import { withDbClient } from '../../lib/db/utils';
 import { notifyError } from '../../lib/notify';
+import { rootLogger } from '../../util/logger';
+import { runMain } from '../../util/process';
 
 const logger = rootLogger.child({ module: 'apply-retention' });
 async function main() {
@@ -16,4 +16,9 @@ async function main() {
     }
 }
 
-runMain(withDbClient(main, { appName: 'cowllector-apply-retention', connectTimeoutMs: 10_000 }));
+runMain(
+    withDbClient(main, {
+        appName: 'cowllector-apply-retention',
+        connectTimeoutMs: 10_000,
+    })
+);

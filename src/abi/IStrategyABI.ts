@@ -6,5 +6,11 @@ export const IStrategyABI = [
         stateMutability: 'nonpayable',
         type: 'function',
     },
-    { inputs: [], name: 'harvest', outputs: [], stateMutability: 'nonpayable', type: 'function' },
+    {
+        inputs: [],
+        name: 'harvest',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
 ] as const;

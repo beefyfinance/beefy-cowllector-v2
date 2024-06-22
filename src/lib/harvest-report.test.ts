@@ -1,7 +1,7 @@
-import { AsyncSuccessType } from '../util/async';
-import { IfEquals } from '../util/types-assert';
-import { HarvestReportDecision } from './harvest-report';
-import { ReportNotificationLevels } from './report-error-status';
+import type { AsyncSuccessType } from '../util/async';
+import type { IfEquals } from '../util/types-assert';
+import type { HarvestReportDecision } from './harvest-report';
+import type { ReportNotificationLevels } from './report-error-status';
 
 describe('Harvest decision report level', () => {
     it('should be a typescript error if level is not compatible with ReportNotificationLevels', () => {

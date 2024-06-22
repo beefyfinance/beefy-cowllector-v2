@@ -1,15 +1,15 @@
 import {
+    BlockNotFoundError,
+    type Hex,
+    TimeoutError,
+    TransactionReceiptNotFoundError,
     type Chain as ViemChain,
     type WaitForTransactionReceiptReturnType,
-    BlockNotFoundError,
-    Hex,
-    TransactionReceiptNotFoundError,
-    TimeoutError,
 } from 'viem';
 import { rootLogger } from '../../util/logger';
 import { withRetry } from '../../util/promise';
+import type { Chain } from '../chain';
 import { getRpcActionParams } from '../rpc-client';
-import { Chain } from '../chain';
 
 export type AggressivelyWaitForTransactionReceiptParameters = {
     hash: Hex;
@@ -18,7 +18,10 @@ export type AggressivelyWaitForTransactionReceiptParameters = {
 export type AggressivelyWaitForTransactionReceiptReturnType<TChain extends ViemChain | undefined> =
     WaitForTransactionReceiptReturnType<TChain>;
 
-const logger = rootLogger.child({ module: 'rpc-actions', component: 'aggressivelyWaitForTransactionReceipt' });
+const logger = rootLogger.child({
+    module: 'rpc-actions',
+    component: 'aggressivelyWaitForTransactionReceipt',
+});
 
 // BlockNotFoundError: when we use an rpc cluster with many nodes and we hit one that is lagging behind, happens a lot with ankr's rpc cluster
 // TransactionReceiptNotFoundError: when a transaction is not mined yet and we are waiting for it
@@ -45,7 +48,10 @@ export function aggressivelyWaitForTransactionReceipt<TChain extends ViemChain |
             shouldRetry: err => {
                 for (const retryableError of retryableErrorsWhileWaitingForReceipt) {
                     if (err instanceof retryableError) {
-                        logger.warn({ msg: 'found a retryable error, retrying', data: { err } });
+                        logger.warn({
+                            msg: 'found a retryable error, retrying',
+                            data: { err },
+                        });
                         return true;
                     }
                 }

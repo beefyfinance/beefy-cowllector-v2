@@ -38,7 +38,7 @@ export async function db_migrate() {
       `);
     }
     for (const chain of allChainIds) {
-        await db_query(`ALTER TYPE chain_enum ADD VALUE IF NOT EXISTS %L`, [chain]);
+        await db_query('ALTER TYPE chain_enum ADD VALUE IF NOT EXISTS %L', [chain]);
     }
 
     if (!(await typeExists('evm_address_bytea'))) {
@@ -142,7 +142,7 @@ export async function db_migrate() {
         await db_query(`CREATE TYPE report_type AS ENUM ('harvest');`);
     }
     for (const reportType of allReportTypes) {
-        await db_query(`ALTER TYPE report_type ADD VALUE IF NOT EXISTS %L`, [reportType]);
+        await db_query('ALTER TYPE report_type ADD VALUE IF NOT EXISTS %L', [reportType]);
     }
 
     await db_query(`

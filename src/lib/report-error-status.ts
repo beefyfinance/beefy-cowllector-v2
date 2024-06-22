@@ -1,9 +1,9 @@
 import { get } from 'lodash';
-import { Async } from '../util/async';
-import { Chain } from './chain';
-import { extractErrorMessage } from './error-message';
-import { BeefyVault } from './vault';
+import type { Async } from '../util/async';
+import type { Chain } from './chain';
 import { VAULT_IDS_WE_ARE_OK_NOT_HARVESTING } from './config';
+import { extractErrorMessage } from './error-message';
+import type { BeefyVault } from './vault';
 
 // info: do not show or alert in the notifier message
 // notice: show in the notifier message but do not alert
@@ -37,7 +37,8 @@ export function getReportAsyncStatus<T>(
         }
 
         return 'success';
-    } else if (get(report, 'status', undefined) === 'rejected') {
+    }
+    if (get(report, 'status', undefined) === 'rejected') {
         if (chain === 'zkevm' && extractErrorMessage(report) === 'failed to execute the unsigned transaction') {
             return 'notice';
         }
@@ -45,16 +46,15 @@ export function getReportAsyncStatus<T>(
             return 'notice';
         }
         return 'error';
-    } else {
-        if (get(report, 'warning', false)) {
-            return 'warning';
-        }
-        const level = get(report, 'value.level');
-        if (level) {
-            return level;
-        }
-        return 'success';
     }
+    if (get(report, 'warning', false)) {
+        return 'warning';
+    }
+    const level = get(report, 'value.level');
+    if (level) {
+        return level;
+    }
+    return 'success';
 }
 
 const statusOrder: Record<ReportAsyncStatus, number> = {
@@ -76,9 +76,9 @@ export function mergeReportAsyncStatus<A, B>(
     return statusB;
 }
 
-export function getMergedReportAsyncStatus<T>(
+export function getMergedReportAsyncStatus(
     ctx: ReportAsyncStatusContext,
-    reports: Array<Async<T> | null>
+    reports: Array<Async<unknown> | null>
 ): ReportAsyncStatus {
     let aggStatus: ReportAsyncStatus = 'not-started';
     for (const report of reports) {

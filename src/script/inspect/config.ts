@@ -1,11 +1,11 @@
+import { cloneDeep } from 'lodash';
 import yargs from 'yargs';
-import { runMain } from '../../util/process';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
-import { rootLogger } from '../../util/logger';
 import { EXPLORER_CONFIG, RPC_CONFIG } from '../../lib/config';
-import { cloneDeep } from 'lodash';
 import { serializeReport } from '../../lib/reports';
+import { rootLogger } from '../../util/logger';
+import { runMain } from '../../util/process';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'lens' });
 

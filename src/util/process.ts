@@ -2,7 +2,7 @@ import { rootLogger } from './logger';
 
 const logger = rootLogger.child({ module: 'process' });
 
-type ExitCallback = () => Promise<any>;
+type ExitCallback = () => Promise<unknown>;
 const exitCallbacks: ExitCallback[] = [];
 
 let called = false;
@@ -25,7 +25,7 @@ async function exitHandler() {
 process.on('SIGTERM', exitHandler);
 process.on('SIGINT', exitHandler);
 
-export async function runMain(main: () => Promise<any>, onExit?: () => void) {
+export async function runMain(main: () => Promise<unknown>, onExit?: () => void) {
     try {
         await main();
         if (onExit) {

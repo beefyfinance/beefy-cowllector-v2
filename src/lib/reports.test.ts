@@ -1,5 +1,5 @@
-import { serializeReport } from './reports';
 import { CENSOR_SECRETS_FROM_REPORTS } from './config';
+import { serializeReport } from './reports';
 
 jest.mock('./config', () => ({
     CENSOR_SECRETS_FROM_REPORTS: [

@@ -1,5 +1,5 @@
-import { Hex } from 'viem';
-import { Chain } from './chain';
+import type { Hex } from 'viem';
+import type { Chain } from './chain';
 
 export class NotEnoughRemainingGasError extends Error {
     constructor(
