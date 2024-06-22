@@ -753,7 +753,21 @@ groups:
                 intervalMs: 1000
                 maxDataPoints: 43200
                 rawQuery: true
-                rawSql: "with revenue_bridge_harvested_chains as (\n  select distinct chain\n  from raw_revenue_bridge_harvest_report\n  where $__timeFilter(datetime) \n),\nchains_harvested_recently as (\n  select c.chain, rh.chain is not null as bridge_harvested_recently\n  from chain c\n  left join revenue_bridge_harvested_chains rh using (chain)\n  where revenue_bridge_harvest_enabled\n)\nSELECT \n  date_trunc('hour', now()) as time, \n  chain,\n  (not bridge_harvested_recently) :: integer as value\nFROM chains_harvested_recently\n;"
+                rawSql: >
+                  with last_revenue_bridge_harvest_success_by_chain as (
+                    select chain, datetime, cast(report_content->'summary'->'success' as boolean) as success
+                    from last_revenue_bridge_harvest_report_by_chain
+                  ),
+                  chains_harvested_recently as (
+                    select c.chain, (not c.revenue_bridge_harvest_enabled) or (lh.chain is not null and lh.success and $__timeFilter(lh.datetime)) as bridge_harvest_recent_success
+                    from chain c
+                    left join last_revenue_bridge_harvest_success_by_chain lh using (chain)
+                  )
+                  SELECT 
+                    date_trunc('hour', now()) as time, 
+                    chain,
+                    (not bridge_harvest_recent_success) :: integer as value
+                  FROM chains_harvested_recently
                 refId: revenue_bridge_harvested_recently
                 sql:
                     columns:
