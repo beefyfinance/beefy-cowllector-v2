@@ -139,14 +139,6 @@ export async function aggressivelyWriteContract<
         resolvedAccount
     >
 > {
-    if (!args.gas) {
-        // setting a gas limit is mandatory since the viem default is too low for larger protocols
-        // and simulation will fail if we don't set it because the default gas parameter is very high
-        // for simulations so rpcs will check the total price of the transaction and fail if it's too high
-        // (which is the case if we don't set a gas limit)
-        throw new Error('Gas parameter is mandatory');
-    }
-
     const { publicClient, walletClient, walletAccount, rpcConfig } = getRpcActionParams({ chain });
     const nonce = await publicClient.getTransactionCount({
         address: walletAccount.address,
