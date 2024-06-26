@@ -33,7 +33,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
-export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['fraxtal', 'mode', 'scroll'];
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['fraxtal', 'mode', 'scroll', 'manta'];
 export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = Number.parseInt(
     process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '10',
     10
@@ -533,6 +533,25 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
     },
+    manta: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.MANTA_RPC_URL || 'https://pacific-rpc.manta.network/http',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 1),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 10),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            setTransactionGasLimit: false,
+        },
+    },
     mantle: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
@@ -896,6 +915,12 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         apiUrl: process.env.LINEA_EXPLORER_API_URL || 'https://api.lineascan.build/api',
         apiKey: process.env.LINEA_EXPLORER_API_KEY || '',
         type: 'etherscan',
+    },
+    manta: {
+        addressLinkTemplate: 'https://pacific-explorer.manta.network/address/${address}',
+        transactionLinkTemplate: 'https://pacific-explorer.manta.network//tx/${hash}',
+        apiUrl: process.env.MANTA_EXPLORER_API_URL || 'https://pacific-explorer.manta.network/api?',
+        type: 'blockscout',
     },
     mantle: {
         addressLinkTemplate: 'https://explorer.mantle.xyz/address/${address}',

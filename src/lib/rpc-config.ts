@@ -1,5 +1,4 @@
-import type { Hex, MulticallBatchOptions } from 'viem';
-import type { BatchOptions } from 'viem/_types/clients/transports/http';
+import type { Hex, HttpTransportConfig, MulticallBatchOptions } from 'viem';
 
 export type RpcConfig = {
     url: string;
@@ -8,7 +7,7 @@ export type RpcConfig = {
     batch: {
         // https://viem.sh/docs/clients/transports/http.html#batch-batchsize-optional
         // applies at the transport level
-        jsonRpc: false | BatchOptions;
+        jsonRpc: HttpTransportConfig['batch'];
         // https://viem.sh/docs/clients/public.html#batch-multicall-batchsize-optional
         // only applies for the public client
         multicall: false | MulticallBatchOptions;
