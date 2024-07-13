@@ -1,0 +1,125 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 15,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "PAF11E62F20EEC83B"
+            },
+            "gridPos": {
+                "h": 18,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "options": {
+                "dedupStrategy": "none",
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showCommonLabels": false,
+                "showLabels": false,
+                "showTime": false,
+                "sortOrder": "Descending",
+                "wrapLogMessage": false
+            },
+            "pluginVersion": "10.1.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "PAF11E62F20EEC83B"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "select\n  r.datetime as time,\n  r.vault_report as full_report,\n  r.vault_report as details,\n  r.*\nFROM\n  harvest_report_vault_details r\n  join vault v on r.vault_id = v.id\nWHERE\n  r.vault_id = '$vault_id'\nORDER BY\n  r.datetime DESC\nLIMIT 1",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    }
+                }
+            ],
+            "title": "Vault report details",
+            "transformations": [],
+            "type": "logs"
+        }
+    ],
+    "refresh": "",
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "selected": false,
+                    "text": "aavev3-metis-metis",
+                    "value": "aavev3-metis-metis"
+                },
+                "datasource": {
+                    "type": "postgres",
+                    "uid": "PAF11E62F20EEC83B"
+                },
+                "definition": "select id from vault",
+                "description": "",
+                "hide": 0,
+                "includeAll": false,
+                "multi": false,
+                "name": "vault_id",
+                "options": [],
+                "query": "select id from vault",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Why isn't vault harvested?",
+    "uid": "89d7a948-ab74-4e9a-b7e8-bb9b7cef9287",
+    "version": 2,
+    "weekStart": ""
+}
