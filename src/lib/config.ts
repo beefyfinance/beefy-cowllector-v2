@@ -34,6 +34,9 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
 export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['fraxtal', 'mode', 'scroll', 'manta'];
+
+export const ADD_RP_TVL_TO_CLM_TVL = process.env.ADD_RP_TVL_TO_CLM_TVL === 'true';
+
 export const DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS = Number.parseInt(
     process.env.DISCORD_RATE_LIMIT_MIN_SECONDS_BETWEEN_REQUESTS || '10',
     10

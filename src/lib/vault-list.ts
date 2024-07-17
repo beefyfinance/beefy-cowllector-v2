@@ -3,7 +3,7 @@ import { groupBy, mapValues, uniqBy } from 'lodash';
 import type { Hex } from 'viem';
 import { rootLogger } from '../util/logger';
 import type { Chain } from './chain';
-import { BEEFY_API_URL } from './config';
+import { ADD_RP_TVL_TO_CLM_TVL, BEEFY_API_URL } from './config';
 import type { BeefyVault, StrategyTypeId } from './vault';
 
 const logger = rootLogger.child({ module: 'vault-list' });
@@ -17,6 +17,7 @@ async function fetchVaults() {
         chain: Chain;
         platformId: string;
         lastHarvest: number;
+        type?: 'cowcentrated';
         strategyTypeId: StrategyTypeId;
         // + some other fields we don't care about
     }[];
@@ -36,16 +37,25 @@ async function fetchVaults() {
     const rawTvls = Object.values(rawTvlByChains).reduce((acc, tvl) => Object.assign({}, acc, tvl), {});
 
     // map to a simpler format
-    return rawVaults.map(vault => ({
-        id: vault.id,
-        eol: vault.status === 'eol',
-        chain: vault.chain,
-        strategyAddress: vault.strategy as Hex,
-        platformId: vault.platformId,
-        tvlUsd: rawTvls[vault.id] || 0,
-        lastHarvest: new Date(vault.lastHarvest * 1000),
-        strategyTypeId: vault.strategyTypeId || null,
-    }));
+    return rawVaults.map(vault => {
+        let tvlUsd = rawTvls[vault.id] || 0;
+        if (ADD_RP_TVL_TO_CLM_TVL && vault.type === 'cowcentrated') {
+            const rpVaultId = `${vault.id}-rp`;
+            const rpTvl = rawTvls[rpVaultId] || 0;
+            tvlUsd += rpTvl;
+        }
+
+        return {
+            id: vault.id,
+            eol: vault.status === 'eol',
+            chain: vault.chain,
+            strategyAddress: vault.strategy as Hex,
+            platformId: vault.platformId,
+            tvlUsd,
+            lastHarvest: new Date(vault.lastHarvest * 1000),
+            strategyTypeId: vault.strategyTypeId || null,
+        };
+    });
 }
 
 export async function getVault(options: {
