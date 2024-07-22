@@ -75,6 +75,9 @@ export type RpcConfig = {
         // wether we should set the transaction gas limit
         setTransactionGasLimit: boolean;
 
+        // multicall config
+        parallelSimulations: number;
+
         // these parameters are used to know if we have enough gas to send a transaction
         balanceCheck: {
             // by how much we should multiply our given gas price

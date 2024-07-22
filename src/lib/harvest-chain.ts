@@ -1,5 +1,5 @@
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
-import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
+import { getReadOnlyRpcClient, getWalletClient } from '../lib/rpc-client';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
 import { getChainWNativeTokenAddress } from './addressbook';
@@ -49,7 +49,6 @@ export async function harvestChain({
     const wnative = getChainWNativeTokenAddress(chain);
     const publicClient = getReadOnlyRpcClient({ chain });
     const walletClient = getWalletClient({ chain });
-    const walletAccount = getWalletAccount({ chain });
     const rpcConfig = RPC_CONFIG[chain];
 
     const items = vaults.map(vault => ({
@@ -85,7 +84,10 @@ export async function harvestChain({
     const successfulSimulations = await reportOnMultipleHarvestAsyncCall(
         items,
         'simulation',
-        'parallel',
+        {
+            type: 'parallel-batched',
+            batchSize: rpcConfig.harvest.parallelSimulations,
+        },
         async item => {
             if (VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)) {
                 return {
@@ -109,11 +111,11 @@ export async function harvestChain({
 
             const {
                 result: { callReward, gasUsed, lastHarvest, paused, success, blockNumber, harvestResult },
-            } = await publicClient.simulateContract({
+            } = await publicClient.simulateContractInBatch({
                 ...harvestLensContract,
                 functionName: 'harvest',
                 args: [item.vault.strategyAddress, wnative] as const,
-                account: walletAccount,
+                //account: walletAccount, // setting the account disables multicall batching
             });
             const lastHarvestDate = new Date(Number(lastHarvest) * 1000);
             const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
@@ -149,7 +151,7 @@ export async function harvestChain({
     const shouldHarvestDecisions = await reportOnMultipleHarvestAsyncCall(
         successfulSimulations,
         'decision',
-        'parallel',
+        { type: 'parallel' },
         async item => {
             if (item.vault.eol) {
                 return {
@@ -393,7 +395,7 @@ export async function harvestChain({
         msg: 'Harvesting strats',
         data: { chain, count: stratsToBeHarvested.length },
     });
-    await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', 'sequential', async item => {
+    await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', { type: 'sequential' }, async item => {
         let harvestParams: HarvestParameters = {
             strategyAddress: item.vault.strategyAddress,
             // mode fails to estimate gas because their eth_estimateGas method doesn't accept fee params

@@ -168,7 +168,7 @@ const defaultBatch: RpcConfig['batch'] = {
     },
     multicall: {
         batchSize: 4_096,
-        wait: 100,
+        wait: 300,
     },
 };
 const defaultRetry: RpcConfig['retry'] = {
@@ -213,6 +213,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
     minTvlThresholdUsd: 100,
+    parallelSimulations: 5,
     profitabilityCheck: {
         enabled: false,
         minExpectedRewardsWei: bigintMultiplyFloat(ONE_ETHER, 0.002),

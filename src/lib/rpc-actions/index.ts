@@ -8,6 +8,8 @@ import type {
     DeriveChain,
     ExtractAbiFunctionForArgs,
     ParseAccount,
+    SimulateContractParameters,
+    SimulateContractReturnType,
     Transport,
     Chain as ViemChain,
 } from 'viem';
@@ -22,11 +24,25 @@ import {
     type AggressivelyWriteContractReturnType,
     aggressivelyWriteContract,
 } from './aggressivelyWriteContract';
+import { simulateContractInBatch } from './simulateContractInBatch';
 
-type CustomRpcPublicActions<TChain extends ViemChain | undefined = ViemChain | undefined> = {
+type CustomRpcPublicActions<
+    TChain extends ViemChain | undefined = ViemChain | undefined,
+    TAccount extends Account | undefined = Account | undefined,
+> = {
     aggressivelyWaitForTransactionReceipt: (
         args: AggressivelyWaitForTransactionReceiptParameters
     ) => Promise<AggressivelyWaitForTransactionReceiptReturnType<TChain>>;
+
+    simulateContractInBatch: <
+        const abi extends Abi | readonly unknown[],
+        functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+        args extends ContractFunctionArgs<abi, 'nonpayable' | 'payable', functionName>,
+        chainOverride extends ViemChain | undefined,
+        accountOverride extends Account | Address | undefined = undefined,
+    >(
+        args: SimulateContractParameters<abi, functionName, args, TChain, chainOverride, accountOverride>
+    ) => Promise<SimulateContractReturnType<abi, functionName, args, TChain, TAccount, chainOverride, accountOverride>>;
 };
 export function createCustomRpcPublicActions({ chain }: { chain: Chain }) {
     return function customRpcPublicActions<
@@ -36,6 +52,7 @@ export function createCustomRpcPublicActions({ chain }: { chain: Chain }) {
     >(client: Client<TTransport, TChain, TAccount>): CustomRpcPublicActions</*TTransport,*/ TChain /*, TAccount*/> {
         return {
             aggressivelyWaitForTransactionReceipt: args => aggressivelyWaitForTransactionReceipt({ chain }, args),
+            simulateContractInBatch: args => simulateContractInBatch(client, args),
         };
     };
 }

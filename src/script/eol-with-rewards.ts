@@ -6,7 +6,7 @@ import { getChainWNativeTokenAddress, getChainWNativeTokenDecimals } from '../li
 import { type Chain, allChainIds } from '../lib/chain';
 import { RPC_CONFIG } from '../lib/config';
 import { type AItem, type AKey, type AVal, reportOnMultipleAsyncCall, serializeReport } from '../lib/reports';
-import { getReadOnlyRpcClient, getWalletAccount } from '../lib/rpc-client';
+import { getReadOnlyRpcClient } from '../lib/rpc-client';
 import type { BeefyVault } from '../lib/vault';
 import { getVaultsToMonitorByChain } from '../lib/vault-list';
 import type { Async } from '../util/async';
@@ -246,7 +246,9 @@ async function main() {
                 const rewards = BigInt(cur.rewards || '0');
                 const wnativeDecimals = getChainWNativeTokenDecimals(cur.chain);
                 const divisor = BigInt(`1${'0'.repeat(wnativeDecimals)}`);
-                const rewardsEth = `${(rewards / divisor).toString()}.${rewards.toString().padStart(wnativeDecimals, '0')}`;
+                const rewardsEth = `${(rewards / divisor).toString()}.${rewards
+                    .toString()
+                    .padStart(wnativeDecimals, '0')}`;
                 acc[cur.chain].push({ vaultId: cur.vaultId, rewards, rewardsEth });
                 return acc;
             },
@@ -293,7 +295,6 @@ function reportOnMultipleEolRewardsAsyncCall<
 async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
     const wnative = getChainWNativeTokenAddress(chain);
     const publicClient = getReadOnlyRpcClient({ chain });
-    const walletAccount = getWalletAccount({ chain });
 
     // we need the harvest lense
     const rpcConfig = RPC_CONFIG[chain];
@@ -310,14 +311,14 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
         report: { vault, simulation: null } as EolWithRewardsReportItem,
     }));
 
-    await reportOnMultipleEolRewardsAsyncCall(items, 'simulation', 'parallel', async item => {
+    await reportOnMultipleEolRewardsAsyncCall(items, 'simulation', { type: 'parallel' }, async item => {
         const {
             result: { callReward, gasUsed, lastHarvest, paused, success, blockNumber, harvestResult },
-        } = await publicClient.simulateContract({
+        } = await publicClient.simulateContractInBatch({
             ...harvestLensContract,
             functionName: 'harvest',
             args: [item.vault.strategyAddress, wnative] as const,
-            account: walletAccount,
+            //account: walletAccount, // setting the account disables multicall batching
         });
 
         const now = new Date();

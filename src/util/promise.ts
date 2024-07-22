@@ -1,4 +1,4 @@
-import { get, isString } from 'lodash';
+import { chunk, get, isString } from 'lodash';
 import type { Prettify } from './types';
 
 export function sleep(ms: number) {
@@ -20,6 +20,16 @@ export function splitPromiseResultsByStatus<T>(results: PromiseSettledResult<T>[
     return { fulfilled, rejected };
 }
 
+export type RunMode = { type: 'parallel' } | { type: 'sequential' } | { type: 'parallel-batched'; batchSize: number };
+
+export function runWithMode<T, R>(mode: RunMode, items: T[], process: (item: T) => Promise<R>) {
+    return mode.type === 'parallel'
+        ? runParallel(items, process)
+        : mode.type === 'sequential'
+          ? runSequentially(items, process)
+          : runParallelBatches(items, mode.batchSize, process);
+}
+
 export async function runSequentially<T, R>(
     items: T[],
     process: (item: T) => Promise<R>
@@ -32,6 +42,31 @@ export async function runSequentially<T, R>(
         } catch (error) {
             results.push({ status: 'rejected', reason: error });
         }
+    }
+    return results;
+}
+
+export async function runParallel<T, R>(
+    items: T[],
+    process: (item: T) => Promise<R>
+): Promise<PromiseSettledResult<R>[]> {
+    return Promise.allSettled(items.map(process));
+}
+
+export async function runParallelBatches<T, R>(
+    items: T[],
+    batchSize: number,
+    process: (item: T) => Promise<R>
+): Promise<PromiseSettledResult<R>[]> {
+    if (batchSize <= 0) {
+        throw new Error('Batch size must be greater than 0');
+    }
+    const batches = chunk(items, batchSize);
+    let results: PromiseSettledResult<R>[] = [];
+
+    for (const batch of batches) {
+        const batchResults = await runParallel(batch, process);
+        results = results.concat(batchResults);
     }
     return results;
 }
@@ -53,7 +88,13 @@ export function withRetry<TData>(
         // The max number of times to retry.
         retryCount?: number;
         // Whether or not to retry when an error is thrown.
-        shouldRetry?: ({ count, error }: { count: number; error: Error }) => Promise<boolean> | boolean;
+        shouldRetry?: ({
+            count,
+            error,
+        }: {
+            count: number;
+            error: Error;
+        }) => Promise<boolean> | boolean;
     } = {}
 ) {
     return new Promise<TData>((resolve, reject) => {

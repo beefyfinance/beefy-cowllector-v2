@@ -2,7 +2,7 @@ import { get, set } from 'lodash';
 import { BaseError, TimeoutError } from 'viem';
 import { type Async, type AsyncSuccessType, promiseTimings } from '../util/async';
 import { rootLogger } from '../util/logger';
-import { runSequentially, splitPromiseResultsByStatus } from '../util/promise';
+import { type RunMode, runWithMode, splitPromiseResultsByStatus } from '../util/promise';
 import type { Prettify } from '../util/types';
 import { CENSOR_SECRETS_FROM_REPORTS } from './config';
 
@@ -77,7 +77,7 @@ export async function reportOnMultipleAsyncCall<
 >(
     items: TItem[],
     reportKey: TKey,
-    mode: 'parallel' | 'sequential',
+    mode: RunMode,
     make: (item: TItem) => Promise<TVal>
 ): Promise<Prettify<TItem & { [k in TKey]: TVal }>[]> {
     logger.info({
@@ -106,9 +106,7 @@ export async function reportOnMultipleAsyncCall<
         };
     };
 
-    const results = await (mode === 'parallel'
-        ? Promise.allSettled(items.map(processItem))
-        : runSequentially(items, processItem));
+    const results = await runWithMode(mode, items, processItem);
     const { fulfilled, rejected } = splitPromiseResultsByStatus(results);
 
     logger.info({
