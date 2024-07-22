@@ -12,7 +12,7 @@ async function fetchVaults() {
     type ApiBeefyVaultResponse = {
         id: string;
         name: string;
-        status: 'eol' | 'active';
+        status: 'eol' | 'active' | 'paused';
         strategy: string;
         chain: Chain;
         platformId: string;
@@ -47,7 +47,7 @@ async function fetchVaults() {
 
         return {
             id: vault.id,
-            eol: vault.status === 'eol',
+            eol: vault.status === 'eol' || vault.status === 'paused',
             chain: vault.chain,
             strategyAddress: vault.strategy as Hex,
             platformId: vault.platformId,
