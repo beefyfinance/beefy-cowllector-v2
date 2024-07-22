@@ -231,6 +231,15 @@ export async function harvestChain({
                     };
                 }
 
+                if (item.vault.platformId === 'aura') {
+                    return {
+                        shouldHarvest: false,
+                        level: 'info',
+                        notHarvestingReason:
+                            'harvest would fail but it is an aura vault, so it might just be out of rewards',
+                    };
+                }
+
                 if (VAULT_IDS_WE_ARE_OK_NOT_HARVESTING.includes(item.vault.id)) {
                     return {
                         shouldHarvest: false,

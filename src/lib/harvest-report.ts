@@ -76,6 +76,11 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
+          level: 'info';
+          notHarvestingReason: 'harvest would fail but it is an aura vault, so it might just be out of rewards';
+      }
+    | {
+          shouldHarvest: false;
           level: 'notice';
           harvestReturnData: Hex;
           blockNumber: bigint;
@@ -197,7 +202,11 @@ export type HarvestReportItem = {
     };
 };
 
-export function createDefaultHarvestReport({ chain }: { chain: Chain }): HarvestReport {
+export function createDefaultHarvestReport({
+    chain,
+}: {
+    chain: Chain;
+}): HarvestReport {
     return {
         timing: null,
         chain,
@@ -224,7 +233,11 @@ export function createDefaultHarvestReport({ chain }: { chain: Chain }): Harvest
     };
 }
 
-export function createDefaultHarvestReportItem({ vault }: { vault: BeefyVault }): HarvestReportItem {
+export function createDefaultHarvestReportItem({
+    vault,
+}: {
+    vault: BeefyVault;
+}): HarvestReportItem {
     return {
         vault,
 
