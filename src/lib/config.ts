@@ -548,7 +548,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.00005),
-            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.001),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.0001),
             setTransactionGasLimit: false,
         },
         revenueBridgeHarvest: {
