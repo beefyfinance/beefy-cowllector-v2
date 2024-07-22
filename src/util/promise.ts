@@ -30,10 +30,7 @@ export function runWithMode<T, R>(mode: RunMode, items: T[], process: (item: T) 
           : runParallelBatches(items, mode.batchSize, process);
 }
 
-export async function runSequentially<T, R>(
-    items: T[],
-    process: (item: T) => Promise<R>
-): Promise<PromiseSettledResult<R>[]> {
+async function runSequentially<T, R>(items: T[], process: (item: T) => Promise<R>): Promise<PromiseSettledResult<R>[]> {
     const results: PromiseSettledResult<R>[] = [];
     for (const item of items) {
         try {
@@ -46,14 +43,11 @@ export async function runSequentially<T, R>(
     return results;
 }
 
-export async function runParallel<T, R>(
-    items: T[],
-    process: (item: T) => Promise<R>
-): Promise<PromiseSettledResult<R>[]> {
+async function runParallel<T, R>(items: T[], process: (item: T) => Promise<R>): Promise<PromiseSettledResult<R>[]> {
     return Promise.allSettled(items.map(process));
 }
 
-export async function runParallelBatches<T, R>(
+async function runParallelBatches<T, R>(
     items: T[],
     batchSize: number,
     process: (item: T) => Promise<R>
