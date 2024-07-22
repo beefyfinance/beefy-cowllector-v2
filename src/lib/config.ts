@@ -123,7 +123,7 @@ export const VAULT_IDS_WE_SHOULD_BLIND_HARVEST = [
 ];
 
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
-export const SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS = 14; // 2 weeks
+export const SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS = 30; // 1 month
 export const PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['curve', 'balancer', 'convex', 'aura'];
 export const VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS = ['joe-joe'];
 
