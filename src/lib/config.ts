@@ -577,6 +577,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
             setTransactionGasLimit: false,
+            // estimating gas doesn't seem to work well on mantle.
+            // we get a lot of "Address: low-level call failed"
+            // just set the gas limit to a value matching the previous bridge harvests
+            // https://explorer.mantle.xyz/tx/0x7a5988267154abde2faea08b0a7086678a963c7cbce884b4067dfd7086bac5ca
+            forceGasLimit: 2_198_429_209n,
         },
     },
     mode: {
@@ -741,6 +746,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
+            enabled: false, // not available yet: https://scrollscan.com/address/0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B
             setTransactionGasLimit: false,
         },
     },
