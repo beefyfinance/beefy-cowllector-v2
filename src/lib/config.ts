@@ -730,6 +730,30 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 5.0),
         },
     },
+    real: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.REAL_RPC_URL || 'https://real.drpc.org',
+
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: false,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.00005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.0001),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            setTransactionGasLimit: false,
+        },
+    },
     scroll: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
@@ -989,6 +1013,12 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         apiUrl: process.env.POLYGON_EXPLORER_API_URL || 'https://api.polygonscan.com/api',
         apiKey: process.env.POLYGON_EXPLORER_API_KEY || '',
         type: 'etherscan',
+    },
+    real: {
+        addressLinkTemplate: 'https://explorer.re.al//address/${address}',
+        transactionLinkTemplate: 'https://explorer.re.al//tx/${hash}',
+        apiUrl: process.env.REAL_EXPLORER_API_URL || 'https://explorer.re.al/api?',
+        type: 'blockscout',
     },
     scroll: {
         addressLinkTemplate: 'https://scrollscan.com/address/${address}',
