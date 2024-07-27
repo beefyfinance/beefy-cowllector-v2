@@ -3,7 +3,7 @@ import { groupBy, mapValues, uniqBy } from 'lodash';
 import type { Hex } from 'viem';
 import { rootLogger } from '../util/logger';
 import type { Chain } from './chain';
-import { ADD_RP_TVL_TO_CLM_TVL, BEEFY_API_URL } from './config';
+import { ADD_RP_TVL_TO_CLM_TVL, ADD_RP_VAULT_TVL_TO_CLM_TVL, BEEFY_API_URL } from './config';
 import type { BeefyVault, StrategyTypeId } from './vault';
 
 const logger = rootLogger.child({ module: 'vault-list' });
@@ -41,6 +41,12 @@ async function fetchVaults() {
         let tvlUsd = rawTvls[vault.id] || 0;
         if (ADD_RP_TVL_TO_CLM_TVL && vault.type === 'cowcentrated') {
             const rpVaultId = `${vault.id}-rp`;
+            const rpTvl = rawTvls[rpVaultId] || 0;
+            tvlUsd += rpTvl;
+        }
+
+        if (ADD_RP_VAULT_TVL_TO_CLM_TVL && vault.type === 'cowcentrated') {
+            const rpVaultId = `${vault.id}-vault`;
             const rpTvl = rawTvls[rpVaultId] || 0;
             tvlUsd += rpTvl;
         }
