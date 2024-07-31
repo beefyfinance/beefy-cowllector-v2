@@ -30,6 +30,7 @@ import {
     polygonZkEvm,
     real,
     scroll,
+    sei,
     zkSync,
 } from 'viem/chains';
 import type { Chain } from './chain';
@@ -83,6 +84,7 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     polygon: applyConfig('polygon', polygon),
     real: applyConfig('real', real),
     scroll: applyConfig('scroll', scroll),
+    sei: applyConfig('sei', sei),
     zkevm: applyConfig('zkevm', polygonZkEvm),
     zksync: applyConfig('zksync', zkSync),
 };

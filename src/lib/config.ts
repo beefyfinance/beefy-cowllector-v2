@@ -780,6 +780,31 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             setTransactionGasLimit: false,
         },
     },
+    sei: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.SEI_RPC_URL || 'https://evm-rpc.sei-apis.com',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxGasPricePerTransactionWei: null,
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: false,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false, // not available yet: https://seitrace.com/address/0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B
+            setTransactionGasLimit: false,
+        },
+    },
     zkevm: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKEVM_RPC_URL || 'https://rpc.ankr.com/polygon_zkevm',
@@ -1026,6 +1051,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://scrollscan.com/tx/${hash}',
         apiUrl: process.env.SCROLL_EXPLORER_API_URL || 'https://api.scrollscan.com/api',
         apiKey: process.env.SCROLL_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    sei: {
+        addressLinkTemplate: 'https://seitrace.com/address/${address}',
+        transactionLinkTemplate: 'https://seitrace.com/tx/${hash}',
+        apiUrl: process.env.SEI_EXPLORER_API_URL || 'https://api.seitrace.com/api',
+        apiKey: process.env.SEI_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zkevm: {

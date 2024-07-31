@@ -117,7 +117,7 @@ In case you want to contribute, please follow next steps:
 - create an explorer api key (important to verify the lens contract later on)
 - add the rpc url, explorer url and api key in `.env`
 - inspect the final chain config: `LOG_LEVEL=error yarn --silent ts-node ./src/script/inspect/config.ts -c <chain>`
-- test the api is working: `LOG_LEVEL=trace yarn --silent ts-node ./src/script/inspect/api.ts -c <chain> -h 0 > api.log`
+- test the api is working: `LOG_LEVEL=trace yarn --silent ts-node ./src/script/inspect/api.ts -h 0 -c <chain> > api.log`
 - test we can get a contract balance: `LOG_LEVEL=trace yarn ts-node ./src/script/inspect/balance.ts -c <chain> -a <some address> > balance.log`
 - test any on chain action with a fork: `anvil -f <rpc url> --accounts 3 --balance 300 --no-cors --block-time 5 --auto-impersonate`
 - Deploy the lens contract: `LOG_LEVEL=trace node -r ts-node/register ./src/script/deploy/deploy-lens.ts -s <seed> -c <chain> > deploy-lens.log`

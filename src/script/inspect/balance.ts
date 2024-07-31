@@ -44,7 +44,12 @@ async function main() {
     };
     logger.trace({ msg: 'running with options', data: options });
 
-    const res = await Promise.allSettled([fetchCollectorBalance({ chain: options.chain })]);
+    const res = await Promise.allSettled([
+        fetchCollectorBalance({
+            chain: options.chain,
+            overwriteCowllectorAddress: options.collectorAddress,
+        }),
+    ]);
 
     console.dir(
         [
