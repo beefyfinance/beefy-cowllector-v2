@@ -1,9 +1,9 @@
+import type { Hex } from 'viem';
 import yargs from 'yargs';
 import { type Chain, allChainIds } from '../../lib/chain';
 import { getVaultsToMonitorByChain } from '../../lib/vault-list';
 import { rootLogger } from '../../util/logger';
 import { runMain } from '../../util/process';
-import type { Hex } from 'viem';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'api' });
 
