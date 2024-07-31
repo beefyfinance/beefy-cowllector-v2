@@ -8,7 +8,7 @@ import type { BeefyVault, StrategyTypeId } from './vault';
 
 const logger = rootLogger.child({ module: 'vault-list' });
 
-async function fetchVaults() {
+async function fetchVaults(): Promise<BeefyVault[]> {
     type ApiBeefyVaultResponse = {
         id: string;
         name: string;
@@ -29,10 +29,12 @@ async function fetchVaults() {
         };
     };
 
-    const vaultResponse = await axios.get<ApiBeefyVaultResponse>(`${BEEFY_API_URL}/harvestable-vaults`);
+    const vaultResponse = await axios.get<ApiBeefyVaultResponse>(
+        `${BEEFY_API_URL}/harvestable-vaults?_cache_buster=${Date.now()}`
+    );
     const rawVaults = vaultResponse.data;
 
-    const tvlResponse = await axios.get<ApiBeefyTvlResponse>(`${BEEFY_API_URL}/tvl`);
+    const tvlResponse = await axios.get<ApiBeefyTvlResponse>(`${BEEFY_API_URL}/tvl?_cache_buster=${Date.now()}`);
     const rawTvlByChains = tvlResponse.data;
     const rawTvls = Object.values(rawTvlByChains).reduce((acc, tvl) => Object.assign({}, acc, tvl), {});
 
