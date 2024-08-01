@@ -84,6 +84,10 @@ async function main() {
     if (deployRequest.gas) {
         deployRequest.gas = bigintMultiplyFloat(deployRequest.gas, LENS_DEPLOY_GAS_MULTIPLIER);
     }
+    //deployRequest.gas = 5169298n;
+    //deployRequest.gasPrice = 1000000000n; // 1 gusei
+    //deployRequest.type = "legacy";
+
     const deployTransaction = await walletClient.writeContract(deployRequest);
     logger.info({
         msg: 'Lens contract deploy trx',
