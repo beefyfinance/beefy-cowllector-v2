@@ -801,7 +801,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
-            enabled: false, // not available yet: https://seitrace.com/address/0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B
             setTransactionGasLimit: false,
         },
     },
