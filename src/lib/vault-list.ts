@@ -40,14 +40,15 @@ async function fetchVaults(): Promise<BeefyVault[]> {
 
     // map to a simpler format
     return rawVaults.map(vault => {
+        const isClmManager = vault.type === 'cowcentrated';
         let tvlUsd = rawTvls[vault.id] || 0;
-        if (ADD_RP_TVL_TO_CLM_TVL && vault.type === 'cowcentrated') {
+        if (ADD_RP_TVL_TO_CLM_TVL && isClmManager) {
             const rpVaultId = `${vault.id}-rp`;
             const rpTvl = rawTvls[rpVaultId] || 0;
             tvlUsd += rpTvl;
         }
 
-        if (ADD_RP_VAULT_TVL_TO_CLM_TVL && vault.type === 'cowcentrated') {
+        if (ADD_RP_VAULT_TVL_TO_CLM_TVL && isClmManager) {
             const rpVaultId = `${vault.id}-vault`;
             const rpTvl = rawTvls[rpVaultId] || 0;
             tvlUsd += rpTvl;
@@ -62,6 +63,7 @@ async function fetchVaults(): Promise<BeefyVault[]> {
             tvlUsd,
             lastHarvest: new Date(vault.lastHarvest * 1000),
             strategyTypeId: vault.strategyTypeId || null,
+            isClmManager,
         };
     });
 }

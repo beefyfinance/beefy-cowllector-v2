@@ -170,13 +170,16 @@ export async function harvestChain({
             }
 
             if (item.vault.tvlUsd < rpcConfig.harvest.minTvlThresholdUsd) {
-                return {
-                    shouldHarvest: false,
-                    level: 'info',
-                    tvlThresholdUsd: rpcConfig.harvest.minTvlThresholdUsd,
-                    vaultTvlUsd: item.vault.tvlUsd,
-                    notHarvestingReason: 'Tvl do not meet minimum threshold',
-                };
+                // make sure to harvest CLMs at least once per 24 hours regardless if $100 or more is in them.
+                if (!item.vault.isClmManager) {
+                    return {
+                        shouldHarvest: false,
+                        level: 'info',
+                        tvlThresholdUsd: rpcConfig.harvest.minTvlThresholdUsd,
+                        vaultTvlUsd: item.vault.tvlUsd,
+                        notHarvestingReason: 'Tvl do not meet minimum threshold',
+                    };
+                }
             }
 
             if (VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)) {

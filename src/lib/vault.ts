@@ -30,4 +30,5 @@ export type BeefyVault = {
     tvlUsd: number;
     lastHarvest: Date | null;
     strategyTypeId: StrategyTypeId | null;
+    isClmManager: boolean;
 };
