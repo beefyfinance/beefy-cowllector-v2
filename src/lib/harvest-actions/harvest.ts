@@ -74,6 +74,10 @@ export async function harvest(
 
     // this happens when we blindly harvest a vault, then we don't know the gas limit
     if (transactionGasLimit === null) {
+        logger.trace({
+            msg: 'Blindly harvesting strat',
+            data: { chain, strategyAddress },
+        });
         transactionHash = await walletClient.writeContract({
             abi: IStrategyABI,
             address: strategyAddress,
@@ -85,6 +89,10 @@ export async function harvest(
             hash: transactionHash,
         });
     } else {
+        logger.trace({
+            msg: 'Aggressively harvesting strat',
+            data: { chain, strategyAddress },
+        });
         const res = await walletClient.aggressivelyWriteContract({
             abi: IStrategyABI,
             address: strategyAddress,
