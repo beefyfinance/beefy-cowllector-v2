@@ -126,12 +126,6 @@ groups:
                     chain,
                     (
                       coalesce(r.summary_status = 'error', false)
-                      -- remove the errors from the other alert that checks last harvest status
-                      and not (
-                        coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
-                        and not summary_harvested
-                      )
-                      and not decision_might_need_eol
                     ) :: integer as value
                   FROM
                     harvest_report_vault_details r
@@ -218,13 +212,7 @@ groups:
                     summary_discord_strategy_link,
                     chain,
                     (
-                      coalesce(r.summary_status = 'error', false)
-                      and decision_might_need_eol
-                      -- remove the errors from the other alert that checks last harvest status
-                      and not (
-                        coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
-                        and not summary_harvested
-                      )
+                      decision_might_need_eol
                     ) :: integer as value
                   FROM
                     harvest_report_vault_details r
