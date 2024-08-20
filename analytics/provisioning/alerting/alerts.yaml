@@ -126,6 +126,7 @@ groups:
                     chain,
                     (
                       coalesce(r.summary_status = 'error', false)
+                      and not decision_might_need_eol -- handled by another alert
                     ) :: integer as value
                   FROM
                     harvest_report_vault_details r
@@ -212,7 +213,8 @@ groups:
                     summary_discord_strategy_link,
                     chain,
                     (
-                      decision_might_need_eol
+                      coalesce(r.summary_status = 'error', false)
+                      and decision_might_need_eol
                     ) :: integer as value
                   FROM
                     harvest_report_vault_details r
