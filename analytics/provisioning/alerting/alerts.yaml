@@ -504,8 +504,12 @@ groups:
                     summary_discord_vault_link,
                     summary_discord_strategy_link,
                     (
-                      coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
-                      and not summary_harvested
+                      (
+                        coalesce(decision_should_harvest, true) -- if this is null, there was an error before 
+                        and not summary_harvested
+                      ) or (
+                        decision_level = 'error'
+                      )
                     ) :: integer as value
                   FROM
                     harvest_report_vault_details r

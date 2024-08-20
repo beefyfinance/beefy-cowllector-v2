@@ -109,7 +109,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "with ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    first_value(eth_wei_to_eth(min(balance_before_aggregated_wei))) over (w) as first_balance_before,\n    first_value(eth_wei_to_eth(min(balance_after_aggregated_wei))) over (w) as first_balance_after,\n    eth_wei_to_eth(min(balance_before_aggregated_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_aggregated_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n  window w as (partition by chain order by datetime)\n  ORDER BY\n    datetime\n)\nselect \n  chain,\n  datetime as time,\n  (balance_before_total - first_balance_before) / first_balance_before as percent_change_from_balance_before--,\n  --(balance_after_total - first_balance_after) / first_balance_after as percent_change_from_balance_after\nfrom ts",
+                    "rawSql": "with ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    first_value(eth_wei_to_eth(min(balance_before_aggregated_wei))) over (w) as first_balance_before,\n    first_value(eth_wei_to_eth(min(balance_after_aggregated_wei))) over (w) as first_balance_after,\n    eth_wei_to_eth(min(balance_before_aggregated_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_aggregated_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n  window w as (partition by chain order by datetime)\n  ORDER BY\n    datetime\n)\nselect \n  chain,\n  datetime as time,\n  case when first_balance_before = 0 then 0 else\n  (balance_before_total - first_balance_before) / first_balance_before\n  end as percent_change_from_balance_before--,\n  --(balance_after_total - first_balance_after) / first_balance_after as percent_change_from_balance_after\nfrom ts",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -221,7 +221,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_aggregated_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_aggregated_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) as balance_before_percent,\n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
+                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_aggregated_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_aggregated_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  case when (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) = 0 then 0 else\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) end as balance_before_percent,\n  case when (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) = 0 then 0 else \n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) end as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -345,7 +345,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "with ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    first_value(eth_wei_to_eth(min(balance_before_native_wei))) over (w) as first_balance_before,\n    first_value(eth_wei_to_eth(min(balance_after_native_wei))) over (w) as first_balance_after,\n    eth_wei_to_eth(min(balance_before_native_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_native_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n  window w as (partition by chain order by datetime)\n  ORDER BY\n    datetime\n)\nselect \n  chain,\n  datetime as time,\n  (balance_before_total - first_balance_before) / first_balance_before as percent_change_from_balance_before,\n  (balance_after_total - first_balance_after) / first_balance_after as percent_change_from_balance_after\nfrom ts",
+                    "rawSql": "with ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    first_value(eth_wei_to_eth(min(balance_before_native_wei))) over (w) as first_balance_before,\n    first_value(eth_wei_to_eth(min(balance_after_native_wei))) over (w) as first_balance_after,\n    eth_wei_to_eth(min(balance_before_native_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_native_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n  window w as (partition by chain order by datetime)\n  ORDER BY\n    datetime\n)\nselect \n  chain,\n  datetime as time,\n  case when first_balance_before = 0 then 0 else\n  (balance_before_total - first_balance_before) / first_balance_before end as percent_change_from_balance_before,\n  case when first_balance_after = 0 then 0 else\n  (balance_after_total - first_balance_after) / first_balance_after end as percent_change_from_balance_after\nfrom ts",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -457,7 +457,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_native_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_native_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) as balance_before_percent,\n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
+                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_native_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_native_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  case when (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) = 0 then 0 else\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) end as balance_before_percent,\n  case when (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) = 0 then 0 else \n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) end as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -478,7 +478,7 @@
                     }
                 }
             ],
-            "title": "Native Balance",
+            "title": "Native Balance from first value (%)",
             "type": "timeseries"
         },
         {
@@ -527,7 +527,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -567,7 +568,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "with ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    first_value(eth_wei_to_eth(min(balance_before_wnative_wei))) over (w) as first_balance_before,\n    first_value(eth_wei_to_eth(min(balance_after_wnative_wei))) over (w) as first_balance_after,\n    eth_wei_to_eth(min(balance_before_wnative_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_wnative_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n  window w as (partition by chain order by datetime)\n  ORDER BY\n    datetime\n)\nselect \n  chain,\n  datetime as time,\n  (balance_before_total - first_balance_before) / first_balance_before as percent_change_from_balance_before,\n  (balance_after_total - first_balance_after) / first_balance_after as percent_change_from_balance_after\nfrom ts",
+                    "rawSql": "with ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    first_value(eth_wei_to_eth(min(balance_before_wnative_wei))) over (w) as first_balance_before,\n    first_value(eth_wei_to_eth(min(balance_after_wnative_wei))) over (w) as first_balance_after,\n    eth_wei_to_eth(min(balance_before_wnative_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_wnative_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n  window w as (partition by chain order by datetime)\n  ORDER BY\n    datetime\n)\nselect \n  chain,\n  datetime as time,\n  case when first_balance_before = 0 then 0 else \n  (balance_before_total - first_balance_before) / first_balance_before end as percent_change_from_balance_before,\n  case when first_balance_after = 0 then 0 else\n  (balance_after_total - first_balance_after) / first_balance_after end as percent_change_from_balance_after\nfrom ts",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -638,7 +639,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -678,7 +680,7 @@
                     "editorMode": "code",
                     "format": "time_series",
                     "rawQuery": true,
-                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_wnative_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_wnative_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) as balance_before_percent,\n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
+                    "rawSql": "\nwith balance_ts as (\n  SELECT\n    chain,\n    date_trunc('hour', datetime) as datetime,\n    eth_wei_to_eth(min(balance_before_wnative_wei)) as balance_before_total,\n    eth_wei_to_eth(min(balance_after_wnative_wei)) as balance_after_total\n  FROM\n    cowllector_run \n  WHERE chain IN ($chain) and $__timeFilter(datetime) \n  GROUP BY 1,2, datetime\n)\nSELECT\n  chain,\n  datetime as time,\n  case when (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) = 0 then 0 else\n  balance_before_total / (FIRST_VALUE(balance_before_total) over (partition by chain order by datetime asc)) end as balance_before_percent,\n  case when (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) = 0 then 0 else\n  balance_after_total / (FIRST_VALUE(balance_after_total) over (partition by chain order by datetime asc)) end as balance_after_percent\nFROM\n  balance_ts\nORDER BY\n  datetime",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -699,7 +701,7 @@
                     }
                 }
             ],
-            "title": "Native Balance",
+            "title": "WNative Balance from first value (%)",
             "type": "timeseries"
         }
     ],
@@ -712,8 +714,58 @@
             {
                 "current": {
                     "selected": true,
-                    "text": ["All"],
-                    "value": ["$__all"]
+                    "text": [
+                        "arbitrum",
+                        "avax",
+                        "base",
+                        "bsc",
+                        "canto",
+                        "cronos",
+                        "ethereum",
+                        "fantom",
+                        "fraxtal",
+                        "fuse",
+                        "gnosis",
+                        "kava",
+                        "linea",
+                        "mantle",
+                        "metis",
+                        "mode",
+                        "moonriver",
+                        "optimism",
+                        "polygon",
+                        "real",
+                        "scroll",
+                        "sei",
+                        "zkevm",
+                        "zksync"
+                    ],
+                    "value": [
+                        "arbitrum",
+                        "avax",
+                        "base",
+                        "bsc",
+                        "canto",
+                        "cronos",
+                        "ethereum",
+                        "fantom",
+                        "fraxtal",
+                        "fuse",
+                        "gnosis",
+                        "kava",
+                        "linea",
+                        "mantle",
+                        "metis",
+                        "mode",
+                        "moonriver",
+                        "optimism",
+                        "polygon",
+                        "real",
+                        "scroll",
+                        "sei",
+                        "zkevm",
+                        "zksync"
+                    ]
                 },
                 "datasource": {
                     "type": "postgres",
@@ -742,6 +794,6 @@
     "timezone": "",
     "title": "Cowllector Wallet Balances Overview",
     "uid": "9eb78ae6-fbd2-46c9-ba85-57b5437e82b5",
-    "version": 6,
+    "version": 9,
     "weekStart": ""
 }
