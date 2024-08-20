@@ -784,21 +784,17 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'legacy',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.2),
-            maxGasPricePerTransactionWei: null,
         },
         harvest: {
             ...defaultHarvestConfig,
-            setTransactionGasLimit: false,
         },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.2),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.2),
-            setTransactionGasLimit: false,
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
-            setTransactionGasLimit: false,
         },
     },
     zkevm: {
