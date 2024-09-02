@@ -554,6 +554,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
             setTransactionGasLimit: false,
             // estimating gas doesn't seem to work well on mantle.
             // we get a lot of "Address: low-level call failed"
@@ -750,6 +751,9 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+            setTransactionGasLimit: true,
+            forceGasLimit: bigintMultiplyFloat(ONE_ETHER, 0.01) / 250000000n /* common gas price */,
         },
     },
     scroll: {
@@ -795,6 +799,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
+            setTransactionGasLimit: true,
+            forceGasLimit: 16000000n,
         },
     },
     zkevm: {
@@ -824,6 +830,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
             // example of a non bridging tx https://zkevm.polygonscan.com/tx/0x0cd5164ce4284b0e4093e64da77ec0aa7ab542b685720a6d515982a12635acde
             // example of a bridging tx https://zkevm.polygonscan.com/tx/0xe0f26db744b242661dfefe5447bc07ff23f7a46a5e06388043c029e94ae8c0d3
             forceGasLimit: 1_000_000n,
