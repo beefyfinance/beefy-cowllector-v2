@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { groupBy, mapValues, uniqBy } from 'lodash';
+import { groupBy, keyBy, mapValues, uniqBy } from 'lodash';
 import type { Hex } from 'viem';
 import { rootLogger } from '../util/logger';
 import type { Chain } from './chain';
@@ -9,10 +9,12 @@ import type { BeefyVault, StrategyTypeId } from './vault';
 const logger = rootLogger.child({ module: 'vault-list' });
 
 async function fetchVaults(): Promise<BeefyVault[]> {
-    type ApiBeefyVaultResponse = {
+    type ApiBeefyVault = {
         id: string;
         name: string;
         status: 'eol' | 'active' | 'paused';
+        tokenAddress?: string; // the want address
+        earnedTokenAddress?: string; // the vault address
         strategy: string;
         chain: Chain;
         platformId: string;
@@ -20,7 +22,9 @@ async function fetchVaults(): Promise<BeefyVault[]> {
         type?: 'cowcentrated';
         strategyTypeId: StrategyTypeId;
         // + some other fields we don't care about
-    }[];
+    };
+
+    type ApiBeefyVaultResponse = ApiBeefyVault[];
 
     type ApiBeefyTvlResponse = {
         [key: string]: {
@@ -33,6 +37,13 @@ async function fetchVaults(): Promise<BeefyVault[]> {
         `${BEEFY_API_URL}/harvestable-vaults?_cache_buster=${Date.now()}`
     );
     const rawVaults = vaultResponse.data;
+    const rawVaultsByAddress = keyBy(
+        rawVaults.filter(v => v.earnedTokenAddress),
+        v => `${v.chain}:${v.earnedTokenAddress?.toLocaleLowerCase()}`
+    );
+    const getClmFromVault = (vault: ApiBeefyVault): ApiBeefyVault | null => {
+        return rawVaultsByAddress[`${vault.chain}:${vault.tokenAddress?.toLocaleLowerCase()}`] ?? null;
+    };
 
     const tvlResponse = await axios.get<ApiBeefyTvlResponse>(`${BEEFY_API_URL}/tvl?_cache_buster=${Date.now()}`);
     const rawTvlByChains = tvlResponse.data;
@@ -41,6 +52,8 @@ async function fetchVaults(): Promise<BeefyVault[]> {
     // map to a simpler format
     return rawVaults.map(vault => {
         const isClmManager = vault.type === 'cowcentrated';
+        const isClmVault = getClmFromVault(vault) !== null;
+
         let tvlUsd = rawTvls[vault.id] || 0;
         if (ADD_RP_TVL_TO_CLM_TVL && isClmManager) {
             const rpVaultId = `${vault.id}-rp`;
@@ -64,6 +77,7 @@ async function fetchVaults(): Promise<BeefyVault[]> {
             lastHarvest: new Date(vault.lastHarvest * 1000),
             strategyTypeId: vault.strategyTypeId || null,
             isClmManager,
+            isClmVault,
         };
     });
 }

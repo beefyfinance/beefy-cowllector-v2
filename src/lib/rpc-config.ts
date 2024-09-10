@@ -71,6 +71,8 @@ export type RpcConfig = {
 
         // We only harvest if the vault tvl is above this threshold
         minTvlThresholdUsd: number;
+        // special threshold for clm
+        minClmTvlThresholdUsd: number;
 
         // wether we should set the transaction gas limit
         setTransactionGasLimit: boolean;

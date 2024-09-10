@@ -214,6 +214,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
     minTvlThresholdUsd: 100,
+    minClmTvlThresholdUsd: 100,
     parallelSimulations: 5,
     profitabilityCheck: {
         enabled: false,
@@ -342,6 +343,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         harvest: {
             ...defaultHarvestConfig,
             minTvlThresholdUsd: 10_000,
+            minClmTvlThresholdUsd: 1_000,
             profitabilityCheck: {
                 ...defaultHarvestConfig.profitabilityCheck,
                 enabled: true,
