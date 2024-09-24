@@ -643,10 +643,15 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     moonbeam: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MOONBEAM_RPC_URL || 'https://rpc.ankr.com/moonbeam',
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: false,
+        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 4.0),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 8.0),
+            setTransactionGasLimit: false,
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
