@@ -131,6 +131,12 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
+          hoursSinceLastHarvest: number;
+          level: 'notice';
+          notHarvestingReason: 'estimated call rewards is 0, but this is ok as the underlying manager is a CLM and users are still earning rewards';
+      }
+    | {
+          shouldHarvest: false;
           level: 'info';
           callRewardsWei: bigint;
           hoursSinceLastHarvest: number;

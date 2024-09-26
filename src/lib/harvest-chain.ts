@@ -322,6 +322,17 @@ export async function harvestChain({
                     };
                 }
 
+                if (item.vault.isClmVault) {
+                    return {
+                        shouldHarvest: false,
+                        level: 'notice',
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        blockNumber: item.simulation.blockNumber,
+                        notHarvestingReason:
+                            'estimated call rewards is 0, but this is ok as the underlying manager is a CLM and users are still earning rewards',
+                    };
+                }
+
                 return {
                     shouldHarvest: false,
                     level: 'error',
