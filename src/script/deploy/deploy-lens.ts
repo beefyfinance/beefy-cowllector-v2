@@ -1,6 +1,7 @@
 import type { Hex } from 'viem';
 import yargs from 'yargs';
 import { BeefyContractDeployerABI } from '../../abi/BeefyContractDeployerABI';
+import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
 import { EXPLORER_CONFIG, LENS_DEPLOY_GAS_MULTIPLIER, RPC_CONFIG } from '../../lib/config';
@@ -9,7 +10,6 @@ import { bigintMultiplyFloat } from '../../util/bigint';
 import { getFoundryContractOptimizedBytecode, verifyFoundryContractForExplorer } from '../../util/foundry';
 import { rootLogger } from '../../util/logger';
 import { runMain } from '../../util/process';
-import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
 
 const logger = rootLogger.child({ module: 'deploy-lens' });
 

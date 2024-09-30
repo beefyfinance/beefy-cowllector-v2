@@ -1,4 +1,4 @@
-import { getAddress, type Hex } from 'viem';
+import { type Hex, getAddress } from 'viem';
 import { WETHABI } from '../abi/WETHABI';
 import { getChainWNativeTokenAddress } from './addressbook';
 import type { Chain } from './chain';

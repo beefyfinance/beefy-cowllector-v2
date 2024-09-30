@@ -1,4 +1,4 @@
-import { getAddress, type Hex } from 'viem';
+import { type Hex, getAddress } from 'viem';
 import yargs from 'yargs';
 import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
 import { IStrategyABI } from '../../abi/IStrategyABI';

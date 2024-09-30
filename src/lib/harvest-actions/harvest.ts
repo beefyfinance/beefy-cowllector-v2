@@ -1,4 +1,4 @@
-import { getAddress, type Hex, type TransactionReceipt } from 'viem';
+import { type Hex, type TransactionReceipt, getAddress } from 'viem';
 import { IStrategyABI } from '../../abi/IStrategyABI';
 import { bigintMultiplyFloat } from '../../util/bigint';
 import { rootLogger } from '../../util/logger';
