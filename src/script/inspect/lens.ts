@@ -1,4 +1,4 @@
-import type { Hex } from 'viem';
+import { getAddress, type Hex } from 'viem';
 import yargs from 'yargs';
 import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
 import { IStrategyABI } from '../../abi/IStrategyABI';
@@ -81,7 +81,7 @@ async function main() {
             .simulateContract({
                 ...harvestLensContract,
                 functionName: 'harvest',
-                args: [vault.strategyAddress, wnative],
+                args: [getAddress(vault.strategyAddress), getAddress(wnative)],
                 account: walletAccount,
                 blockNumber: options.blockNumber || undefined,
             })
@@ -96,7 +96,7 @@ async function main() {
             .simulateContract({
                 ...strategyContract,
                 functionName: 'harvest',
-                args: [walletAccount.address],
+                args: [getAddress(walletAccount.address)],
                 account: walletAccount,
                 blockNumber: options.blockNumber || undefined,
             })

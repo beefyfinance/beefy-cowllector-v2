@@ -1,3 +1,4 @@
+import { getAddress } from 'viem';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import { getReadOnlyRpcClient, getWalletClient } from '../lib/rpc-client';
 import { bigintMultiplyFloat } from '../util/bigint';
@@ -114,7 +115,7 @@ export async function harvestChain({
             } = await publicClient.simulateContractInBatch({
                 ...harvestLensContract,
                 functionName: 'harvest',
-                args: [item.vault.strategyAddress, wnative] as const,
+                args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
                 //account: walletAccount, // setting the account disables multicall batching
             });
             const lastHarvestDate = new Date(Number(lastHarvest) * 1000);

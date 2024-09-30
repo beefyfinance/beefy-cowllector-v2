@@ -1,4 +1,4 @@
-import type { Hex, TransactionReceipt } from 'viem';
+import { getAddress, type Hex, type TransactionReceipt } from 'viem';
 import { IStrategyABI } from '../../abi/IStrategyABI';
 import { bigintMultiplyFloat } from '../../util/bigint';
 import { rootLogger } from '../../util/logger';
@@ -82,7 +82,7 @@ export async function harvest(
             abi: IStrategyABI,
             address: strategyAddress,
             functionName: 'harvest',
-            args: [walletAccount.address],
+            args: [getAddress(walletAccount.address)],
             account: walletAccount,
         });
         transactionReceipt = await publicClient.waitForTransactionReceipt({
@@ -97,7 +97,7 @@ export async function harvest(
             abi: IStrategyABI,
             address: strategyAddress,
             functionName: 'harvest',
-            args: [walletAccount.address],
+            args: [getAddress(walletAccount.address)],
             account: walletAccount,
             // setting a gas limit is mandatory since the viem default is too low for larger protocols
             // but some vaults need to be blindly harvested without knowing the gas limit

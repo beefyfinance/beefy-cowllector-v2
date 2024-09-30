@@ -763,6 +763,31 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             forceGasLimit: bigintMultiplyFloat(ONE_ETHER, 0.01) / 250000000n /* common gas price */,
         },
     },
+    rootstock: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.ROOTSTOCK_RPC_URL || 'https://public-node.rsk.co',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: '0x6C9511d8e03a26EBBCdee54485e67902D440b7cF', // contract deployer wasn't deployed on rsk
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.0002),
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.0002),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.0002),
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
+    },
     scroll: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
@@ -1047,9 +1072,15 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         type: 'etherscan',
     },
     real: {
-        addressLinkTemplate: 'https://explorer.re.al//address/${address}',
+        addressLinkTemplate: 'https://explorer.re.al/address/${address}',
         transactionLinkTemplate: 'https://explorer.re.al//tx/${hash}',
         apiUrl: process.env.REAL_EXPLORER_API_URL || 'https://explorer.re.al/api?',
+        type: 'blockscout',
+    },
+    rootstock: {
+        addressLinkTemplate: 'https://rootstock.blockscout.com/address/${address}',
+        transactionLinkTemplate: 'https://rootstock.blockscout.com/tx/${hash}',
+        apiUrl: process.env.ROOTSTOCK_EXPLORER_API_URL || 'https://rootstock.blockscout.com/api?',
         type: 'blockscout',
     },
     scroll: {

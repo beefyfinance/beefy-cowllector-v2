@@ -9,12 +9,14 @@ import { bigintMultiplyFloat } from '../../util/bigint';
 import { getFoundryContractOptimizedBytecode, verifyFoundryContractForExplorer } from '../../util/foundry';
 import { rootLogger } from '../../util/logger';
 import { runMain } from '../../util/process';
+import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
 
 const logger = rootLogger.child({ module: 'deploy-lens' });
 
 type CmdOptions = {
     chain: Chain;
     salt: Hex;
+    useDeployer: boolean;
 };
 
 async function main() {
@@ -34,6 +36,12 @@ async function main() {
                 alias: 's',
                 describe: 'The deploy contract salt',
             },
+            deployer: {
+                type: 'boolean',
+                demand: false,
+                default: true,
+                describe: 'Deploy using the deployer contract to get a stable address',
+            },
         })
         .check(argv => {
             if (!argv.salt.match(/^0x[0-9a-f]{64}$/i)) {
@@ -45,6 +53,7 @@ async function main() {
     const options: CmdOptions = {
         chain: argv.chain as Chain,
         salt: argv.salt as Hex,
+        useDeployer: argv.deployer as boolean,
     };
 
     logger.info({ msg: 'Deploying lens contract', data: { options } });
@@ -73,29 +82,37 @@ async function main() {
         msg: 'Deploying lens contract',
         data: { chain, salt, bytecode },
     });
-    const { request: deployRequest, result: lensAddress } = await publicClient.simulateContract({
-        abi: BeefyContractDeployerABI,
-        address: rpcConfig.contracts.deployer,
-        functionName: 'deploy',
-        args: [salt, bytecode],
-        account: walletAccount,
-    });
-    console.dir({ deployRequest, lensAddress }, { depth: null });
-    if (deployRequest.gas) {
-        deployRequest.gas = bigintMultiplyFloat(deployRequest.gas, LENS_DEPLOY_GAS_MULTIPLIER);
-    }
-    //deployRequest.gas = 5169298n;
-    //deployRequest.gasPrice = 1000000000n; // 1 gusei
-    //deployRequest.type = "legacy";
 
-    const deployTransaction = await walletClient.writeContract(deployRequest);
-    logger.info({
-        msg: 'Lens contract deploy trx',
-        data: { deployTransaction, lensAddress },
-    });
+    let deployTransaction: Hex;
+    if (options.useDeployer) {
+        const { request: deployRequest, result: lensAddress } = await publicClient.simulateContract({
+            abi: BeefyContractDeployerABI,
+            address: rpcConfig.contracts.deployer,
+            functionName: 'deploy',
+            args: [salt, bytecode],
+            account: walletAccount,
+        });
+        console.dir({ deployRequest, lensAddress }, { depth: null });
+        if (deployRequest.gas) {
+            deployRequest.gas = bigintMultiplyFloat(deployRequest.gas, LENS_DEPLOY_GAS_MULTIPLIER);
+        }
+        deployTransaction = await walletClient.writeContract(deployRequest);
+        logger.info({
+            msg: 'Lens contract deploy trx',
+            data: { deployTransaction, lensAddress },
+        });
+    } else {
+        deployTransaction = await walletClient.deployContract({
+            abi: BeefyHarvestLensABI,
+            account: walletAccount,
+            bytecode: bytecode,
+        });
+    }
     const deployTrxReceipt = await publicClient.aggressivelyWaitForTransactionReceipt({
         hash: deployTransaction,
     });
+
+    const lensAddress = deployTrxReceipt.contractAddress;
     logger.info({
         msg: 'Lens contract deployed at trx',
         data: { deployTransaction, lensAddress, deployTrxReceipt },
@@ -107,7 +124,7 @@ async function main() {
     });
     await verifyFoundryContractForExplorer({
         chain: chain,
-        contractAddress: lensAddress,
+        contractAddress: lensAddress || '0x0000000000000000000000000000000000000000',
         contractName: 'BeefyHarvestLens',
     });
     logger.info({ msg: 'Lens contract verified', data: { chain, lensAddress } });

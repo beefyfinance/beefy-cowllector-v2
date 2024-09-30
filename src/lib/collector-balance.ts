@@ -1,4 +1,4 @@
-import type { Hex } from 'viem';
+import { getAddress, type Hex } from 'viem';
 import { WETHABI } from '../abi/WETHABI';
 import { getChainWNativeTokenAddress } from './addressbook';
 import type { Chain } from './chain';
@@ -31,7 +31,7 @@ export async function fetchCollectorBalance({
             abi: WETHABI,
             address: wnativeAddress,
             functionName: 'balanceOf',
-            args: [cowllectorAddress],
+            args: [getAddress(cowllectorAddress)],
         }),
     ]);
     return {

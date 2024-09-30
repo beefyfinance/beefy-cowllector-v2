@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import type { Hex } from 'viem';
+import { getAddress, type Hex } from 'viem';
 import yargs from 'yargs';
 import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
 import { getChainWNativeTokenAddress, getChainWNativeTokenDecimals } from '../lib/addressbook';
@@ -317,7 +317,7 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
         } = await publicClient.simulateContractInBatch({
             ...harvestLensContract,
             functionName: 'harvest',
-            args: [item.vault.strategyAddress, wnative] as const,
+            args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
             //account: walletAccount, // setting the account disables multicall batching
         });
 
