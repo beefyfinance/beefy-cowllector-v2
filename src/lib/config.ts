@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import type { Hex } from 'viem';
+import { getAddress, type Hex } from 'viem';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { allLogLevels } from '../util/logger-type';
 import type { LogLevels } from '../util/logger-type';
@@ -178,9 +178,9 @@ const defaultRetry: RpcConfig['retry'] = {
     exponentialDelayMs: 150,
 };
 const defaultContracts: RpcConfig['contracts'] = {
-    harvestLens: '0x2fD8E72e488d6D2Bc770Cf6F74A5d60E44516aaD',
-    deployer: '0xcc536552A6214d6667fBC3EC38965F7f556A6391',
-    revenueBridge: '0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B',
+    harvestLens: getAddress('0x2fD8E72e488d6D2Bc770Cf6F74A5d60E44516aaD'),
+    deployer: getAddress('0xcc536552A6214d6667fBC3EC38965F7f556A6391'),
+    revenueBridge: getAddress('0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B'),
 };
 const defaultAccount: RpcConfig['account'] = {
     privateKey: PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -768,7 +768,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.ROOTSTOCK_RPC_URL || 'https://public-node.rsk.co',
         contracts: {
             ...defaultContracts,
-            harvestLens: '0x6C9511d8e03a26EBBCdee54485e67902D440b7cF', // contract deployer wasn't deployed on rsk
+            harvestLens: getAddress('0x6C9511d8e03a26EBBCdee54485e67902D440b7cF'), // contract deployer wasn't deployed on rsk
         },
         transaction: {
             ...defaultTransactionConfig,
