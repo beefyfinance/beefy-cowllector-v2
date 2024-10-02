@@ -303,11 +303,13 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 ...defaultHarvestConfig.profitabilityCheck,
                 enabled: true,
             },
+            setTransactionGasLimit: false,
         },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.2),
+            setTransactionGasLimit: false,
         },
     },
     base: {
