@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { getAddress, type Hex } from 'viem';
+import { type Hex, getAddress } from 'viem';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { allLogLevels } from '../util/logger-type';
 import type { LogLevels } from '../util/logger-type';
