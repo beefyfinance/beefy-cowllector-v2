@@ -299,10 +299,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            profitabilityCheck: {
-                ...defaultHarvestConfig.profitabilityCheck,
-                enabled: true,
-            },
             setTransactionGasLimit: false,
         },
         unwrap: {
