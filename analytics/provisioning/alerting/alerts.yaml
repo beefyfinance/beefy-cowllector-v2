@@ -815,6 +815,74 @@ groups:
             policy: follow_up
             template: chain
           isPaused: false
+        - uid: f2c0cb5a-49c1-496e-8c90-155752dac315
+          title: CLM MUST be harvested every 1d
+          condition: last_error_serie_value
+          data:
+            - refId: should_harvest_but_not_harvested
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: PAF11E62F20EEC83B
+              model:
+                editorMode: code
+                format: time_series
+                intervalMs: 1000
+                maxDataPoints: 43200
+                rawQuery: true
+                rawSql: "SELECT\n  date_trunc('hour', datetime) as time,\n  vault_id,\n  chain,\n  summary_discord_vault_link,\n  summary_discord_strategy_link,\n  (\n    coalesce(decision_should_harvest, true) -- if this is null, there was an error before \n    and not summary_harvested\n  ) :: integer as value\nFROM\n  harvest_report_vault_details r\nWHERE\n  $__timeFilter(datetime)\n  and vault_is_clm_manager\nORDER BY\n  datetime\n"
+                refId: should_harvest_but_not_harvested
+                sql:
+                    columns:
+                        - parameters: []
+                          type: function
+                    groupBy:
+                        - property:
+                            type: string
+                          type: groupBy
+                    limit: 50
+            - refId: last_error_serie_value
+              relativeTimeRange:
+                from: 14400
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: should_harvest_but_not_harvested
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: last_error_serie_value
+                type: reduce
+          dashboardUid: dad68cbc-f965-4400-9db3-66a3bb4c447e
+          panelId: 1
+          noDataState: OK
+          execErrState: Error
+          for: 1d
+          annotations:
+            __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
+            __panelId__: "1"
+          labels:
+            ping_harvesters: "true"
+            ping_strategists: "true"
+            policy: follow_up
+            template: alert_vault_harvest_in_error
+          isPaused: false
 
 
 # List of alert rule UIDs that should be deleted
