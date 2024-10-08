@@ -536,6 +536,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     linea: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            forceGasLimit: 593_200n,
+        },
     },
     manta: {
         ...defaultConfig,
