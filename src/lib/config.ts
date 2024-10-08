@@ -739,7 +739,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     real: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.REAL_RPC_URL || 'https://real.drpc.org',
-
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
@@ -752,12 +751,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.001),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
-        },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            enabled: false,
-            setTransactionGasLimit: true,
-            forceGasLimit: bigintMultiplyFloat(ONE_ETHER, 0.01) / 250000000n /* common gas price */,
         },
     },
     rootstock: {
