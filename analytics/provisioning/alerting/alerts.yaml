@@ -812,7 +812,7 @@ groups:
           labels:
             ping_harvesters: "true"
             ping_strategists: "false"
-            policy: follow_up
+            policy: one_shot
             template: chain
           isPaused: false
         - uid: f2c0cb5a-49c1-496e-8c90-155752dac315
