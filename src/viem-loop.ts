@@ -1,6 +1,6 @@
-import { createPublicClient, http } from 'viem';
-import { linea } from 'viem/chains';
+import { http, createPublicClient } from 'viem';
 import { toAccount } from 'viem/accounts';
+import { linea } from 'viem/chains';
 
 const WETHABI = [
     {
