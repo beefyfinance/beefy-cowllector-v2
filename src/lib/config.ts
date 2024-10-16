@@ -773,7 +773,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         harvest: {
             ...defaultHarvestConfig,
             // 3 days
-            targetTimeBetweenHarvestsMs: 3 * 24 * 60 * 60 * 1000,
+            targetTimeBetweenHarvestsMs: (3 * 24 - 1) * 60 * 60 * 1000,
         },
         unwrap: {
             ...defaultUnwrapConfig,
