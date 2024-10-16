@@ -112,6 +112,7 @@ In case you want to contribute, please follow next steps:
 - update the addressbook version: `npx ncu --upgrade blockchain-addressbook`
 - update the viem version: `npx ncu --upgrade viem`
 - install the new addressbook: `yarn`
+- add the chain in `src/lib/addressbook.ts` if it's not in `blockchain-addressbook` already
 - Fix TS errors `yarn test:ts`
 - apply migrations (only needed locally, migrations are applied on deploy): `yarn db:migrate`
 - create an explorer api key (important to verify the lens contract later on)
