@@ -790,7 +790,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
         transaction: {
             ...defaultTransactionConfig,
-            type: 'legacy',
+            type: 'eip1559',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             maxGasPricePerTransactionWei: null,
         },
@@ -806,7 +806,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
-            enabled: false, // not available yet: https://scrollscan.com/address/0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B
             setTransactionGasLimit: false,
         },
     },
