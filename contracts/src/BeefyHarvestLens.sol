@@ -15,6 +15,10 @@ struct LensResult {
     bytes harvestResult;
 }
 
+error CallRewardTooLow(uint256 callReward, uint256 minCallReward);
+error StrategyPaused();
+error MinCallRewardTooLow(uint256 minCallReward);
+
 // Simulate a harvest while recieving a call reward. Return callReward amount and whether or not it was a success.
 contract BeefyHarvestLens {
     using SafeERC20 for IERC20;
@@ -22,7 +26,7 @@ contract BeefyHarvestLens {
     // Simulate harvest calling callStatic/simulateContract for return results.
     // this method will hide any harvest errors and it is not recommended to use it to do the harvesting
     // only the simulation using callStatic/simulateContract is recommended
-    function harvest(IStrategyV7 _strategy, IERC20 _rewardToken) external returns (LensResult memory res) {
+    function harvestSimulation(IStrategyV7 _strategy, IERC20 _rewardToken) external returns (LensResult memory res) {
         res.blockNumber = block.number;
         res.paused = _strategy.paused();
 
@@ -50,5 +54,31 @@ contract BeefyHarvestLens {
                 }
             }
         }
+    }
+
+    function safeHarvest(IStrategyV7 _strategy, IERC20 _rewardToken, uint256 _minCallReward)
+        external
+        returns (uint256)
+    {
+        if (_strategy.paused()) {
+            revert StrategyPaused();
+        }
+
+        if (_minCallReward == 0) {
+            revert MinCallRewardTooLow({minCallReward: _minCallReward});
+        }
+
+        uint256 rewardsBefore = IERC20(_rewardToken).balanceOf(address(this));
+        IStrategyV7(_strategy).harvest(address(this));
+
+        // ensure we are not getting sandwiched by a flash loan
+        uint256 callReward = IERC20(_rewardToken).balanceOf(address(this)) - rewardsBefore;
+        if (callReward < _minCallReward) {
+            revert CallRewardTooLow({callReward: callReward, minCallReward: _minCallReward});
+        }
+
+        _rewardToken.safeTransfer(msg.sender, callReward);
+
+        return callReward;
     }
 }
