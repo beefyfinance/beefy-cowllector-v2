@@ -793,6 +793,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'eip1559',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             maxGasPricePerTransactionWei: null,
+            totalTries: 3, // try 3 times as the first time we often get
         },
         harvest: {
             ...defaultHarvestConfig,
@@ -807,6 +808,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
             setTransactionGasLimit: false,
+            forceGasLimit: 1_000_000n,
         },
     },
     sei: {
