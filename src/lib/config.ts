@@ -190,7 +190,11 @@ const defaultTransactionConfig: RpcConfig['transaction'] = {
     maxGasPricePerTransactionWei: null,
     maxNativePerTransactionWei: null,
     totalTries: 1, // by default, only try the trx once
-    retryGasMultiplier: 1.2, // up gas by 20% on each retry
+    retryGasMultiplier: {
+        gasPrice: 1.2, // up gas by 20% on each retry
+        maxFeePerGas: 1.2, // up gas by 20% on each retry
+        maxPriorityFeePerGas: 1.2, // up gas by 20% on each retry
+    },
     baseFeeMultiplier: 1.25, // 25% above base fee
     receipt: {
         blockConfirmations: 3,
@@ -793,17 +797,21 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'eip1559',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             maxGasPricePerTransactionWei: null,
-            totalTries: 3, // try 3 times as the first time we often get
+            // try 5 times as the first time we often get a tx failure due to max
+            totalTries: 5,
+            retryGasMultiplier: {
+                gasPrice: 1.2,
+                maxFeePerGas: 1.5,
+                maxPriorityFeePerGas: 1.3,
+            },
         },
         harvest: {
             ...defaultHarvestConfig,
-            setTransactionGasLimit: false,
         },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
-            setTransactionGasLimit: false,
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,

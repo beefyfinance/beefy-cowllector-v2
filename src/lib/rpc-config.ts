@@ -30,7 +30,11 @@ export type RpcConfig = {
     ) & {
         // @see aggressivelyWriteContract
         totalTries: number;
-        retryGasMultiplier: number;
+        retryGasMultiplier: {
+            gasPrice: number;
+            maxFeePerGas: number;
+            maxPriorityFeePerGas: number;
+        };
         // default gas price multiplier, effective on the first try
         baseFeeMultiplier: number;
         receipt: {

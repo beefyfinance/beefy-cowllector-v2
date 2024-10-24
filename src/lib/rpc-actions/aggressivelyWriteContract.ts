@@ -219,19 +219,19 @@ export async function aggressivelyWriteContract<
                 if (gasParams.gasPrice) {
                     gasParams.gasPrice = bigintMultiplyFloat(
                         gasParams.gasPrice,
-                        rpcConfig.transaction.retryGasMultiplier
+                        rpcConfig.transaction.retryGasMultiplier.gasPrice
                     );
                 }
                 if (gasParams.maxPriorityFeePerGas) {
                     gasParams.maxPriorityFeePerGas = bigintMultiplyFloat(
                         gasParams.maxPriorityFeePerGas,
-                        rpcConfig.transaction.retryGasMultiplier
+                        rpcConfig.transaction.retryGasMultiplier.maxPriorityFeePerGas
                     );
                 }
                 if (gasParams.maxFeePerGas) {
                     gasParams.maxFeePerGas = bigintMultiplyFloat(
                         gasParams.maxFeePerGas,
-                        rpcConfig.transaction.retryGasMultiplier
+                        rpcConfig.transaction.retryGasMultiplier.maxFeePerGas
                     );
                 }
                 logger.warn({
