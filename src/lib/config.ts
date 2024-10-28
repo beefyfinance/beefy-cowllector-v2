@@ -659,10 +659,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 8.0),
             setTransactionGasLimit: false,
         },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            enabled: false,
-        },
     },
     moonriver: {
         ...defaultConfig,
