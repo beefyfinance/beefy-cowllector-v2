@@ -28,8 +28,8 @@
                 "uid": "PAF11E62F20EEC83B"
             },
             "gridPos": {
-                "h": 18,
-                "w": 24,
+                "h": 21,
+                "w": 12,
                 "x": 0,
                 "y": 0
             },
@@ -54,7 +54,7 @@
                     "editorMode": "code",
                     "format": "table",
                     "rawQuery": true,
-                    "rawSql": "select\n  r.datetime as time,\n  r.vault_report as full_report,\n  r.vault_report as details,\n  r.*\nFROM\n  harvest_report_vault_details r\n  join vault v on r.vault_id = v.id\nWHERE\n  r.vault_id = '$vault_id'\nORDER BY\n  r.datetime DESC\nLIMIT 1",
+                    "rawSql": "select\n  r.datetime as time,\n  r.vault_report as full_report,\n  r.vault_report as details,\n  r.*\nFROM\n  harvest_report_vault_details r\nWHERE\n  r.vault_id = '$vault_id'\n  and $__timeFilter(datetime)\nORDER BY\n  r.datetime DESC\n",
                     "refId": "A",
                     "sql": {
                         "columns": [
@@ -75,8 +75,129 @@
                     }
                 }
             ],
-            "title": "Vault report details",
+            "title": "LAST report details for $vault_id",
             "transformations": [],
+            "type": "logs"
+        },
+        {
+            "datasource": {
+                "type": "postgres",
+                "uid": "PAF11E62F20EEC83B"
+            },
+            "gridPos": {
+                "h": 21,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "id": 2,
+            "options": {
+                "dedupStrategy": "none",
+                "enableLogDetails": true,
+                "prettifyLogMessage": true,
+                "showCommonLabels": false,
+                "showLabels": false,
+                "showTime": true,
+                "sortOrder": "Descending",
+                "wrapLogMessage": true
+            },
+            "pluginVersion": "10.1.4",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "postgres",
+                        "uid": "PAF11E62F20EEC83B"
+                    },
+                    "editorMode": "code",
+                    "format": "table",
+                    "rawQuery": true,
+                    "rawSql": "select\n  r.*\nFROM\n  harvest_report_vault_details r\nWHERE\n  r.vault_id = '$vault_id'\n  and $__timeFilter(datetime) \nORDER BY\n  r.datetime DESC\n",
+                    "refId": "A",
+                    "sql": {
+                        "columns": [
+                            {
+                                "parameters": [],
+                                "type": "function"
+                            }
+                        ],
+                        "groupBy": [
+                            {
+                                "property": {
+                                    "type": "string"
+                                },
+                                "type": "groupBy"
+                            }
+                        ],
+                        "limit": 50
+                    }
+                }
+            ],
+            "title": "Raw logs for $vault_id by datetime desc",
+            "transformations": [
+                {
+                    "id": "filterFieldsByName",
+                    "options": {
+                        "include": {
+                            "names": [
+                                "raw_report_id",
+                                "chain",
+                                "datetime",
+                                "run_ok",
+                                "fetch_gas_price_ok",
+                                "balance_before_ok",
+                                "balance_after_ok",
+                                "vault_id",
+                                "vault_is_clm_manager",
+                                "vault_is_clm_vault",
+                                "simulation_started",
+                                "simulation_ok",
+                                "simulation_ko_reason",
+                                "simulation_last_harvest",
+                                "simulation_hours_since_last_harvest",
+                                "simulation_is_last_harvest_recent",
+                                "simulation_paused",
+                                "simulation_block_number",
+                                "simulation_harvest_result_data",
+                                "simulation_gas_raw_gas_price",
+                                "simulation_gas_raw_gas_amount_estimation",
+                                "simulation_gas_estimated_call_rewards_wei",
+                                "simulation_gas_gas_price_multiplier",
+                                "simulation_gas_gas_price",
+                                "simulation_gas_transaction_cost_estimation_wei",
+                                "simulation_gas_estimated_gain_wei",
+                                "simulation_gas_would_be_profitable",
+                                "decision_started",
+                                "decision_ok",
+                                "decision_ko_reason",
+                                "decision_should_harvest",
+                                "decision_level",
+                                "decision_not_harvesting_reason",
+                                "decision_might_need_eol",
+                                "decision_harvest_return_data",
+                                "decision_harvest_return_data_decoded",
+                                "transaction_started",
+                                "transaction_ok",
+                                "transaction_ko_reason",
+                                "transaction_hash",
+                                "transaction_block_number",
+                                "transaction_gas_used",
+                                "transaction_effective_gas_price",
+                                "transaction_cost_wei",
+                                "transaction_balance_before_wei",
+                                "transaction_estimated_profit_wei",
+                                "summary_harvested",
+                                "summary_skipped",
+                                "summary_status",
+                                "summary_discord_message",
+                                "summary_discord_vault_link",
+                                "summary_discord_strategy_link",
+                                "summary_discord_transaction_link",
+                                "time"
+                            ]
+                        }
+                    }
+                }
+            ],
             "type": "logs"
         }
     ],
@@ -89,8 +210,8 @@
             {
                 "current": {
                     "selected": false,
-                    "text": "aavev3-metis-metis",
-                    "value": "aavev3-metis-metis"
+                    "text": "uniswap-cow-op-tbtc-wbtc",
+                    "value": "uniswap-cow-op-tbtc-wbtc"
                 },
                 "datasource": {
                     "type": "postgres",
@@ -113,13 +234,13 @@
         ]
     },
     "time": {
-        "from": "now-6h",
+        "from": "now-24h",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "Why isn't vault harvested?",
     "uid": "89d7a948-ab74-4e9a-b7e8-bb9b7cef9287",
-    "version": 2,
+    "version": 5,
     "weekStart": ""
 }
