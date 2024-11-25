@@ -137,6 +137,14 @@ In case you want to contribute, please follow next steps:
 - add a custom rpc url to our heroku deployment <CHAIN>_RPC_URL
 - deploy the updated cowllector: `yarn deploy`
 
+## Update monitoring
+
+To update a dashboard:
+- create or update a dashboard it directly in grafana
+- export it as json
+- put the json in `./analytics/dashboards/folders/` 
+  - that will tell grafana to overwrite dashboards with this config on re-deploy
+
 ## 🍕 Community
 
 - Got Questions? Join the conversation in our [Discord](https://discord.gg/yq8wfHd).

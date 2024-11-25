@@ -26,6 +26,10 @@ templates:
         [{{ index .Labels "vault_id" }}](<https://app.beefy.finance/vault/{{index .Labels "vault_id"}}>)
         {{- print " " -}}
       {{- end -}}
+      {{- if .Labels.summary_discord_why_link -}}
+        why: {{- .Labels.summary_discord_why_link -}}
+        {{- print " " -}}
+      {{- end -}}
       {{- if .Labels.summary_discord_strategy_link -}}
         strat: {{- .Labels.summary_discord_strategy_link -}}
         {{- print " " -}}

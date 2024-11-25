@@ -121,8 +121,9 @@ groups:
                   SELECT
                     date_trunc('hour', datetime) as time,
                     vault_id,
-                    summary_discord_vault_link,
-                    summary_discord_strategy_link,
+                    -- summary_discord_vault_link,
+                    -- summary_discord_strategy_link,
+                    'https://beefy-cowllector-analytics-46dbe5e0eace.herokuapp.com/d/89d7a948-ab74-4e9a-b7e8-bb9b7cef9287/why-isn-t-vault-harvested?orgId=1&var-vault_id=' || vault_id as summary_discord_why_link,
                     chain,
                     (
                       coalesce(r.summary_status = 'error', false)
