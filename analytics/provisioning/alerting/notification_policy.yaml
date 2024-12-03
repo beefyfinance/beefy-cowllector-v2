@@ -16,7 +16,7 @@ policies:
             - alertname != DatasourceError
         - receiver: discord_follow_up
           mute_time_intervals:
-            - name: "Mute all except Tuesdays at working US hours"
+            - 'Mute all except Tuesdays at working US hours'
           matchers:
             - policy = follow_up_tuesdays
             - alertname != DatasourceError

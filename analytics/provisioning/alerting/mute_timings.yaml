@@ -6,7 +6,7 @@ muteTimes:
   # <int> organization ID, default = 1
   - orgId: 1
     # <string, required> name of the mute time interval, must be unique
-    name: "Mute all except Tuesdays at working US hours"
+    name: 'Mute all except Tuesdays at working US hours'
     # <list> time intervals that should trigger the muting
     #        refer to https://prometheus.io/docs/alerting/latest/configuration/#time_interval-0
     time_intervals:
@@ -17,4 +17,3 @@ muteTimes:
             end_time: '23:59'
         location: 'UTC'
         weekdays: ['monday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-        
