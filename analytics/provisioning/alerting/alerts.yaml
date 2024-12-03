@@ -275,7 +275,7 @@ groups:
             __panelId__: "1"
           labels:
             template: alert_vault_harvest_in_error
-            policy: follow_up
+            policy: follow_up_tuesdays
             ping_harvesters: "true"
             ping_strategists: "true"
           isPaused: false
