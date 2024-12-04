@@ -768,12 +768,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
-            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.0002),
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.00025),
         },
         harvest: {
             ...defaultHarvestConfig,
-            // 3 days
-            targetTimeBetweenHarvestsMs: (3 * 24 - 2) * 60 * 60 * 1000,
+            // 5 days
+            targetTimeBetweenHarvestsMs: (5 * 24 - 2) * 60 * 60 * 1000,
         },
         unwrap: {
             ...defaultUnwrapConfig,
