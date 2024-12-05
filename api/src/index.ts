@@ -21,15 +21,7 @@ const getAllowedOrigins = () => {
 app.use(
     '*',
     cors({
-        origin: (origin, c) => {
-            const allowedOrigins = getAllowedOrigins();
-            // If no origin provided or origin is in allowed list, allow it
-            if (!origin || allowedOrigins.includes(origin)) {
-                return origin;
-            }
-            // Otherwise, return the first allowed origin as fallback
-            return allowedOrigins[0];
-        },
+        origin: getAllowedOrigins(),
         credentials: true, // Allow credentials
         exposeHeaders: ['Content-Length', 'X-Content-Type-Options'],
         maxAge: 600, // 10 minutes
