@@ -2,12 +2,41 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Context, Next } from 'hono';
 import { rateLimiter } from 'hono-rate-limiter';
+import { cors } from 'hono/cors';
 import { db } from './lib/db.js';
 import { lastHarvestReportApi } from './routes/last-harvest-reports';
 import type { Variables } from './types';
 
 // Initialize OpenAPIHono with the custom context type
 const app = new OpenAPIHono<{ Variables: Variables }>();
+
+// Configure CORS
+const getAllowedOrigins = () => {
+    const origins = ['http://localhost'];
+    const envOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+    return [...origins, ...envOrigins];
+};
+
+// Add CORS middleware before other middleware
+app.use(
+    '*',
+    cors({
+        origin: (origin, c) => {
+            const allowedOrigins = getAllowedOrigins();
+            // If no origin provided or origin is in allowed list, allow it
+            if (!origin || allowedOrigins.includes(origin)) {
+                return origin;
+            }
+            // Otherwise, return the first allowed origin as fallback
+            return allowedOrigins[0];
+        },
+        credentials: true, // Allow credentials
+        exposeHeaders: ['Content-Length', 'X-Content-Type-Options'],
+        maxAge: 600, // 10 minutes
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    })
+);
 
 // Add rate limiting middleware
 app.use(
