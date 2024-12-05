@@ -1,0 +1,23 @@
+{
+    "name": "cowllector-api",
+    "type": "module",
+    "scripts": {
+        "start": "bun run src/index.ts",
+        "dev": "bun --watch src/index.ts",
+        "format": "biome check --write --unsafe ./src"
+    },
+    "dependencies": {
+        "@hono/swagger-ui": "^0.5.0",
+        "@hono/zod-openapi": "^0.9.8",
+        "hono": "^4.6.12",
+        "hono-rate-limiter": "^0.4.2",
+        "pg": "^8.11.3",
+        "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "1.9.4",
+        "@types/pg": "^8.11.0",
+        "bun": "^1.1.38",
+        "bun-types": "latest"
+    }
+}

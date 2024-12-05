@@ -552,12 +552,163 @@ export async function db_migrate() {
 
       drop view if exists harvest_report_last_vault_details cascade;
       CREATE OR REPLACE VIEW harvest_report_last_vault_details AS (
-        with latest_report as (
-          select
-            *, row_number() over (partition by vault_id order by datetime desc) as row_number
-          from harvest_report_vault_details
-        )
-        select * from latest_report where row_number = 1
+        with last_day_reports_by_chain as (
+            select
+              *, row_number() over (partition by r.report_content->'chain' order by datetime desc) as row_number
+            from raw_harvest_report r
+            where r.datetime < now() - interval '1 day'
+        ),
+        latest_report_by_chain as (
+            select r.*
+            from last_day_reports_by_chain r
+            where r.row_number = 1
+        ),
+        vault_report_jsonb as (
+          SELECT 
+            r.raw_report_id,
+            r.chain,
+            r.datetime,
+            async_field_ok(d."fetchGasPrice") and async_field_ok(d."collectorBalanceBefore") and async_field_ok(d."collectorBalanceAfter") as run_ok,
+            async_field_ok(d."fetchGasPrice") as fetch_gas_price_ok, 
+            async_field_ok(d."collectorBalanceBefore") as balance_before_ok,
+            async_field_ok(d."collectorBalanceAfter") as balance_after_ok,
+            jsonb_path_query(r.report_content, '$.details[*]') as vault_report
+          FROM latest_report_by_chain r,
+            jsonb_to_record(r.report_content) as d(
+              "timing" jsonb,
+              "fetchGasPrice" jsonb,
+              "collectorBalanceBefore" jsonb,
+              "collectorBalanceAfter" jsonb,
+              "summary" jsonb
+            )
+        ) 
+        select 
+          r.raw_report_id,
+          r.chain,
+          r.datetime,
+          r.run_ok,
+          r.fetch_gas_price_ok,
+          r.balance_before_ok,
+          r.balance_after_ok,
+          d.vault->>'id' as vault_id,
+          ((d.vault->>'isClmManager') = 'true') as vault_is_clm_manager,
+          ((d.vault->>'isClmVault') = 'true') as vault_is_clm_vault,
+          d.simulation is not null as simulation_started,
+          async_field_ok(d.simulation) as simulation_ok,
+          d.simulation->'reason' as simulation_ko_reason,
+          sim_ok."lastHarvest" as simulation_last_harvest,
+          sim_ok."hoursSinceLastHarvest" as simulation_hours_since_last_harvest,
+          sim_ok."isLastHarvestRecent" as simulation_is_last_harvest_recent,
+          sim_ok."paused" as simulation_paused,
+          sim_ok."blockNumber" as simulation_block_number,
+          sim_ok."harvestResultData" as simulation_harvest_result_data,
+          gas."rawGasPrice" as simulation_gas_raw_gas_price,
+          gas."rawGasAmountEstimation" as simulation_gas_raw_gas_amount_estimation,
+          gas."estimatedCallRewardsWei" as simulation_gas_estimated_call_rewards_wei,
+          gas."gasPriceMultiplier" as simulation_gas_gas_price_multiplier,
+          gas."gasPrice" as simulation_gas_gas_price,
+          gas."transactionCostEstimationWei" as simulation_gas_transaction_cost_estimation_wei,
+          gas."estimatedGainWei" as simulation_gas_estimated_gain_wei,
+          gas."wouldBeProfitable" as simulation_gas_would_be_profitable,
+          d.decision is not null as decision_started,
+          async_field_ok(d.decision) as decision_ok,
+          d.decision->'reason' as decision_ko_reason,
+          dec_ok."shouldHarvest" as decision_should_harvest,
+          dec_ok."level" as decision_level,
+          dec_ok."notHarvestingReason" as decision_not_harvesting_reason,
+          (dec_ok."mightNeedEOL" is not null and dec_ok."mightNeedEOL") as decision_might_need_eol,
+          hexstr_to_bytea(dec_ok."harvestReturnData") as decision_harvest_return_data,
+          case 
+            -- abi.encodeWithSignature('Error(string)', 'SOME TEXT')
+            when substr(hexstr_to_bytea(dec_ok."harvestReturnData"), 0, 5) = '\\x08c379a0' then
+              replace(
+                encode(
+                    hexstr_to_bytea(
+                        '0x' || substring(
+                          dec_ok."harvestReturnData",
+                            1 /*?*/ + 2 /*"0x"*/ + (4 /*selector*/ + 32 /*offset to str*/ + 32 /*string len*/) * 2 /* bytes are 2 char long*/
+                        )
+                    ),
+                    'escape'
+                ), 
+                '\\000', 
+                ''
+              )
+            else dec_ok."harvestReturnData"
+          end as decision_harvest_return_data_decoded,
+          d.transaction is not null as transaction_started,
+          async_field_ok(d.transaction) as transaction_ok,
+          d.transaction->'reason' as transaction_ko_reason,
+          hexstr_to_bytea(tx."transactionHash") as transaction_hash,
+          tx."blockNumber" as transaction_block_number,
+          tx."gasUsed" as transaction_gas_used,
+          tx."effectiveGasPrice" as transaction_effective_gas_price,
+          tx."transactionCostWei" as transaction_cost_wei,
+          tx."balanceBeforeWei" as transaction_balance_before_wei,
+          tx."estimatedProfitWei" as transaction_estimated_profit_wei,
+          summary.harvested as summary_harvested,
+          summary.skipped as summary_skipped,
+          summary.status as summary_status,
+          summary."discordMessage" as summary_discord_message,
+          summary."discordVaultLink" as summary_discord_vault_link,
+          summary."discordStrategyLink" as summary_discord_strategy_link,
+          summary."discordTransactionLink" as summary_discord_transaction_link,
+          r.vault_report
+        FROM 
+          vault_report_jsonb r, 
+          jsonb_to_record(r.vault_report) as d(
+            vault jsonb,
+            simulation jsonb,
+            decision jsonb,
+            transaction jsonb,
+            summary jsonb
+          ),
+          jsonb_to_record(d.simulation->'value') as sim_ok(
+            "estimatedCallRewardsWei" numeric,
+            "gas" jsonb,
+            "harvestWillSucceed" boolean,
+            "lastHarvest" timestamp with time zone,
+            "hoursSinceLastHarvest" double precision,
+            "isLastHarvestRecent" boolean,
+            "paused" boolean,
+            "blockNumber" numeric,
+            "harvestResultData" jsonb
+          ),
+          jsonb_to_record(sim_ok.gas) as gas(
+            "rawGasPrice" numeric,
+            "rawGasAmountEstimation" numeric,
+            "estimatedCallRewardsWei" numeric,
+            "gasPriceMultiplier" double precision,
+            "gasPrice" numeric,
+            "transactionCostEstimationWei" numeric,
+            "estimatedGainWei" numeric,
+            "wouldBeProfitable" boolean
+          ),
+          jsonb_to_record(d.decision->'value') as dec_ok(
+            "shouldHarvest" boolean,
+            "level" character varying,
+            "notHarvestingReason" character varying,
+            "mightNeedEOL" boolean,
+            "harvestReturnData" character varying
+          ),
+          jsonb_to_record(d.transaction->'value') as tx(
+            "transactionHash" character varying,
+            "blockNumber" numeric,
+            "gasUsed" numeric,
+            "effectiveGasPrice" numeric,
+            "transactionCostWei" numeric,
+            "balanceBeforeWei" numeric,
+            "estimatedProfitWei" numeric
+          ),
+          jsonb_to_record(d.summary) as summary(
+            harvested boolean,
+            skipped boolean,
+            status character varying,
+            "discordMessage" character varying,
+            "discordVaultLink" character varying,
+            "discordStrategyLink" character varying,
+            "discordTransactionLink" character varying
+          )
       );
     `);
 
