@@ -25,6 +25,12 @@ Swagger UI is available at:
 # Get all last harvest reports
 http://localhost:3000/api/v1/last-harvest-reports
 https://cowllector.beefy.com/api/v1/last-harvest-reports
+
+# Get last harvest report for a specific vault
+http://localhost:3000/api/v1/last-harvest-reports/{vaultId}
+https://cowllector.beefy.com/api/v1/last-harvest-reports/{vaultId}
 ```
 
-You can test this URL in your browser or using tools like curl or Postman. The API will return a JSON response with an array containing the last harvest report for each vault.
+You can test these URLs in your browser or using tools like curl or Postman. The API will return:
+- For the first endpoint: a JSON response with an array containing the last harvest report for each vault
+- For the second endpoint: a JSON response with the last harvest report for the specified vault
