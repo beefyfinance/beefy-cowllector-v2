@@ -156,6 +156,19 @@ export async function aggressivelyWriteContract<
         msg: 'Got gas params',
         data: { chain, address: args.address, gasParams },
     });
+    if (gasParams.maxFeePerGas === 0n) {
+        gasParams.maxFeePerGas = 1n;
+    }
+    if (gasParams.maxPriorityFeePerGas === 0n) {
+        if (gasParams.maxFeePerGas) {
+            gasParams.maxPriorityFeePerGas = gasParams.maxFeePerGas;
+        } else {
+            gasParams.maxPriorityFeePerGas = 1n;
+        }
+    }
+    if (gasParams.gasPrice === 0n) {
+        gasParams.gasPrice = 1n;
+    }
 
     const allPendingTransactions: Hex[] = [];
 
@@ -218,19 +231,19 @@ export async function aggressivelyWriteContract<
                 const previousGasParams = cloneDeep(gasParams);
                 if (gasParams.gasPrice) {
                     gasParams.gasPrice = bigintMultiplyFloat(
-                        gasParams.gasPrice,
+                        gasParams.gasPrice || 1n,
                         rpcConfig.transaction.retryGasMultiplier.gasPrice
                     );
                 }
                 if (gasParams.maxPriorityFeePerGas) {
                     gasParams.maxPriorityFeePerGas = bigintMultiplyFloat(
-                        gasParams.maxPriorityFeePerGas,
+                        gasParams.maxPriorityFeePerGas || 1n,
                         rpcConfig.transaction.retryGasMultiplier.maxPriorityFeePerGas
                     );
                 }
                 if (gasParams.maxFeePerGas) {
                     gasParams.maxFeePerGas = bigintMultiplyFloat(
-                        gasParams.maxFeePerGas,
+                        gasParams.maxFeePerGas || 1n,
                         rpcConfig.transaction.retryGasMultiplier.maxFeePerGas
                     );
                 }
