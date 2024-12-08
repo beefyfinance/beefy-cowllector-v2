@@ -110,7 +110,7 @@ lastHarvestReportApi.openapi(lastHarvestReportsRoute, async c => {
         decision_might_need_eol, decision_harvest_return_data,
         decision_harvest_return_data_decoded,
         transaction_started, transaction_ok, transaction_ko_reason,
-        transaction_hash, transaction_block_number, transaction_gas_used,
+        bytea_to_hexstr(transaction_hash) as transaction_hash, transaction_block_number, transaction_gas_used,
         transaction_effective_gas_price, transaction_cost_wei,
         transaction_balance_before_wei, transaction_estimated_profit_wei,
         summary_harvested, summary_skipped, summary_status
@@ -201,7 +201,7 @@ lastHarvestReportApi.openapi(lastHarvestReportByVaultRoute, async c => {
         decision_might_need_eol, decision_harvest_return_data,
         decision_harvest_return_data_decoded,
         transaction_started, transaction_ok, transaction_ko_reason,
-        transaction_hash, transaction_block_number, transaction_gas_used,
+        bytea_to_hexstr(transaction_hash) as transaction_hash, transaction_block_number, transaction_gas_used,
         transaction_effective_gas_price, transaction_cost_wei,
         transaction_balance_before_wei, transaction_estimated_profit_wei,
         summary_harvested, summary_skipped, summary_status
