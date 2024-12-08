@@ -4,7 +4,7 @@ WORKDIR /app
 # Install dependencies only
 FROM base AS deps
 COPY package.json .
-RUN bun install --frozen-lockfile
+RUN npm ci
 
 # Production image
 FROM base AS runner
