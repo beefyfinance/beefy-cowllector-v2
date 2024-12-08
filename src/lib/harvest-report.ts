@@ -3,6 +3,7 @@ import type { Async, TimingData } from '../util/async';
 import type { Chain } from './chain';
 import type { CollectorBalance } from './collector-balance';
 import type { GasEstimationReport } from './gas';
+import type { MerklTokenData } from './merkl';
 import type { ReportAsyncStatus } from './report-error-status';
 import { type AItem, type AKey, type AVal, reportOnMultipleAsyncCall, reportOnSingleAsyncCall } from './reports';
 import type { BeefyVault } from './vault';
@@ -37,6 +38,7 @@ type HarvestReportSimulation = Async<{
     paused: boolean;
     blockNumber: bigint;
     harvestResultData: Hex;
+    merklTokenData: MerklTokenData | null;
 }>;
 
 export type HarvestReportDecision = Async<
@@ -102,6 +104,12 @@ export type HarvestReportDecision = Async<
           shouldHarvest: false;
           level: 'info';
           notHarvestingReason: 'strategy paused';
+      }
+    | {
+          shouldHarvest: true;
+          level: 'info';
+          merklTokenData: MerklTokenData;
+          notHarvestingReason: 'estimated call rewards is 0, but there are pending merkl rewards';
       }
     | {
           shouldHarvest: false;
