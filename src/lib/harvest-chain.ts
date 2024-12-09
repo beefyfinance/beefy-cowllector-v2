@@ -126,17 +126,22 @@ export async function harvestChain({
 
             // fetch merkl token data if there is no estimated rewards
             // this is just for the case where it's a vault that only has merkl rewards
-            let merklTokenData: MerklTokenData | null = null;
-            if (callReward === 0n) {
-                try {
-                    merklTokenData = await fetchMerklTokenData(item.vault);
-                } catch (error) {
-                    logger.error({
-                        msg: 'Error fetching merkl token data',
-                        data: { error, vault: item.vault },
-                    });
-                }
-            }
+            const merklTokenData: MerklTokenData | null = null;
+
+            // TODO: re-enable this.
+            //       this is supposed to be a fallback for when the lens returns 0 rewards
+            //       but it's not working as expected and vaults get harvested every time the script runs
+            //       instead of every 24 hours.
+            // if (callReward === 0n) {
+            //     try {
+            //         merklTokenData = await fetchMerklTokenData(item.vault);
+            //     } catch (error) {
+            //         logger.error({
+            //             msg: 'Error fetching merkl token data',
+            //             data: { error, vault: item.vault },
+            //         });
+            //     }
+            // }
 
             return {
                 estimatedCallRewardsWei: callReward,
