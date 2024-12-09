@@ -27,7 +27,6 @@ import {
     reportOnMultipleHarvestAsyncCall,
     reportOnSingleHarvestAsyncCall,
 } from './harvest-report';
-import { type MerklTokenData, fetchMerklTokenData, hasPendingMerklRewards } from './merkl';
 import type { BeefyVault } from './vault';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
@@ -101,7 +100,6 @@ export async function harvestChain({
                     paused: false,
                     blockNumber: 0n,
                     harvestResultData: '0x',
-                    merklTokenData: null,
                     gas: createGasEstimationReport({
                         rawGasPrice,
                         rawGasAmountEstimation: 0n,
@@ -124,25 +122,6 @@ export async function harvestChain({
             const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
             const isLastHarvestRecent = timeSinceLastHarvestMs < rpcConfig.harvest.targetTimeBetweenHarvestsMs;
 
-            // fetch merkl token data if there is no estimated rewards
-            // this is just for the case where it's a vault that only has merkl rewards
-            const merklTokenData: MerklTokenData | null = null;
-
-            // TODO: re-enable this.
-            //       this is supposed to be a fallback for when the lens returns 0 rewards
-            //       but it's not working as expected and vaults get harvested every time the script runs
-            //       instead of every 24 hours.
-            // if (callReward === 0n) {
-            //     try {
-            //         merklTokenData = await fetchMerklTokenData(item.vault);
-            //     } catch (error) {
-            //         logger.error({
-            //             msg: 'Error fetching merkl token data',
-            //             data: { error, vault: item.vault },
-            //         });
-            //     }
-            // }
-
             return {
                 estimatedCallRewardsWei: callReward,
                 harvestWillSucceed: success,
@@ -152,7 +131,6 @@ export async function harvestChain({
                 paused,
                 blockNumber,
                 harvestResultData: harvestResult,
-                merklTokenData: merklTokenData,
                 gas: createGasEstimationReport({
                     rawGasPrice,
                     rawGasAmountEstimation: gasUsed,
@@ -299,16 +277,6 @@ export async function harvestChain({
             }
 
             if (item.simulation.estimatedCallRewardsWei === 0n) {
-                // sometimes the lens returns 0 rewards but there are still pending merkl rewards
-                if (item.simulation.merklTokenData && hasPendingMerklRewards(item.simulation.merklTokenData)) {
-                    return {
-                        shouldHarvest: true,
-                        level: 'info',
-                        merklTokenData: item.simulation.merklTokenData,
-                        notHarvestingReason: 'estimated call rewards is 0, but there are pending merkl rewards',
-                    };
-                }
-
                 if (item.simulation.isLastHarvestRecent) {
                     return {
                         shouldHarvest: false,
