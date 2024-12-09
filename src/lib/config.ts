@@ -33,7 +33,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
-export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['rootstock'];
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['lisk'];
 
 export const ADD_RP_TVL_TO_CLM_TVL = process.env.ADD_RP_TVL_TO_CLM_TVL === 'true';
 export const ADD_RP_VAULT_TVL_TO_CLM_TVL = process.env.ADD_RP_VAULT_TVL_TO_CLM_TVL === 'true';
@@ -546,6 +546,27 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             forceGasLimit: 593_200n,
         },
     },
+    lisk: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.LISK_RPC_URL || 'https://rpc.ankr.com/lisk',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: '0x507c863E3d2FDca55054b90966f1fbA107CEb318',
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
+    },
     manta: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MANTA_RPC_URL || 'https://pacific-rpc.manta.network/http',
@@ -1013,6 +1034,12 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         apiUrl: process.env.LINEA_EXPLORER_API_URL || 'https://api.lineascan.build/api',
         apiKey: process.env.LINEA_EXPLORER_API_KEY || '',
         type: 'etherscan',
+    },
+    lisk: {
+        addressLinkTemplate: 'https://blockscout.lisk.com/address/${address}',
+        transactionLinkTemplate: 'https://blockscout.lisk.com/tx/${hash}',
+        apiUrl: process.env.LISK_EXPLORER_API_URL || 'https://blockscout.lisk.com/api?',
+        type: 'blockscout',
     },
     manta: {
         addressLinkTemplate: 'https://pacific-explorer.manta.network/address/${address}',
