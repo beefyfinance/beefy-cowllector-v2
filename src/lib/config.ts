@@ -548,7 +548,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     },
     lisk: {
         ...defaultConfig,
-        url: RPC_FORCE_URL || process.env.LISK_RPC_URL || 'https://rpc.ankr.com/lisk',
+        url: RPC_FORCE_URL || process.env.LISK_RPC_URL || 'https://rpc.api.lisk.com',
         contracts: {
             ...defaultContracts,
             harvestLens: '0x507c863E3d2FDca55054b90966f1fbA107CEb318',
