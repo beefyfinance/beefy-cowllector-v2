@@ -322,6 +322,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 enabled: true,
             },
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+        },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
             // example of a bridging transaction: https://basescan.org/tx/0x08992cd1e57a535a747418f813176a6b8a8f9b7dac8892f4889bf094c1a970a0
