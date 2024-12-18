@@ -33,7 +33,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
-export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['lisk'];
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['sonic'];
 
 export const ADD_RP_TVL_TO_CLM_TVL = process.env.ADD_RP_TVL_TO_CLM_TVL === 'true';
 export const ADD_RP_VAULT_TVL_TO_CLM_TVL = process.env.ADD_RP_VAULT_TVL_TO_CLM_TVL === 'true';
