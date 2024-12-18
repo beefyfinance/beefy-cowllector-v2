@@ -33,6 +33,7 @@ import {
     rootstock,
     scroll,
     sei,
+    sonic,
     zkSync,
 } from 'viem/chains';
 import type { Chain } from './chain';
@@ -89,6 +90,7 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     rootstock: applyConfig('rootstock', rootstock),
     scroll: applyConfig('scroll', scroll),
     sei: applyConfig('sei', sei),
+    sonic: applyConfig('sonic', sonic),
     zkevm: applyConfig('zkevm', polygonZkEvm),
     zksync: applyConfig('zksync', zkSync),
 };

@@ -867,6 +867,28 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             enabled: true, // not yet supported
         },
     },
+    sonic: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.SONIC_RPC_URL || 'https://rpc.soniclabs.com',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: '0x507c863E3d2FDca55054b90966f1fbA107CEb318',
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.02),
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
+    },
     zkevm: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKEVM_RPC_URL || 'https://rpc.ankr.com/polygon_zkevm',
@@ -1133,6 +1155,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://seitrace.com/tx/${hash}',
         apiUrl: process.env.SEI_EXPLORER_API_URL || 'https://api.seitrace.com/api',
         apiKey: process.env.SEI_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    sonic: {
+        addressLinkTemplate: 'https://sonicscan.org/address/${address}',
+        transactionLinkTemplate: 'https://sonicscan.org/tx/${hash}',
+        apiUrl: process.env.SONIC_EXPLORER_API_URL || 'https://api.sonicscan.org/api',
+        apiKey: process.env.SONIC_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zkevm: {
