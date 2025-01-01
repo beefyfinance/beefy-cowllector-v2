@@ -1253,10 +1253,10 @@ base64-js@^1.3.1:
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-blockchain-addressbook@^0.47.106:
-  version "0.47.106"
-  resolved "https://registry.npmjs.org/blockchain-addressbook/-/blockchain-addressbook-0.47.106.tgz"
-  integrity sha512-zOUBYl4G4yc552jeSDyg+Zl9AhYV5vk/W2TnmppL4OJ2dADRmhyw5EC/KFtjkvNkN+P7zXMkH2Wl836ePeCr5Q==
+blockchain-addressbook@^0.47.116:
+  version "0.47.116"
+  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.47.116.tgz#bcc361adf6b1d44b4ca25e2a6b8ba835c6dcd0ba"
+  integrity sha512-rFJMXuuztMTDvC/tS4517eSQtK5gTCVQIWqEK536AxmharX436yngSo1w346xfFaefMphvknm6K+T8/t1xQD5Q==
 
 boxen@^7.0.0:
   version "7.1.1"
@@ -3477,10 +3477,10 @@ onetime@^6.0.0:
   dependencies:
     mimic-fn "^4.0.0"
 
-ox@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/ox/-/ox-0.1.2.tgz"
-  integrity sha512-ak/8K0Rtphg9vnRJlbOdaX9R7cmxD2MiSthjWGaQdMk3D7hrAlDoM+6Lxn7hN52Za3vrXfZ7enfke/5WjolDww==
+ox@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/ox/-/ox-0.6.0.tgz#ba8f89d68b5e8afe717c8a947ffacc0669ea155d"
+  integrity sha512-blUzTLidvUlshv0O02CnLFqBLidNzPoAZdIth894avUAotTuWziznv6IENv5idRuOSSP3dH8WzcYw84zVdu0Aw==
   dependencies:
     "@adraffy/ens-normalize" "^1.10.1"
     "@noble/curves" "^1.6.0"
@@ -4721,10 +4721,10 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-viem@^2.21.55:
-  version "2.21.55"
-  resolved "https://registry.npmjs.org/viem/-/viem-2.21.55.tgz"
-  integrity sha512-PgXew7C11cAuEtOSgRyQx2kJxEOPUwIwZA9dMglRByqJuFVA7wSGZZOOo/93iylAA8E15bEdqy9xulU3oKZ70Q==
+viem@^2.22.1:
+  version "2.22.1"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.22.1.tgz#a108d533969d0a94812109b3f0a4553788014c1f"
+  integrity sha512-Dlul3ps87ErRSlAVuLQXQjquk0ECy/BCKATEErwHkVd0KQZvj80T5BUU0cDABo4axNF3+78Q060y6VFiT0+SqQ==
   dependencies:
     "@noble/curves" "1.7.0"
     "@noble/hashes" "1.6.1"
@@ -4732,7 +4732,7 @@ viem@^2.21.55:
     "@scure/bip39" "1.5.0"
     abitype "1.0.7"
     isows "1.0.6"
-    ox "0.1.2"
+    ox "0.6.0"
     webauthn-p256 "0.0.10"
     ws "8.18.0"
 
