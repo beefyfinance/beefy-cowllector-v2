@@ -220,6 +220,14 @@ export async function harvestChain({
             }
 
             if (item.simulation.harvestWillSucceed === false) {
+                if (item.simulation.harvestResultData.toLocaleLowerCase().startsWith('0x26c87876')) {
+                    return {
+                        shouldHarvest: false,
+                        level: 'info',
+                        notHarvestingReason: 'harvest would raise a NotCalm() error, can not harvest',
+                    };
+                }
+
                 if (item.simulation.isLastHarvestRecent) {
                     return {
                         shouldHarvest: false,
