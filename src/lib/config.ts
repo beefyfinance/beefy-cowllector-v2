@@ -877,7 +877,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
-            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.1),
         },
         unwrap: {
             ...defaultUnwrapConfig,
