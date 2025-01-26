@@ -60,7 +60,7 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
-          level: 'info';
+          level: 'info' | 'error';
           notHarvestingReason: 'harvest would raise a NotCalm() error, can not harvest';
       }
     | {

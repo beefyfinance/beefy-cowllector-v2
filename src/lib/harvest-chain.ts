@@ -221,9 +221,12 @@ export async function harvestChain({
 
             if (item.simulation.harvestWillSucceed === false) {
                 if (item.simulation.harvestResultData.toLocaleLowerCase().startsWith('0x26c87876')) {
+                    const isError =
+                        item.simulation.hoursSinceLastHarvest >
+                        (rpcConfig.harvest.targetTimeBetweenHarvestsMs / 1000 / 60 / 60) * 2;
                     return {
                         shouldHarvest: false,
-                        level: 'info',
+                        level: isError ? 'error' : 'info',
                         notHarvestingReason: 'harvest would raise a NotCalm() error, can not harvest',
                     };
                 }
