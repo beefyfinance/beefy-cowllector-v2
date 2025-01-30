@@ -346,6 +346,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             type: 'legacy',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 3),
+            baseFeeMultiplier: 1.5,
+            retryGasMultiplier: {
+                gasPrice: 1.5,
+                maxFeePerGas: 1.5,
+                maxPriorityFeePerGas: 1.5,
+            },
         },
         harvest: {
             ...defaultHarvestConfig,
@@ -358,7 +364,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             },
             balanceCheck: {
                 ...defaultHarvestConfig.balanceCheck,
-                gasPriceMultiplier: 1.0,
+                gasPriceMultiplier: 1.5,
                 gasLimitMultiplier: 1.5, // try to avoid "gas is too high" errors
             },
         },
