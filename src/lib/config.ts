@@ -341,6 +341,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     bsc: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.BSC_RPC_URL || 'https://rpc.ankr.com/bsc',
+        timeoutMs: 120_000,
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
