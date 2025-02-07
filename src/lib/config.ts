@@ -338,6 +338,23 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 0.4),
         },
     },
+    berachain: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.BERACHAIN_RPC_URL || 'https://rpc.berachain.com',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: '0x507c863E3d2FDca55054b90966f1fbA107CEb318',
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+        },
+    },
     bsc: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.BSC_RPC_URL || 'https://rpc.ankr.com/bsc',
@@ -984,6 +1001,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://basescan.org/tx/${hash}',
         apiUrl: process.env.BASE_EXPLORER_API_URL || 'https://api.basescan.org/api',
         apiKey: process.env.BASE_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    berachain: {
+        addressLinkTemplate: 'https://berascan.com/address/${address}',
+        transactionLinkTemplate: 'https://berascan.com/tx/${hash}',
+        apiUrl: process.env.BERACHAIN_EXPLORER_API_URL || 'https://berascan.com/api?',
+        apiKey: process.env.BERACHAIN_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     bsc: {
