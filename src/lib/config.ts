@@ -811,6 +811,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.001),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: true,
+            setTransactionGasLimit: true,
+            forceGasLimit: 100_000n,
+        },
     },
     rootstock: {
         ...defaultConfig,
