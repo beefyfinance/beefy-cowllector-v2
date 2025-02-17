@@ -109,11 +109,11 @@ In case you want to contribute, please follow next steps:
 
 ## Adding a new chain
 
-- update the addressbook version: `npx ncu --upgrade blockchain-addressbook`
-- update the viem version: `npx ncu --upgrade viem`
-- install the new addressbook: `yarn`
+- update the addressbook and viem: `yarn update:addressbook`
 - add the chain in `src/lib/addressbook.ts` if it's not in `blockchain-addressbook` already
 - Fix TS errors `yarn test:ts`
+  - update `src/lib/config.ts`
+  - update `src/lib/rpc-client.ts` 
 - apply migrations (only needed locally, migrations are applied on deploy): `yarn db:migrate`
 - create an explorer api key (important to verify the lens contract later on)
 - add the rpc url, explorer url and api key in `.env`
@@ -122,6 +122,7 @@ In case you want to contribute, please follow next steps:
 - test we can get a contract balance: `LOG_LEVEL=trace yarn ts-node ./src/script/inspect/balance.ts -c <chain> -a <some address> > balance.log`
 - test any on chain action with a fork: `anvil -f <rpc url> --accounts 3 --balance 300 --no-cors --block-time 5 --auto-impersonate`
 - Deploy the lens contract: `LOG_LEVEL=trace node -r ts-node/register ./src/script/deploy/deploy-lens.ts -s <seed> -c <chain> > deploy-lens.log`
+    - if this errors try using foundry 0.3.0 `foundryup --version 0.3.0`
     - if the contract verification failed, retry the `forge verify-contract` command found in `deploy-lens.log`
     - if that doesn't work, wait for the explorer to detect that this address is a contract, then retry
     - if that doesn't work, go to the explorer and verify manually

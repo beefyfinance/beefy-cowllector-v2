@@ -35,6 +35,7 @@ import {
     scroll,
     sei,
     sonic,
+    unichain,
     zkSync,
 } from 'viem/chains';
 import type { Chain } from './chain';
@@ -93,6 +94,7 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     scroll: applyConfig('scroll', scroll),
     sei: applyConfig('sei', sei),
     sonic: applyConfig('sonic', sonic),
+    unichain: applyConfig('unichain', unichain),
     zkevm: applyConfig('zkevm', polygonZkEvm),
     zksync: applyConfig('zksync', zkSync),
 };

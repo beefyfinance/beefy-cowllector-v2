@@ -918,6 +918,21 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             enabled: false,
         },
     },
+    unichain: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.UNICHAIN_RPC_URL || 'https://mainnet.unichain.org',
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
+            maxGasPricePerTransactionWei: null,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+        },
+    },
     zkevm: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKEVM_RPC_URL || 'https://rpc.ankr.com/polygon_zkevm',
@@ -1198,6 +1213,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://sonicscan.org/tx/${hash}',
         apiUrl: process.env.SONIC_EXPLORER_API_URL || 'https://api.sonicscan.org/api',
         apiKey: process.env.SONIC_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    unichain: {
+        addressLinkTemplate: 'https://uniscan.xyz/address/${address}',
+        transactionLinkTemplate: 'https://uniscan.xyz/tx/${hash}',
+        apiUrl: process.env.UNICHAIN_EXPLORER_API_URL || 'https://api.uniscan.xyz/api',
+        apiKey: process.env.UNICHAIN_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     zkevm: {
