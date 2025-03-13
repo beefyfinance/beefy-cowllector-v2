@@ -267,7 +267,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
-            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
@@ -910,8 +910,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
-            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
-            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.02),
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 2.0),
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
