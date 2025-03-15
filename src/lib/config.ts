@@ -122,6 +122,8 @@ export const VAULT_IDS_WE_SHOULD_BLIND_HARVEST = [
     'dracula-usdc-weth',
 ];
 
+export const SILENCE_NOT_CALM_ERRORS_FOR_HOURS = 24 * 3;
+
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
 const oneDayInHours = 24;
 export const SLOW_REWARD_WAIT_IN_HOURS: {

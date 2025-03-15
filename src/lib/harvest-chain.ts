@@ -9,6 +9,7 @@ import { fetchCollectorBalance } from './collector-balance';
 import {
     BLIND_HARVEST_EVERY_X_HOURS,
     RPC_CONFIG,
+    SILENCE_NOT_CALM_ERRORS_FOR_HOURS,
     SLOW_REWARD_WAIT_IN_HOURS,
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
     VAULT_IDS_WE_ARE_OK_NOT_HARVESTING,
@@ -219,8 +220,7 @@ export async function harvestChain({
             if (item.simulation.harvestWillSucceed === false) {
                 if (item.simulation.harvestResultData.toLocaleLowerCase().startsWith('0x26c87876')) {
                     const isError =
-                        item.simulation.hoursSinceLastHarvest >
-                        (rpcConfig.harvest.targetTimeBetweenHarvestsMs / 1000 / 60 / 60) * 2;
+                        item.simulation.hoursSinceLastHarvest > SILENCE_NOT_CALM_ERRORS_FOR_HOURS * 60 * 60 * 1000;
                     return {
                         shouldHarvest: false,
                         level: isError ? 'error' : 'info',
