@@ -8,11 +8,8 @@ import type { Chain } from './chain';
 import { fetchCollectorBalance } from './collector-balance';
 import {
     BLIND_HARVEST_EVERY_X_HOURS,
-    PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
     RPC_CONFIG,
-    SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS,
-    STRATEGY_TYPE_IDS_THAT_CAN_BE_SLOW_TO_REFILL_REWARDS,
-    VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS,
+    SLOW_REWARD_WAIT_IN_HOURS,
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
     VAULT_IDS_WE_ARE_OK_NOT_HARVESTING,
     VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
@@ -307,13 +304,15 @@ export async function harvestChain({
                 }
 
                 if (
-                    (VAULT_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.id) ||
-                        PLATFORM_IDS_NOTORIOUSLY_SLOW_TO_REFILL_REWARDS.includes(item.vault.platformId) ||
-                        (item.vault.strategyTypeId &&
-                            STRATEGY_TYPE_IDS_THAT_CAN_BE_SLOW_TO_REFILL_REWARDS.includes(
-                                item.vault.strategyTypeId
-                            ))) &&
-                    item.simulation.hoursSinceLastHarvest < 24 * SLOW_REFILL_VAULTS_ALERT_AFTER_DAYS
+                    (SLOW_REWARD_WAIT_IN_HOURS.vault[item.vault.id] &&
+                        item.simulation.hoursSinceLastHarvest < SLOW_REWARD_WAIT_IN_HOURS.vault[item.vault.id]) ||
+                    (SLOW_REWARD_WAIT_IN_HOURS.platform[item.vault.platformId] &&
+                        item.simulation.hoursSinceLastHarvest <
+                            SLOW_REWARD_WAIT_IN_HOURS.platform[item.vault.platformId]) ||
+                    (item.vault.strategyTypeId &&
+                        SLOW_REWARD_WAIT_IN_HOURS.strategyTypeId[item.vault.strategyTypeId] &&
+                        item.simulation.hoursSinceLastHarvest <
+                            SLOW_REWARD_WAIT_IN_HOURS.strategyTypeId[item.vault.strategyTypeId])
                 ) {
                     return {
                         shouldHarvest: false,
