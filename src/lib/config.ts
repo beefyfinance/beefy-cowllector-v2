@@ -195,7 +195,7 @@ const defaultRetry: RpcConfig['retry'] = {
     exponentialDelayMs: 150,
 };
 const defaultContracts: RpcConfig['contracts'] = {
-    harvestLens: getAddress('0x2fD8E72e488d6D2Bc770Cf6F74A5d60E44516aaD'),
+    harvestLens: { kind: 'v1', address: getAddress('0x2fD8E72e488d6D2Bc770Cf6F74A5d60E44516aaD') },
     deployer: getAddress('0xcc536552A6214d6667fBC3EC38965F7f556A6391'),
     revenueBridge: getAddress('0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B'),
 };
@@ -281,6 +281,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     arbitrum: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ARBITRUM_RPC_URL || 'https://rpc.ankr.com/arbitrum',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
@@ -311,6 +315,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     avax: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.AVAX_RPC_URL || 'https://rpc.ankr.com/avalanche',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             baseFeeMultiplier: 1.5, // avax tend to run into out of gas errors
@@ -332,6 +340,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     base: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.BASE_RPC_URL || 'https://rpc.ankr.com/base',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         harvest: {
             ...defaultHarvestConfig,
             profitabilityCheck: {
@@ -360,7 +372,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.BERACHAIN_RPC_URL || 'https://rpc.berachain.com',
         contracts: {
             ...defaultContracts,
-            harvestLens: '0x507c863E3d2FDca55054b90966f1fbA107CEb318',
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
         },
         transaction: {
             ...defaultTransactionConfig,
@@ -376,6 +388,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.BSC_RPC_URL || 'https://rpc.ankr.com/bsc',
         timeoutMs: 120_000,
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
@@ -587,6 +603,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     linea: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0xB4E839d83F52728903b7Ce0510e957B0954e940e') },
+        },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
             forceGasLimit: 593_200n,
@@ -601,7 +621,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         contracts: {
             ...defaultContracts,
-            harvestLens: '0x507c863E3d2FDca55054b90966f1fbA107CEb318',
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
         },
         transaction: {
             ...defaultTransactionConfig,
@@ -620,6 +640,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     manta: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MANTA_RPC_URL || 'https://pacific-rpc.manta.network/http',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'eip1559',
@@ -645,6 +669,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     mantle: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         harvest: {
             ...defaultHarvestConfig,
             setTransactionGasLimit: false,
@@ -673,6 +701,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     mode: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MODE_RPC_URL || 'https://mainnet.mode.network',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
@@ -720,6 +752,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     moonbeam: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MOONBEAM_RPC_URL || 'https://rpc.ankr.com/moonbeam',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         harvest: {
             ...defaultHarvestConfig,
             setTransactionGasLimit: false,
@@ -770,6 +806,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     optimism: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.OPTIMISM_RPC_URL || 'https://rpc.ankr.com/optimism',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
@@ -789,6 +829,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     polygon: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.POLYGON_RPC_URL || 'https://rpc.ankr.com/polygon',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             baseFeeMultiplier: 1.5, // polygon is known to stall trx for days when base fee is too low
@@ -840,7 +884,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.ROOTSTOCK_RPC_URL || 'https://public-node.rsk.co',
         contracts: {
             ...defaultContracts,
-            harvestLens: getAddress('0x6C9511d8e03a26EBBCdee54485e67902D440b7cF'), // contract deployer wasn't deployed on rsk
+            harvestLens: { kind: 'v1', address: getAddress('0x6C9511d8e03a26EBBCdee54485e67902D440b7cF') }, // contract deployer wasn't deployed on rsk
         },
         transaction: {
             ...defaultTransactionConfig,
@@ -865,6 +909,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     scroll: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'eip1559',
@@ -896,6 +944,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     sei: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SEI_RPC_URL || 'https://evm-rpc.sei-apis.com',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
@@ -919,7 +971,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.SONIC_RPC_URL || 'https://rpc.soniclabs.com',
         contracts: {
             ...defaultContracts,
-            harvestLens: '0x507c863E3d2FDca55054b90966f1fbA107CEb318',
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
         },
         transaction: {
             ...defaultTransactionConfig,
@@ -940,6 +992,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     unichain: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.UNICHAIN_RPC_URL || 'https://mainnet.unichain.org',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
@@ -991,7 +1047,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         contracts: {
             ...defaultContracts,
             deployer: null,
-            harvestLens: '0x525e2664d2d30ED068Ab83dC4e83594d51cd61fF',
+            harvestLens: { kind: 'v1', address: getAddress('0x525e2664d2d30ED068Ab83dC4e83594d51cd61fF') },
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,

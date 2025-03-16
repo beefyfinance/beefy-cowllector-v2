@@ -8,4 +8,6 @@ interface IStrategyV7 {
     function harvest(address callReceipient) external;
 
     function paused() external view returns (bool);
+
+    function isCalm() external view returns (bool);
 }

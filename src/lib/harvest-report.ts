@@ -34,6 +34,7 @@ type HarvestReportSimulation = Async<{
     lastHarvest: Date;
     hoursSinceLastHarvest: number;
     isLastHarvestRecent: boolean;
+    isCalmBeforeHarvest: number;
     paused: boolean;
     blockNumber: bigint;
     harvestResultData: Hex;
@@ -57,6 +58,11 @@ export type HarvestReportDecision = Async<
           blindHarvestDate: Date;
           level: 'info';
           notHarvestingReason: 'Blind harvest date not reached yet';
+      }
+    | {
+          shouldHarvest: false;
+          level: 'error';
+          notHarvestingReason: 'Harvesting makes the vault NotCalm(), manual intervention required';
       }
     | {
           shouldHarvest: false;

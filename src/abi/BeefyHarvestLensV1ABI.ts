@@ -1,4 +1,4 @@
-export const BeefyHarvestLensABI = [
+export const BeefyHarvestLensV1ABI = [
     {
         inputs: [
             {

@@ -10,6 +10,7 @@ struct LensResult {
     uint256 lastHarvest;
     uint256 gasUsed;
     uint256 blockNumber;
+    int8 isCalmBeforeHarvest;
     bool paused;
     bool success;
     bytes harvestResult;
@@ -30,6 +31,12 @@ contract BeefyHarvestLens {
         try _strategy.lastHarvest() returns (uint256 _lastHarvest) {
             res.lastHarvest = _lastHarvest;
         } catch {}
+
+        try _strategy.isCalm() returns (bool _isCalm) {
+            res.isCalmBeforeHarvest = _isCalm ? int8(1) : int8(0);
+        } catch {
+            res.isCalmBeforeHarvest = int8(-1);
+        }
 
         if (!res.paused) {
             uint256 rewardsBefore = IERC20(_rewardToken).balanceOf(address(this));
