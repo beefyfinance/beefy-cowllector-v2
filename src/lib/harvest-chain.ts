@@ -1,5 +1,6 @@
 import { getAddress } from 'viem';
-import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
+import { BeefyHarvestLensV1ABI } from '../abi/BeefyHarvestLensV1ABI';
+import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
 import { getReadOnlyRpcClient, getWalletClient } from '../lib/rpc-client';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
@@ -61,8 +62,8 @@ export async function harvestChain({
         throw new Error(`Missing harvest lens address for chain ${chain}`);
     }
     const harvestLensContract = {
-        abi: BeefyHarvestLensABI,
-        address: rpcConfig.contracts.harvestLens,
+        abi: rpcConfig.contracts.harvestLens.kind === 'v1' ? BeefyHarvestLensV1ABI : BeefyHarvestLensV2ABI,
+        address: rpcConfig.contracts.harvestLens.address,
     };
 
     // ======================
@@ -95,6 +96,7 @@ export async function harvestChain({
                     lastHarvest: new Date(),
                     hoursSinceLastHarvest: 0,
                     isLastHarvestRecent: true,
+                    isCalmBeforeHarvest: -1,
                     paused: false,
                     blockNumber: 0n,
                     harvestResultData: '0x',
@@ -108,31 +110,31 @@ export async function harvestChain({
                 };
             }
 
-            const {
-                result: { callReward, gasUsed, lastHarvest, paused, success, blockNumber, harvestResult },
-            } = await publicClient.simulateContractInBatch({
+            const { result } = await publicClient.simulateContractInBatch({
                 ...harvestLensContract,
                 functionName: 'harvest',
                 args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
                 //account: walletAccount, // setting the account disables multicall batching
             });
-            const lastHarvestDate = new Date(Number(lastHarvest) * 1000);
+            const lastHarvestDate = new Date(Number(result.lastHarvest) * 1000);
             const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
             const isLastHarvestRecent = timeSinceLastHarvestMs < rpcConfig.harvest.targetTimeBetweenHarvestsMs;
+            const isCalmBeforeHarvest = 'isCalmBeforeHarvest' in result ? result.isCalmBeforeHarvest : -1;
 
             return {
-                estimatedCallRewardsWei: callReward,
-                harvestWillSucceed: success,
+                estimatedCallRewardsWei: result.callReward,
+                harvestWillSucceed: result.success,
                 lastHarvest: lastHarvestDate,
                 hoursSinceLastHarvest: timeSinceLastHarvestMs / 1000 / 60 / 60,
                 isLastHarvestRecent,
-                paused,
-                blockNumber,
-                harvestResultData: harvestResult,
+                isCalmBeforeHarvest,
+                paused: result.paused,
+                blockNumber: result.blockNumber,
+                harvestResultData: result.harvestResult,
                 gas: createGasEstimationReport({
                     rawGasPrice,
-                    rawGasAmountEstimation: gasUsed,
-                    estimatedCallRewardsWei: callReward,
+                    rawGasAmountEstimation: result.gasUsed,
+                    estimatedCallRewardsWei: result.callReward,
                     gasPriceMultiplier: rpcConfig.harvest.balanceCheck.gasPriceMultiplier,
                     minExpectedRewardsWei: rpcConfig.harvest.profitabilityCheck.minExpectedRewardsWei,
                 }),
@@ -218,7 +220,18 @@ export async function harvestChain({
             }
 
             if (item.simulation.harvestWillSucceed === false) {
-                if (item.simulation.harvestResultData.toLocaleLowerCase().startsWith('0x26c87876')) {
+                const raisedNotCalmError = item.simulation.harvestResultData
+                    .toLocaleLowerCase()
+                    .startsWith('0x26c87876');
+                if (raisedNotCalmError && item.simulation.isCalmBeforeHarvest === 1) {
+                    return {
+                        shouldHarvest: false,
+                        level: 'error',
+                        notHarvestingReason: 'Harvesting makes the vault NotCalm(), manual intervention required',
+                    };
+                }
+
+                if (raisedNotCalmError) {
                     const isError =
                         item.simulation.hoursSinceLastHarvest > SILENCE_NOT_CALM_ERRORS_FOR_HOURS * 60 * 60 * 1000;
                     return {

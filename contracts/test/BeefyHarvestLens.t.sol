@@ -16,6 +16,8 @@ contract BeefyHarvestLensTest is Test {
     IERC20 rewardToken;
     uint256 lastHarvestMock;
     bool pausedMock;
+    bool isCalmBeforeHarvest;
+    bool revertOnIsCalm;
     uint256 harvestLoops;
     bool revertOnHarvest;
     bool revertOnLastHarvest;
@@ -25,6 +27,8 @@ contract BeefyHarvestLensTest is Test {
         rewardToken = IERC20(new ERC20Mock(1000 ether));
         lastHarvestMock = 123456;
         pausedMock = false;
+        isCalmBeforeHarvest = false;
+        revertOnIsCalm = true;
         harvestLoops = 10;
         revertOnHarvest = false;
         revertOnLastHarvest = false;
@@ -38,9 +42,11 @@ contract BeefyHarvestLensTest is Test {
                     rewardToken,
                     lastHarvestMock,
                     pausedMock,
+                    isCalmBeforeHarvest,
                     harvestLoops,
                     revertOnHarvest,
                     revertOnLastHarvest,
+                    revertOnIsCalm,
                     harvestRewards
                 )
             )
@@ -162,5 +168,34 @@ contract BeefyHarvestLensTest is Test {
         assertEq(res.blockNumber, block.number);
         assertEq(res.harvestResult.length, 0);
         assertEq(rewardToken.balanceOf(address(this)), 987654);
+    }
+
+    function test_lens_returns_isCalm_true_when_provided_by_strategy() public {
+        isCalmBeforeHarvest = true;
+        revertOnIsCalm = false;
+
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
+
+        assertEq(res.isCalmBeforeHarvest, 1);
+    }
+
+    function test_lens_returns_isCalm_false_when_provided_by_strategy() public {
+        isCalmBeforeHarvest = false;
+        revertOnIsCalm = false;
+
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
+
+        assertEq(res.isCalmBeforeHarvest, 0);
+    }
+
+    function test_lens_catches_revert_on_isCalm() public {
+        revertOnIsCalm = true;
+
+        (IStrategyV7 strat, BeefyHarvestLens lens) = _helper_create_contracts();
+        LensResult memory res = lens.harvest(strat, rewardToken);
+
+        assertEq(res.isCalmBeforeHarvest, -1);
     }
 }

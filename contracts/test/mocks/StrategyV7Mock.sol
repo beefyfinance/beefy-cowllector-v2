@@ -13,26 +13,32 @@ contract StrategyV7Mock {
     IERC20 public native;
     uint256 public lastHarvestMock;
     bool public pausedMock;
+    bool public isCalmBeforeHarvest;
     uint256 public harvestLoops;
     bool public revertOnHarvest;
     bool public revertOnLastHarvest;
+    bool public revertOnIsCalm;
     uint256 public harvestRewards;
 
     constructor(
         IERC20 _native,
         uint256 _lastHarvestMock,
         bool _pausedMock,
+        bool _isCalmBeforeHarvest,
         uint256 _harvestLoops,
         bool _revertOnHarvest,
         bool _revertOnLastHarvest,
+        bool _revertOnIsCalm,
         uint256 _harvestRewards
     ) {
         native = _native;
         lastHarvestMock = _lastHarvestMock;
         pausedMock = _pausedMock;
+        isCalmBeforeHarvest = _isCalmBeforeHarvest;
         harvestLoops = _harvestLoops;
         revertOnHarvest = _revertOnHarvest;
         revertOnLastHarvest = _revertOnLastHarvest;
+        revertOnIsCalm = _revertOnIsCalm;
         harvestRewards = _harvestRewards;
     }
 
@@ -53,6 +59,13 @@ contract StrategyV7Mock {
         }
 
         native.safeTransfer(callReceipient, harvestRewards);
+    }
+
+    function isCalm() external view returns (bool) {
+        if (revertOnIsCalm) {
+            revert("revertOnIsCalm");
+        }
+        return isCalmBeforeHarvest;
     }
 
     function paused() external view returns (bool) {

@@ -438,6 +438,7 @@ export async function db_migrate() {
           sim_ok."lastHarvest" as simulation_last_harvest,
           sim_ok."hoursSinceLastHarvest" as simulation_hours_since_last_harvest,
           sim_ok."isLastHarvestRecent" as simulation_is_last_harvest_recent,
+          sim_ok."isCalmBeforeHarvest" as simulation_is_calm_before_harvest,
           sim_ok."paused" as simulation_paused,
           sim_ok."blockNumber" as simulation_block_number,
           sim_ok."harvestResultData" as simulation_harvest_result_data,
@@ -509,6 +510,7 @@ export async function db_migrate() {
             "lastHarvest" timestamp with time zone,
             "hoursSinceLastHarvest" double precision,
             "isLastHarvestRecent" boolean,
+            "isCalmBeforeHarvest" integer,
             "paused" boolean,
             "blockNumber" numeric,
             "harvestResultData" jsonb
@@ -599,6 +601,7 @@ export async function db_migrate() {
           sim_ok."lastHarvest" as simulation_last_harvest,
           sim_ok."hoursSinceLastHarvest" as simulation_hours_since_last_harvest,
           sim_ok."isLastHarvestRecent" as simulation_is_last_harvest_recent,
+          sim_ok."isCalmBeforeHarvest" as simulation_is_calm_before_harvest,
           sim_ok."paused" as simulation_paused,
           sim_ok."blockNumber" as simulation_block_number,
           sim_ok."harvestResultData" as simulation_harvest_result_data,
@@ -670,6 +673,7 @@ export async function db_migrate() {
             "lastHarvest" timestamp with time zone,
             "hoursSinceLastHarvest" double precision,
             "isLastHarvestRecent" boolean,
+            "isCalmBeforeHarvest" integer,
             "paused" boolean,
             "blockNumber" numeric,
             "harvestResultData" jsonb

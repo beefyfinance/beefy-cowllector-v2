@@ -1,7 +1,8 @@
 import * as fs from 'node:fs';
 import { type Hex, getAddress } from 'viem';
 import yargs from 'yargs';
-import { BeefyHarvestLensABI } from '../abi/BeefyHarvestLensABI';
+import { BeefyHarvestLensV1ABI } from '../abi/BeefyHarvestLensV1ABI';
+import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
 import { getChainWNativeTokenAddress, getChainWNativeTokenDecimals } from '../lib/addressbook';
 import { type Chain, allChainIds } from '../lib/chain';
 import { RPC_CONFIG } from '../lib/config';
@@ -61,6 +62,7 @@ interface EolWithRewardsReportItem {
         lastHarvest: Date;
         hoursSinceLastHarvest: number;
         isLastHarvestRecent: boolean;
+        isCalmBeforeHarvest: number;
         paused: boolean;
         blockNumber: bigint;
         harvestResultData: Hex;
@@ -302,8 +304,8 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
         throw new Error(`Missing harvest lens address for chain ${chain}`);
     }
     const harvestLensContract = {
-        abi: BeefyHarvestLensABI,
-        address: rpcConfig.contracts.harvestLens,
+        abi: rpcConfig.contracts.harvestLens.kind === 'v1' ? BeefyHarvestLensV1ABI : BeefyHarvestLensV2ABI,
+        address: rpcConfig.contracts.harvestLens.address,
     };
 
     const items = vaults.map(vault => ({
@@ -312,9 +314,7 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
     }));
 
     await reportOnMultipleEolRewardsAsyncCall(items, 'simulation', { type: 'parallel' }, async item => {
-        const {
-            result: { callReward, gasUsed, lastHarvest, paused, success, blockNumber, harvestResult },
-        } = await publicClient.simulateContractInBatch({
+        const { result } = await publicClient.simulateContractInBatch({
             ...harvestLensContract,
             functionName: 'harvest',
             args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
@@ -322,21 +322,23 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
         });
 
         const now = new Date();
-        const lastHarvestDate = new Date(Number(lastHarvest) * 1000);
+        const lastHarvestDate = new Date(Number(result.lastHarvest) * 1000);
         const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
         const isLastHarvestRecent = timeSinceLastHarvestMs < rpcConfig.harvest.targetTimeBetweenHarvestsMs;
+        const isCalmBeforeHarvest = 'isCalmBeforeHarvest' in result ? result.isCalmBeforeHarvest : -1;
 
         //await new Promise(resolve => setTimeout(resolve, 1000));
         return {
-            estimatedCallRewardsWei: callReward,
-            harvestWillSucceed: success,
+            estimatedCallRewardsWei: result.callReward,
+            harvestWillSucceed: result.success,
             lastHarvest: lastHarvestDate,
             hoursSinceLastHarvest: timeSinceLastHarvestMs / 1000 / 60 / 60,
             isLastHarvestRecent,
-            paused,
-            blockNumber,
-            gasUsed,
-            harvestResultData: harvestResult,
+            isCalmBeforeHarvest,
+            paused: result.paused,
+            blockNumber: result.blockNumber,
+            gasUsed: result.gasUsed,
+            harvestResultData: result.harvestResult,
         };
     });
 

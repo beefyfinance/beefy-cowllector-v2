@@ -51,7 +51,7 @@ export type RpcConfig = {
         };
     };
     contracts: {
-        harvestLens: Hex | null;
+        harvestLens: null | { kind: 'v1' | 'v2'; address: Hex };
         deployer: Hex | null;
         revenueBridge: Hex | null;
     };

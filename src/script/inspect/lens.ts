@@ -1,6 +1,7 @@
 import { type Hex, getAddress } from 'viem';
 import yargs from 'yargs';
-import { BeefyHarvestLensABI } from '../../abi/BeefyHarvestLensABI';
+import { BeefyHarvestLensV1ABI } from '../../abi/BeefyHarvestLensV1ABI';
+import { BeefyHarvestLensV2ABI } from '../../abi/BeefyHarvestLensV2ABI';
 import { IStrategyABI } from '../../abi/IStrategyABI';
 import { getChainWNativeTokenAddress } from '../../lib/addressbook';
 import { allChainIds } from '../../lib/chain';
@@ -68,8 +69,8 @@ async function main() {
     }
 
     const harvestLensContract = {
-        abi: BeefyHarvestLensABI,
-        address: rpcConfig.contracts.harvestLens,
+        abi: rpcConfig.contracts.harvestLens.kind === 'v1' ? BeefyHarvestLensV1ABI : BeefyHarvestLensV2ABI,
+        address: rpcConfig.contracts.harvestLens.address,
     };
     const strategyContract = {
         abi: IStrategyABI,
