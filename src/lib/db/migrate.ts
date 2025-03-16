@@ -558,7 +558,6 @@ export async function db_migrate() {
             select
               *, row_number() over (partition by r.report_content->'chain' order by datetime desc) as row_number
             from raw_harvest_report r
-            where r.datetime > now() - interval '1 day'
         ),
         latest_report_by_chain as (
             select r.*
