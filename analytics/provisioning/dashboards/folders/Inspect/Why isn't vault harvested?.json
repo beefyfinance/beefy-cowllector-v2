@@ -155,6 +155,7 @@
                                 "simulation_last_harvest",
                                 "simulation_hours_since_last_harvest",
                                 "simulation_is_last_harvest_recent",
+                                "simulation_is_calm_before_harvest",
                                 "simulation_paused",
                                 "simulation_block_number",
                                 "simulation_harvest_result_data",
