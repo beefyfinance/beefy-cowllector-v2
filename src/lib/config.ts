@@ -60,8 +60,6 @@ export const CENSOR_SECRETS_FROM_REPORTS = process.env.CENSOR_SECRETS_FROM_REPOR
     ? process.env.CENSOR_SECRETS_FROM_REPORTS.split(',')
     : [];
 
-export const LENS_DEPLOY_GAS_MULTIPLIER = Number.parseFloat(process.env.LENS_DEPLOY_GAS_MULTIPLIER || '1.3');
-
 const HARVEST_AT_LEAST_EVERY_HOURS = Number.parseInt(process.env.HARVEST_AT_LEAST_EVERY_HOURS || '23', 10);
 const HARVEST_GAS_PRICE_MULTIPLIER = Number.parseFloat(process.env.HARVEST_GAS_PRICE_MULTIPLIER || '1.5');
 const HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = Number.parseFloat(process.env.HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '2.5');
