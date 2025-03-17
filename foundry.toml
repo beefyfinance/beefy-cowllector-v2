@@ -18,9 +18,11 @@ remappings = [
 ]
 fs_permissions = [{ access = "read", path = "./contracts/out"}]
 solc_version = "0.8.28"
-# keep solc version low for linea
+# LINEA: keep solc version low
 #solc_version = "0.8.20"
 #evm_version = 'paris'
+# ROOTSTOCK: is on london (prevrandao error)
+#evm_version = 'london'
 
 
 [profile.gas-optimize]

@@ -882,7 +882,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.ROOTSTOCK_RPC_URL || 'https://public-node.rsk.co',
         contracts: {
             ...defaultContracts,
-            harvestLens: { kind: 'v1', address: getAddress('0x6C9511d8e03a26EBBCdee54485e67902D440b7cF') }, // contract deployer wasn't deployed on rsk
+            harvestLens: { kind: 'v2', address: getAddress('0xc431bfD1E9102648D777480D0cA8489348d55224') },
         },
         transaction: {
             ...defaultTransactionConfig,
@@ -1045,7 +1045,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         contracts: {
             ...defaultContracts,
             deployer: null,
-            harvestLens: { kind: 'v1', address: getAddress('0x525e2664d2d30ED068Ab83dC4e83594d51cd61fF') },
+            harvestLens: { kind: 'v2', address: getAddress('0x80952C4F757FD3A46c80754df7914a417eE37848') },
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
