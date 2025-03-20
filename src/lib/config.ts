@@ -994,6 +994,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
