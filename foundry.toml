@@ -23,7 +23,8 @@ solc_version = "0.8.28"
 #evm_version = 'paris'
 # ROOTSTOCK: is on london (prevrandao error)
 #evm_version = 'london'
-
+# MANTLE: is on london (prevrandao error)
+#evm_version = 'paris'
 
 [profile.gas-optimize]
 optimizer = true

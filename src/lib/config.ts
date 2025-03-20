@@ -669,7 +669,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
         contracts: {
             ...defaultContracts,
-            harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
+            harvestLens: { kind: 'v2', address: getAddress('0x25DCEA8aAb1AbEBf11c01165a64ED61D85eDD94a') },
         },
         harvest: {
             ...defaultHarvestConfig,
