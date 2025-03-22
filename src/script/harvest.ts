@@ -32,6 +32,7 @@ type CmdOptions = {
     chain: Chain[];
     strategyAddress: Hex | null;
     now: Date;
+    dryRun: boolean;
 };
 
 async function main() {
@@ -56,12 +57,20 @@ async function main() {
             alias: 'n',
             describe: 'force the current date time instead of using Date.now()',
         },
+        dryRun: {
+            type: 'boolean',
+            demand: false,
+            default: false,
+            alias: 'd',
+            describe: 'dry run',
+        },
     }).argv;
 
     const options: CmdOptions = {
         chain: argv.chain.includes('all') ? allChainIds : (argv.chain as Chain[]),
         strategyAddress: (argv['strategy-address'] || null) as Hex | null,
         now: argv.now ? new Date(argv.now) : new Date(Date.now()),
+        dryRun: argv.dryRun,
     };
     logger.trace({ msg: 'running with options', data: options });
 
@@ -120,6 +129,7 @@ async function main() {
                             now: options.now,
                             chain: chain as Chain,
                             vaults,
+                            dryRun: options.dryRun,
                         })
                     );
 

@@ -35,11 +35,13 @@ export async function harvestChain({
     now,
     chain,
     vaults,
+    dryRun,
 }: {
     report: HarvestReport;
     now: Date;
     chain: Chain;
     vaults: BeefyVault[];
+    dryRun: boolean;
 }) {
     logger.debug({
         msg: 'Harvesting chain',
@@ -455,6 +457,14 @@ export async function harvestChain({
     // =======================
     // now do the havest dance
     // =======================
+
+    if (dryRun) {
+        logger.debug({
+            msg: 'Dry run, skipping harvest',
+            data: { chain, count: stratsToBeHarvested.length },
+        });
+        return report;
+    }
 
     logger.debug({
         msg: 'Harvesting strats',
