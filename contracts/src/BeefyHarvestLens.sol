@@ -52,7 +52,7 @@ contract BeefyHarvestLens {
                 res.gasUsed = gasBefore - gasAfter;
 
                 // protection in case someone actually uses this contract to harvest despite our warnings
-                // msg.sender is zero when simulating the transaction without an account
+                // msg.sender is zero when simulating the transaction without an account, using address(0) would raise ERC20InvalidReceiver
                 if (res.callReward > 0 && msg.sender != address(0)) {
                     _rewardToken.safeTransfer(msg.sender, res.callReward);
                 }
