@@ -967,6 +967,17 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     sonic: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SONIC_RPC_URL || 'https://rpc.soniclabs.com',
+        batch: {
+            ...defaultBatch,
+            multicall: {
+                // sonic has some complex logic that consumes a lot of gas
+                // so we need to decrease the batch size to avoid out of gas errors
+                // it's not clear how to set gas params on sonic simulations as anything
+                // seems to crash the simulation, so we just use smaller batches
+                batchSize: 2_048,
+                wait: 300,
+            },
+        },
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x34621B852357B318c75642D558cdC9866cB7F18B') },
