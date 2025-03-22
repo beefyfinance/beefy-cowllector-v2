@@ -974,7 +974,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 // so we need to decrease the batch size to avoid out of gas errors
                 // it's not clear how to set gas params on sonic simulations as anything
                 // seems to crash the simulation, so we just use smaller batches
-                batchSize: 2_048,
+                batchSize: 1_028,
                 wait: 300,
             },
         },
