@@ -1,7 +1,7 @@
 import { getAddress } from 'viem';
 import { BeefyHarvestLensV1ABI } from '../abi/BeefyHarvestLensV1ABI';
 import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
-import { getReadOnlyRpcClient, getWalletClient } from '../lib/rpc-client';
+import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
 import { getChainWNativeTokenAddress } from './addressbook';
@@ -49,6 +49,7 @@ export async function harvestChain({
     const wnative = getChainWNativeTokenAddress(chain);
     const publicClient = getReadOnlyRpcClient({ chain });
     const walletClient = getWalletClient({ chain });
+    const walletAccount = getWalletAccount({ chain });
     const rpcConfig = RPC_CONFIG[chain];
 
     const items = vaults.map(vault => ({
@@ -114,7 +115,11 @@ export async function harvestChain({
                 ...harvestLensContract,
                 functionName: 'harvest',
                 args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
-                //account: walletAccount, // setting the account disables multicall batching
+                // setting the account disables multicall batching unless we use our custom simulateContractInBatch function
+                // moreover, the lens contract is setup so that it sends back any wnative to the caller
+                // so we need to set the account anyway to avoid 0xec442f05 error (ERC20InvalidReceiver)
+                // as without a wallet account, the lens contract will send the wnative back to address(0)
+                account: walletAccount,
             });
             const lastHarvestDate = new Date(Number(result.lastHarvest) * 1000);
             const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
