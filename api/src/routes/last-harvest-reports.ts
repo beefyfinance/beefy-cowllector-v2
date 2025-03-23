@@ -10,6 +10,10 @@ const LastHarvestReportSchema = z
         datetime: z.string(),
         run_ok: z.boolean(),
         vault_id: z.string(),
+        eol: z.boolean(),
+        strategy_address: z.string(),
+        platform_id: z.string(),
+        tvl_usd: z.number(),
         vault_is_clm_manager: z.boolean(),
         vault_is_clm_vault: z.boolean(),
         simulation_started: z.boolean(),
@@ -96,26 +100,28 @@ const lastHarvestReportsRoute = createRoute({
 lastHarvestReportApi.openapi(lastHarvestReportsRoute, async c => {
     const query = `
       SELECT 
-        raw_report_id, chain, datetime, run_ok, vault_id,
-        vault_is_clm_manager, vault_is_clm_vault,
-        simulation_started, simulation_ok, 'redacted' as simulation_ko_reason,
-        simulation_last_harvest, simulation_hours_since_last_harvest,
-        simulation_is_last_harvest_recent, simulation_is_calm_before_harvest, simulation_paused,
-        simulation_block_number, simulation_harvest_result_data,
-        simulation_gas_raw_gas_price, simulation_gas_raw_gas_amount_estimation,
-        simulation_gas_estimated_call_rewards_wei, simulation_gas_gas_price_multiplier,
-        simulation_gas_gas_price, simulation_gas_transaction_cost_estimation_wei,
-        simulation_gas_estimated_gain_wei, simulation_gas_would_be_profitable,
-        decision_started, decision_ok, 'redacted' as decision_ko_reason,
-        decision_should_harvest, decision_level, decision_not_harvesting_reason,
-        decision_might_need_eol, decision_harvest_return_data,
-        decision_harvest_return_data_decoded,
-        transaction_started, transaction_ok, 'redacted' as transaction_ko_reason,
-        bytea_to_hexstr(transaction_hash) as transaction_hash, transaction_block_number, transaction_gas_used,
-        transaction_effective_gas_price, transaction_cost_wei,
-        transaction_balance_before_wei, transaction_estimated_profit_wei,
-        summary_harvested, summary_skipped, summary_status
-      FROM harvest_report_last_vault_details
+        r.raw_report_id, r.chain, r.datetime, r.run_ok, r.vault_id,
+        v.eol, bytea_to_hexstr(v.strategy_address) as strategy_address, v.platform_id, v.tvl_usd,
+        r.vault_is_clm_manager, r.vault_is_clm_vault,
+        r.simulation_started, r.simulation_ok, 'redacted' as simulation_ko_reason,
+        r.simulation_last_harvest, r.simulation_hours_since_last_harvest,
+        r.simulation_is_last_harvest_recent, r.simulation_is_calm_before_harvest, r.simulation_paused,
+        r.simulation_block_number, r.simulation_harvest_result_data,
+        r.simulation_gas_raw_gas_price, r.simulation_gas_raw_gas_amount_estimation,
+        r.simulation_gas_estimated_call_rewards_wei, r.simulation_gas_gas_price_multiplier,
+        r.simulation_gas_gas_price, r.simulation_gas_transaction_cost_estimation_wei,
+        r.simulation_gas_estimated_gain_wei, r.simulation_gas_would_be_profitable,
+        r.decision_started, r.decision_ok, 'redacted' as decision_ko_reason,
+        r.decision_should_harvest, r.decision_level, r.decision_not_harvesting_reason,
+        r.decision_might_need_eol, r.decision_harvest_return_data,
+        r.decision_harvest_return_data_decoded,
+        r.transaction_started, r.transaction_ok, 'redacted' as transaction_ko_reason,
+        bytea_to_hexstr(r.transaction_hash) as transaction_hash, r.transaction_block_number, r.transaction_gas_used,
+        r.transaction_effective_gas_price, r.transaction_cost_wei,
+        r.transaction_balance_before_wei, r.transaction_estimated_profit_wei,
+        r.summary_harvested, r.summary_skipped, r.summary_status
+      FROM harvest_report_last_vault_details r
+      LEFT JOIN vault v ON v.id = r.vault_id
       ORDER BY datetime DESC
     `;
 
@@ -187,27 +193,29 @@ lastHarvestReportApi.openapi(lastHarvestReportByVaultRoute, async c => {
 
     const query = `
       SELECT 
-        raw_report_id, chain, datetime, run_ok, vault_id,
-        vault_is_clm_manager, vault_is_clm_vault,
-        simulation_started, simulation_ok, 'redacted' as simulation_ko_reason,
-        simulation_last_harvest, simulation_hours_since_last_harvest,
-        simulation_is_last_harvest_recent, simulation_is_calm_before_harvest, simulation_paused,
-        simulation_block_number, simulation_harvest_result_data,
-        simulation_gas_raw_gas_price, simulation_gas_raw_gas_amount_estimation,
-        simulation_gas_estimated_call_rewards_wei, simulation_gas_gas_price_multiplier,
-        simulation_gas_gas_price, simulation_gas_transaction_cost_estimation_wei,
-        simulation_gas_estimated_gain_wei, simulation_gas_would_be_profitable,
-        decision_started, decision_ok, 'redacted' as decision_ko_reason,
-        decision_should_harvest, decision_level, decision_not_harvesting_reason,
-        decision_might_need_eol, decision_harvest_return_data,
-        decision_harvest_return_data_decoded,
-        transaction_started, transaction_ok, 'redacted' as transaction_ko_reason,
-        bytea_to_hexstr(transaction_hash) as transaction_hash, transaction_block_number, transaction_gas_used,
-        transaction_effective_gas_price, transaction_cost_wei,
-        transaction_balance_before_wei, transaction_estimated_profit_wei,
-        summary_harvested, summary_skipped, summary_status
-      FROM harvest_report_last_vault_details
-      WHERE vault_id = $1
+        r.raw_report_id, r.chain, r.datetime, r.run_ok, r.vault_id,
+        v.eol, bytea_to_hexstr(v.strategy_address) as strategy_address, v.platform_id, v.tvl_usd,
+        r.vault_is_clm_manager, r.vault_is_clm_vault,
+        r.simulation_started, r.simulation_ok, 'redacted' as simulation_ko_reason,
+        r.simulation_last_harvest, r.simulation_hours_since_last_harvest,
+        r.simulation_is_last_harvest_recent, r.simulation_is_calm_before_harvest, r.simulation_paused,
+        r.simulation_block_number, r.simulation_harvest_result_data,
+        r.simulation_gas_raw_gas_price, r.simulation_gas_raw_gas_amount_estimation,
+        r.simulation_gas_estimated_call_rewards_wei, r.simulation_gas_gas_price_multiplier,
+        r.simulation_gas_gas_price, r.simulation_gas_transaction_cost_estimation_wei,
+        r.simulation_gas_estimated_gain_wei, r.simulation_gas_would_be_profitable,
+        r.decision_started, r.decision_ok, 'redacted' as decision_ko_reason,
+        r.decision_should_harvest, r.decision_level, r.decision_not_harvesting_reason,
+        r.decision_might_need_eol, r.decision_harvest_return_data,
+        r.decision_harvest_return_data_decoded,
+        r.transaction_started, r.transaction_ok, 'redacted' as transaction_ko_reason,
+        bytea_to_hexstr(r.transaction_hash) as transaction_hash, r.transaction_block_number, r.transaction_gas_used,
+        r.transaction_effective_gas_price, r.transaction_cost_wei,
+        r.transaction_balance_before_wei, r.transaction_estimated_profit_wei,
+        r.summary_harvested, r.summary_skipped, r.summary_status
+      FROM harvest_report_last_vault_details r
+      LEFT JOIN vault v ON v.id = r.vault_id
+      WHERE r.vault_id = $1
     `;
 
     try {
