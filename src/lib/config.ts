@@ -139,6 +139,8 @@ export const SLOW_REWARD_WAIT_IN_HOURS: {
     },
     vault: {
         'joe-joe': 30 * oneDayInHours,
+        // this specific vault has a weekly refill
+        'aavev3-sonic-usdc.e': 8 * oneDayInHours,
     },
     // GMX v2 may not have harvest for up to 7 days
     // The strategy just holds the GM market tokens, waiting for the weekly ARB airdrop.
