@@ -859,6 +859,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     real: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.REAL_RPC_URL || 'https://real.drpc.org',
+        eol: true,
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
