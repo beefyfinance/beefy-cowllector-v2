@@ -87,7 +87,7 @@ export type HarvestReportDecision = Async<
       }
     | {
           shouldHarvest: false;
-          level: 'info';
+          level: 'error';
           notHarvestingReason: 'harvest would fail but it is an aura vault, so it might just be out of rewards';
       }
     | {

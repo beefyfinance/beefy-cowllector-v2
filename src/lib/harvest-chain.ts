@@ -279,7 +279,7 @@ export async function harvestChain({
                 if (item.vault.platformId === 'aura') {
                     return {
                         shouldHarvest: false,
-                        level: 'info',
+                        level: 'error',
                         notHarvestingReason:
                             'harvest would fail but it is an aura vault, so it might just be out of rewards',
                     };
