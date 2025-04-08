@@ -14,6 +14,7 @@ import {
     SLOW_REWARD_WAIT_IN_HOURS,
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
     VAULT_IDS_WE_ARE_OK_NOT_HARVESTING,
+    VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US,
     VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
     VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION,
 } from './config';
@@ -304,7 +305,10 @@ export async function harvestChain({
                 };
             }
 
-            if (item.simulation.estimatedCallRewardsWei === 0n) {
+            if (
+                !VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US.includes(item.vault.id) &&
+                item.simulation.estimatedCallRewardsWei === 0n
+            ) {
                 if (item.simulation.isLastHarvestRecent) {
                     return {
                         shouldHarvest: false,

@@ -104,6 +104,13 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
     'gmx-arb-doge-usdc',
 ];
 
+export const VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US = [
+    // beefy-bes do not gives rewards to the harvester
+    // but if we use VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS, it will not give
+    // errors when we cannot harvest and silently skip the vault
+    'beefy-besonic',
+];
+
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
 // some moon* vaults straight out fail to simulate due to the underlying contract being a native contract
 // in both cases we should harvest those vaults blindly every 3 days
