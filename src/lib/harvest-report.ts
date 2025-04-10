@@ -170,6 +170,11 @@ export type HarvestReportDecision = Async<
           notHarvestingReason: 'estimated gas price would be too high, waiting until the network is less congested';
       }
     | {
+          shouldHarvest: false;
+          level: 'error';
+          notHarvestingReason: 'vault needs to be harvested with the no params version but the lens is not v3, please update the lens';
+      }
+    | {
           shouldHarvest: true;
           level: 'info';
           callRewardsWei: bigint;

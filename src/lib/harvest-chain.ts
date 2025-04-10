@@ -1,6 +1,7 @@
 import { getAddress } from 'viem';
 import { BeefyHarvestLensV1ABI } from '../abi/BeefyHarvestLensV1ABI';
 import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
+import { BeefyHarvestLensV3ABI } from '../abi/BeefyHarvestLensV3ABI';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
@@ -15,6 +16,7 @@ import {
     VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS,
     VAULT_IDS_WE_ARE_OK_NOT_HARVESTING,
     VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US,
+    VAULT_IDS_WE_NEED_TO_HARVEST_NO_PARAMS,
     VAULT_IDS_WE_SHOULD_BLIND_HARVEST,
     VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION,
 } from './config';
@@ -66,7 +68,12 @@ export async function harvestChain({
         throw new Error(`Missing harvest lens address for chain ${chain}`);
     }
     const harvestLensContract = {
-        abi: rpcConfig.contracts.harvestLens.kind === 'v1' ? BeefyHarvestLensV1ABI : BeefyHarvestLensV2ABI,
+        abi:
+            rpcConfig.contracts.harvestLens.kind === 'v1'
+                ? BeefyHarvestLensV1ABI
+                : rpcConfig.contracts.harvestLens.kind === 'v2'
+                  ? BeefyHarvestLensV2ABI
+                  : BeefyHarvestLensV3ABI,
         address: rpcConfig.contracts.harvestLens.address,
     };
 
@@ -114,9 +121,13 @@ export async function harvestChain({
                 };
             }
 
+            const noParams =
+                VAULT_IDS_WE_NEED_TO_HARVEST_NO_PARAMS.includes(item.vault.id) &&
+                rpcConfig.contracts.harvestLens?.kind === 'v3';
+
             const { result } = await publicClient.simulateContractInBatch({
                 ...harvestLensContract,
-                functionName: 'harvest',
+                functionName: noParams ? 'harvestNoParams' : 'harvest',
                 args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
                 // setting the account disables multicall batching unless we use our custom simulateContractInBatch function
                 // moreover, the lens contract is setup so that it sends back any wnative to the caller
@@ -443,6 +454,18 @@ export async function harvestChain({
                     callRewardsWei: item.simulation.estimatedCallRewardsWei,
                     estimatedGainWei: item.simulation.gas.estimatedGainWei,
                     notHarvestingReason: 'harvested too recently',
+                };
+            }
+
+            if (
+                VAULT_IDS_WE_NEED_TO_HARVEST_NO_PARAMS.includes(item.vault.id) &&
+                rpcConfig.contracts.harvestLens?.kind !== 'v3'
+            ) {
+                return {
+                    shouldHarvest: false,
+                    level: 'error',
+                    notHarvestingReason:
+                        'vault needs to be harvested with the no params version but the lens is not v3, please update the lens',
                 };
             }
 

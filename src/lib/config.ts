@@ -111,6 +111,10 @@ export const VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US = [
     'beefy-besonic',
 ];
 
+// some vaults don't have a harvest(address) function but only a harvest() function
+// we need to harvest them with the no params version
+export const VAULT_IDS_WE_NEED_TO_HARVEST_NO_PARAMS = ['beefy-besonic'];
+
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
 // some moon* vaults straight out fail to simulate due to the underlying contract being a native contract
 // in both cases we should harvest those vaults blindly every 3 days
@@ -987,7 +991,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         contracts: {
             ...defaultContracts,
-            harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
+            harvestLens: { kind: 'v3', address: getAddress('0x1012bA1d39575Db27c8D54A40F8CBb5b5bEb98FD') },
         },
         transaction: {
             ...defaultTransactionConfig,

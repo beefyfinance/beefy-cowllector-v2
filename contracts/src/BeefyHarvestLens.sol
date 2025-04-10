@@ -24,6 +24,30 @@ contract BeefyHarvestLens {
     // this method will hide any harvest errors and it is not recommended to use it to do the harvesting
     // only the simulation using callStatic/simulateContract is recommended
     function harvest(IStrategyV7 _strategy, IERC20 _rewardToken) external returns (LensResult memory res) {
+        return _harvest(_strategy, _rewardToken, abi.encodeWithSignature("harvest(address)", address(this)));
+    }
+
+    // Simulate harvest calling callStatic/simulateContract for return results.
+    // this method will hide any harvest errors and it is not recommended to use it to do the harvesting
+    // only the simulation using callStatic/simulateContract is recommended
+    function harvestNoParams(IStrategyV7 _strategy, IERC20 _rewardToken) external returns (LensResult memory res) {
+        return _harvest(_strategy, _rewardToken, abi.encodeWithSignature("harvest()"));
+    }
+
+    // Simulate harvest calling callStatic/simulateContract for return results.
+    // this method will hide any harvest errors and it is not recommended to use it to do the harvesting
+    // only the simulation using callStatic/simulateContract is recommended
+    function harvestWithCalldata(IStrategyV7 _strategy, IERC20 _rewardToken, bytes calldata _calldata)
+        external
+        returns (LensResult memory res)
+    {
+        return _harvest(_strategy, _rewardToken, _calldata);
+    }
+
+    function _harvest(IStrategyV7 _strategy, IERC20 _rewardToken, bytes memory _calldata)
+        private
+        returns (LensResult memory res)
+    {
         res.blockNumber = block.number;
         res.paused = _strategy.paused();
 
@@ -41,8 +65,7 @@ contract BeefyHarvestLens {
         if (!res.paused) {
             uint256 rewardsBefore = IERC20(_rewardToken).balanceOf(address(this));
             uint256 gasBefore = gasleft();
-            (bool _success, bytes memory _harvestResult) =
-                address(_strategy).call(abi.encodeWithSignature("harvest(address)", address(this)));
+            (bool _success, bytes memory _harvestResult) = address(_strategy).call(_calldata);
             uint256 gasAfter = gasleft();
             res.success = _success;
             res.harvestResult = _harvestResult;

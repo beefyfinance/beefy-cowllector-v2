@@ -3,6 +3,7 @@ import { type Hex, getAddress } from 'viem';
 import yargs from 'yargs';
 import { BeefyHarvestLensV1ABI } from '../abi/BeefyHarvestLensV1ABI';
 import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
+import { BeefyHarvestLensV3ABI } from '../abi/BeefyHarvestLensV3ABI';
 import { getChainWNativeTokenAddress, getChainWNativeTokenDecimals } from '../lib/addressbook';
 import { type Chain, allChainIds } from '../lib/chain';
 import { RPC_CONFIG } from '../lib/config';
@@ -304,7 +305,12 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
         throw new Error(`Missing harvest lens address for chain ${chain}`);
     }
     const harvestLensContract = {
-        abi: rpcConfig.contracts.harvestLens.kind === 'v1' ? BeefyHarvestLensV1ABI : BeefyHarvestLensV2ABI,
+        abi:
+            rpcConfig.contracts.harvestLens.kind === 'v1'
+                ? BeefyHarvestLensV1ABI
+                : rpcConfig.contracts.harvestLens.kind === 'v2'
+                  ? BeefyHarvestLensV2ABI
+                  : BeefyHarvestLensV3ABI,
         address: rpcConfig.contracts.harvestLens.address,
     };
 
