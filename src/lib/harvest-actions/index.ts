@@ -7,7 +7,7 @@ type CustomHarvestWalletActions<
     TChain extends ViemChain | undefined = ViemChain | undefined,
     TAccount extends Account | undefined = Account | undefined,
 > = {
-    harvest: ({ strategyAddress }: HarvestParameters) => Promise<HarvestReturnType>;
+    harvest: (params: HarvestParameters) => Promise<HarvestReturnType>;
 };
 
 export function createCustomHarvestWalletActions({ chain }: { chain: Chain }) {

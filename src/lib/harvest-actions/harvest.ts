@@ -13,11 +13,13 @@ export type HarvestParameters =
           strategyAddress: Hex;
           transactionCostEstimationWei: bigint;
           transactionGasLimit: bigint;
+          noParams: boolean;
       }
     | {
           strategyAddress: Hex;
           transactionCostEstimationWei: bigint | null;
           transactionGasLimit: null;
+          noParams: boolean;
       };
 
 export type HarvestReturnType = {
@@ -31,7 +33,7 @@ export type HarvestReturnType = {
 
 export async function harvest(
     { chain }: { chain: Chain },
-    { strategyAddress, transactionCostEstimationWei, transactionGasLimit }: HarvestParameters
+    { strategyAddress, transactionCostEstimationWei, transactionGasLimit, noParams }: HarvestParameters
 ): Promise<HarvestReturnType> {
     const { publicClient, walletClient, walletAccount, rpcConfig } = getRpcActionParams({ chain });
 
@@ -82,7 +84,7 @@ export async function harvest(
             abi: IStrategyABI,
             address: strategyAddress,
             functionName: 'harvest',
-            args: [getAddress(walletAccount.address)],
+            args: noParams ? [] : [getAddress(walletAccount.address)],
             account: walletAccount,
         });
         transactionReceipt = await publicClient.waitForTransactionReceipt({
@@ -97,7 +99,7 @@ export async function harvest(
             abi: IStrategyABI,
             address: strategyAddress,
             functionName: 'harvest',
-            args: [getAddress(walletAccount.address)],
+            args: noParams ? [] : [getAddress(walletAccount.address)],
             account: walletAccount,
             // setting a gas limit is mandatory since the viem default is too low for larger protocols
             // but some vaults need to be blindly harvested without knowing the gas limit

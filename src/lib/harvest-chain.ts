@@ -498,12 +498,17 @@ export async function harvestChain({
         data: { chain, count: stratsToBeHarvested.length },
     });
     await reportOnMultipleHarvestAsyncCall(stratsToBeHarvested, 'transaction', { type: 'sequential' }, async item => {
+        const noParams =
+            VAULT_IDS_WE_NEED_TO_HARVEST_NO_PARAMS.includes(item.vault.id) &&
+            rpcConfig.contracts.harvestLens?.kind === 'v3';
+
         let harvestParams: HarvestParameters = {
             strategyAddress: item.vault.strategyAddress,
             // mode fails to estimate gas because their eth_estimateGas method doesn't accept fee params
             // and removing those in view is near impossible
             transactionCostEstimationWei: chain === 'mode' ? item.simulation.gas.transactionCostEstimationWei : null,
             transactionGasLimit: null,
+            noParams,
         };
 
         if (!VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id) && rpcConfig.harvest.setTransactionGasLimit) {
@@ -514,6 +519,7 @@ export async function harvestChain({
                     item.simulation.gas.rawGasAmountEstimation,
                     rpcConfig.harvest.balanceCheck.gasLimitMultiplier
                 ),
+                noParams,
             };
         }
 
