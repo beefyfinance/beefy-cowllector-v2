@@ -62,6 +62,9 @@ export function getVaultDiscordMessageLink(chain: Chain, vault: BeefyVault): str
 export function getStrategyDiscordMessageLink(chain: Chain, vault: BeefyVault): string {
     const explorerConfig = EXPLORER_CONFIG[chain];
     const stratExplorerLink = explorerConfig.addressLinkTemplate.replace('${address}', vault.strategyAddress);
+    if (!vault.strategyAddress) {
+        return '??';
+    }
     const truncatedAddy = `${vault.strategyAddress.slice(0, 6)}...${vault.strategyAddress.slice(-4)}`;
     return `[${truncatedAddy}](<${stratExplorerLink}>)`;
 }
@@ -69,6 +72,9 @@ export function getStrategyDiscordMessageLink(chain: Chain, vault: BeefyVault): 
 export function getTransactionDiscordMessageLink(chain: Chain, transactionHash: string): string {
     const explorerConfig = EXPLORER_CONFIG[chain];
     const transactionExplorerLink = explorerConfig.transactionLinkTemplate.replace('${hash}', transactionHash);
+    if (!transactionHash) {
+        return '??';
+    }
     const truncatedHash = `${transactionHash.slice(0, 6)}...${transactionHash.slice(-4)}`;
     return `[${truncatedHash}](<${transactionExplorerLink}>)`;
 }

@@ -295,6 +295,9 @@ ${rolePing}`),
 
 function getBalanceReportTable(report: AnyReport) {
     const wnativeSymbol = getChainWNativeTokenSymbol(report.chain);
+    if (!wnativeSymbol) {
+        return '??';
+    }
     const nativeSymbol = wnativeSymbol.slice(1); // remove "w" or "W" prefix
 
     return table(
