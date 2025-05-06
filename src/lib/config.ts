@@ -597,6 +597,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     kava: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.KAVA_RPC_URL || 'https://evm.kava.io',
+        eol: true,
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
