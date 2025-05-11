@@ -188,8 +188,8 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: follow_up
-            ping_harvesters: "true"
-            ping_strategists: "true"
+            ping_harvesters: "false"
+            ping_strategists: "false"
           isPaused: false
         - uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84 # Vault might need EOL
           title: Vault might need EOL
@@ -276,8 +276,8 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: follow_up_tuesdays
-            ping_harvesters: "true"
-            ping_strategists: "true"
+            ping_harvesters: "false"
+            ping_strategists: "false"
           isPaused: false
         - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3 # Run Error Alert
           title: Run Error Alert
@@ -553,8 +553,8 @@ groups:
           labels:
             template: alert_vault_harvest_in_error
             policy: follow_up
-            ping_harvesters: "true"
-            ping_strategists: "true"
+            ping_harvesters: "false"
+            ping_strategists: "false"
           isPaused: false
         - uid: db80be8a-9edb-4e09-b93f-32598c6983ce # Harvest wasn't profitable after all
           title: Harvest wasn't profitable after all
@@ -729,7 +729,7 @@ groups:
             ping_harvesters: "true"
             ping_strategists: "false"
           isPaused: false
-        - uid: e917a303-934f-4c43-bfc4-ca161cf38f1d
+        - uid: e917a303-934f-4c43-bfc4-ca161cf38f1d # Revenue bridge not harvested for too long
           title: Revenue bridge not harvested for too long
           condition: revenue_bridge_harvested_recently_reduce
           data:
@@ -831,7 +831,7 @@ groups:
             policy: one_shot
             template: chain
           isPaused: false
-        - uid: f2c0cb5a-49c1-496e-8c90-155752dac315
+        - uid: f2c0cb5a-49c1-496e-8c90-155752dac315 # CLM MUST be harvested every 1d
           title: CLM MUST be harvested every 1d
           condition: last_error_serie_value
           data:
@@ -894,8 +894,8 @@ groups:
             __dashboardUid__: dad68cbc-f965-4400-9db3-66a3bb4c447e
             __panelId__: "1"
           labels:
-            ping_harvesters: "true"
-            ping_strategists: "true"
+            ping_harvesters: "false"
+            ping_strategists: "false"
             policy: follow_up
             template: alert_vault_harvest_in_error
           isPaused: false
