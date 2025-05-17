@@ -32,11 +32,12 @@ import {
     polygonZkEvm,
     real,
     rootstock,
+    saga,
     scroll,
     sei,
     sonic,
     unichain,
-    zkSync,
+    zksync,
 } from 'viem/chains';
 import type { Chain } from './chain';
 import { RPC_CONFIG } from './config';
@@ -92,11 +93,12 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     real: applyConfig('real', real),
     rootstock: applyConfig('rootstock', rootstock),
     scroll: applyConfig('scroll', scroll),
+    saga: applyConfig('saga', saga),
     sei: applyConfig('sei', sei),
     sonic: applyConfig('sonic', sonic),
     unichain: applyConfig('unichain', unichain),
     zkevm: applyConfig('zkevm', polygonZkEvm),
-    zksync: applyConfig('zksync', zkSync),
+    zksync: applyConfig('zksync', zksync),
 };
 
 // the view read only client has more options for batching

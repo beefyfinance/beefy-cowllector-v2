@@ -919,6 +919,32 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             enabled: false,
         },
     },
+
+    saga: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.SAGA_RPC_URL || 'https://sagaevm.jsonrpc.sagarpc.io',
+        batch: {
+            ...defaultBatch,
+            multicall: false,
+        },
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v3', address: getAddress('0x29605AfAC78A3D601B6892b401Aa0d68334ccFC9') },
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+            totalTries: 10, // rpc is very unreliable, so we need to retry a lot
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: true,
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            enabled: false, // no gas = no unwrap
+        },
+    },
     scroll: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
@@ -1292,6 +1318,12 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         addressLinkTemplate: 'https://rootstock.blockscout.com/address/${address}',
         transactionLinkTemplate: 'https://rootstock.blockscout.com/tx/${hash}',
         apiUrl: process.env.ROOTSTOCK_EXPLORER_API_URL || 'https://rootstock.blockscout.com/api?',
+        type: 'blockscout',
+    },
+    saga: {
+        addressLinkTemplate: 'https://sagaevm-5464-1.sagaexplorer.io/address/${address}',
+        transactionLinkTemplate: 'https://sagaevm-5464-1.sagaexplorer.io/tx/${hash}',
+        apiUrl: process.env.SAGA_EXPLORER_API_URL || 'https://sagaevm-5464-1.sagaexplorer.io/api?',
         type: 'blockscout',
     },
     scroll: {

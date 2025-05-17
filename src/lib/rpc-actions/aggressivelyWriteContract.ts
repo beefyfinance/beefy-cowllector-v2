@@ -229,21 +229,21 @@ export async function aggressivelyWriteContract<
             if (i < rpcConfig.transaction.totalTries - 1) {
                 // increase the gas price for the next transaction
                 const previousGasParams = cloneDeep(gasParams);
-                if (gasParams.gasPrice) {
+                if (gasParams.gasPrice !== undefined) {
                     gasParams.gasPrice = bigintMultiplyFloat(
-                        gasParams.gasPrice || 1n,
+                        gasParams.gasPrice,
                         rpcConfig.transaction.retryGasMultiplier.gasPrice
                     );
                 }
-                if (gasParams.maxPriorityFeePerGas) {
+                if (gasParams.maxPriorityFeePerGas !== undefined) {
                     gasParams.maxPriorityFeePerGas = bigintMultiplyFloat(
-                        gasParams.maxPriorityFeePerGas || 1n,
+                        gasParams.maxPriorityFeePerGas,
                         rpcConfig.transaction.retryGasMultiplier.maxPriorityFeePerGas
                     );
                 }
-                if (gasParams.maxFeePerGas) {
+                if (gasParams.maxFeePerGas !== undefined) {
                     gasParams.maxFeePerGas = bigintMultiplyFloat(
-                        gasParams.maxFeePerGas || 1n,
+                        gasParams.maxFeePerGas,
                         rpcConfig.transaction.retryGasMultiplier.maxFeePerGas
                     );
                 }

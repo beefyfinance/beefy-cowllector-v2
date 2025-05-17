@@ -103,7 +103,7 @@ export async function harvest(
             account: walletAccount,
             // setting a gas limit is mandatory since the viem default is too low for larger protocols
             // but some vaults need to be blindly harvested without knowing the gas limit
-            gas: transactionGasLimit,
+            gas: transactionGasLimit === 0n ? undefined : transactionGasLimit,
         });
         transactionHash = res.transactionHash;
         transactionReceipt = res.transactionReceipt;
