@@ -217,7 +217,8 @@ export async function db_migrate() {
             (target_hours_between_harvests || ' hours')::interval as target_time_between_harvests,
             harvest_balance_gas_multiplier_threshold::double precision,
             (revenue_bridge_harvest_enabled = 't')::boolean as revenue_bridge_harvest_enabled,
-            revenue_bridge_harvest_balance_gas_multiplier_threshold::double precision
+            revenue_bridge_harvest_balance_gas_multiplier_threshold::double precision,
+            (wallet_balance_too_low = 't')::boolean as wallet_balance_too_low_alert_enabled
           FROM (values %L) as c(
               chain, 
               eol, 
@@ -230,7 +231,8 @@ export async function db_migrate() {
               target_hours_between_harvests,
               harvest_balance_gas_multiplier_threshold,
               revenue_bridge_harvest_enabled,
-              revenue_bridge_harvest_balance_gas_multiplier_threshold
+              revenue_bridge_harvest_balance_gas_multiplier_threshold,
+              wallet_balance_too_low
             )
         );
     `,
@@ -249,6 +251,7 @@ export async function db_migrate() {
                 RPC_CONFIG[c].revenueBridgeHarvest.enabled,
                 RPC_CONFIG[c].revenueBridgeHarvest.balanceCheck
                     .minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost,
+                RPC_CONFIG[c].alerting.walletBalanceTooLow,
             ]),
         ]
     );

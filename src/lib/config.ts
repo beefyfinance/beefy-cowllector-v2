@@ -271,6 +271,7 @@ const defaultRevenueBridgeHarvestConfig: RpcConfig['revenueBridgeHarvest'] = {
 };
 const defaultAlertingConfig: RpcConfig['alerting'] = {
     networkCongestionWaitInDays: 5,
+    walletBalanceTooLow: true,
 };
 
 const defaultConfig: RpcConfig = {
@@ -943,6 +944,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         unwrap: {
             ...defaultUnwrapConfig,
             enabled: false, // no gas = no unwrap
+        },
+        alerting: {
+            ...defaultAlertingConfig,
+            walletBalanceTooLow: true,
         },
     },
     scroll: {

@@ -44,7 +44,7 @@ groups:
                     FROM transaction_max_cost t 
                     join chain c using (chain)
                     join last_harvest_run_by_chain r using (chain)
-                    where not c.eol and c.harvest_enabled
+                    where not c.eol and c.harvest_enabled and c.wallet_balance_too_low_alert_enabled
                   )
                   select now() as time, chain, (not balance_ok)::integer as value
                   from balance_ok_by_chain

@@ -140,5 +140,9 @@ export type RpcConfig = {
     alerting: {
         // days to wait before a network congestion requires a decision
         networkCongestionWaitInDays: number;
+
+        // enable or disable the wallet balance too low alert
+        // useful for gasless chains like saga
+        walletBalanceTooLow: boolean;
     };
 };
