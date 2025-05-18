@@ -10,6 +10,7 @@ import type { Chain } from './chain';
 import { fetchCollectorBalance } from './collector-balance';
 import {
     BLIND_HARVEST_EVERY_X_HOURS,
+    GASLESS_CHAIN_IDS,
     RPC_CONFIG,
     SILENCE_NOT_CALM_ERRORS_FOR_HOURS,
     SLOW_REWARD_WAIT_IN_HOURS,
@@ -326,6 +327,18 @@ export async function harvestChain({
                         level: 'info',
                         hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
                         notHarvestingReason: 'estimated call rewards is 0, but vault harvested recently',
+                    };
+                }
+
+                // estimated call rewards is 0, we do not pay for gas on this chain so lets harvest anyway
+                if (GASLESS_CHAIN_IDS.includes(chain)) {
+                    return {
+                        shouldHarvest: true,
+                        level: 'info',
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        callRewardsWei: item.simulation.estimatedCallRewardsWei,
+                        estimatedGainWei: item.simulation.gas.estimatedGainWei,
+                        wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
                     };
                 }
 

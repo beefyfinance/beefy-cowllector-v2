@@ -156,18 +156,34 @@ export async function aggressivelyWriteContract<
         msg: 'Got gas params',
         data: { chain, address: args.address, gasParams },
     });
-    if (gasParams.maxFeePerGas === 0n) {
-        gasParams.maxFeePerGas = 1n;
-    }
-    if (gasParams.maxPriorityFeePerGas === 0n) {
-        if (gasParams.maxFeePerGas) {
-            gasParams.maxPriorityFeePerGas = gasParams.maxFeePerGas;
-        } else {
-            gasParams.maxPriorityFeePerGas = 1n;
+
+    if (rpcConfig.transaction.type === 'eip1559') {
+        if (gasParams.maxFeePerGas === 0n) {
+            gasParams.maxFeePerGas = 1n;
+        }
+        if (gasParams.maxPriorityFeePerGas === 0n) {
+            if (gasParams.maxFeePerGas) {
+                gasParams.maxPriorityFeePerGas = gasParams.maxFeePerGas;
+            } else {
+                gasParams.maxPriorityFeePerGas = 1n;
+            }
+        }
+    } else {
+        if (gasParams.gasPrice === 0n) {
+            gasParams.gasPrice = 1n;
         }
     }
-    if (gasParams.gasPrice === 0n) {
-        gasParams.gasPrice = 1n;
+
+    if (rpcConfig.transaction.forceGasPrice !== null) {
+        if (rpcConfig.transaction.forceGasPrice.maxFeePerGas !== null) {
+            gasParams.maxFeePerGas = rpcConfig.transaction.forceGasPrice.maxFeePerGas;
+        }
+        if (rpcConfig.transaction.forceGasPrice.maxPriorityFeePerGas !== null) {
+            gasParams.maxPriorityFeePerGas = rpcConfig.transaction.forceGasPrice.maxPriorityFeePerGas;
+        }
+        if (rpcConfig.transaction.forceGasPrice.gasPrice !== null) {
+            gasParams.gasPrice = rpcConfig.transaction.forceGasPrice.gasPrice;
+        }
     }
 
     const allPendingTransactions: Hex[] = [];

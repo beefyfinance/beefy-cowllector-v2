@@ -104,6 +104,8 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
     'gmx-arb-doge-usdc',
 ];
 
+export const GASLESS_CHAIN_IDS = ['saga'];
+
 export const VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US = [
     // beefy-bes do not gives rewards to the harvester
     // but if we use VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS, it will not give
@@ -218,6 +220,11 @@ const defaultTransactionConfig: RpcConfig['transaction'] = {
     maxGasPricePerTransactionWei: null,
     maxNativePerTransactionWei: null,
     totalTries: 1, // by default, only try the trx once
+    forceGasPrice: {
+        maxFeePerGas: null,
+        maxPriorityFeePerGas: null,
+        gasPrice: null,
+    },
     retryGasMultiplier: {
         gasPrice: 1.2, // up gas by 20% on each retry
         maxFeePerGas: 1.2, // up gas by 20% on each retry
@@ -936,6 +943,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'eip1559',
             totalTries: 10, // rpc is very unreliable, so we need to retry a lot
+            forceGasPrice: {
+                maxFeePerGas: 0n,
+                maxPriorityFeePerGas: 0n,
+                gasPrice: null,
+            },
         },
         harvest: {
             ...defaultHarvestConfig,

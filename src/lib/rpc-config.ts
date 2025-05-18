@@ -30,6 +30,12 @@ export type RpcConfig = {
     ) & {
         // @see aggressivelyWriteContract
         totalTries: number;
+        // @see aggressivelyWriteContract
+        forceGasPrice: {
+            maxFeePerGas: bigint | null;
+            maxPriorityFeePerGas: bigint | null;
+            gasPrice: bigint | null;
+        };
         retryGasMultiplier: {
             gasPrice: number;
             maxFeePerGas: number;

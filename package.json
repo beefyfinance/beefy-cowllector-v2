@@ -24,6 +24,7 @@
         "pg:console": "docker exec -it dev-postgres-1 psql -U beefy_cowllector",
         "db:migrate": "TS_NODE_FILES=true TS_NODE_TRANSPILE_ONLY=true ts-node ./src/script/db/migrate.ts",
         "db:apply-retention": "TS_NODE_FILES=true TS_NODE_TRANSPILE_ONLY=true ts-node ./src/script/db/apply-retention.ts",
+        "format": "yarn --silent lint:format:typescript",
         "lint:format": "yarn --silent lint:format:solidity && yarn --silent lint:format:typescript",
         "lint:format:solidity": "forge fmt",
         "lint:format:typescript": "biome check --write --unsafe ./src",
