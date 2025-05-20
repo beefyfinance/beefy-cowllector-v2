@@ -106,6 +106,12 @@ export const VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS = [
 
 export const GASLESS_CHAIN_IDS = ['saga'];
 
+// fraxtal changed it's gas token so we have a set of strategies that are not compatible with
+// the beefy lens anymore and are not advertizing rewards anymore
+// it's less costly and less risky to just blindly harvest those vaults
+// than it is to update these strategies
+export const CHAINS_WE_SHOULD_BLIND_HARVEST: Chain[] = ['fraxtal'];
+
 export const VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US = [
     // beefy-bes do not gives rewards to the harvester
     // but if we use VAULT_IDS_THAT_ARE_OK_IF_THERE_IS_NO_REWARDS, it will not give

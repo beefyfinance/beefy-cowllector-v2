@@ -10,6 +10,7 @@ import type { Chain } from './chain';
 import { fetchCollectorBalance } from './collector-balance';
 import {
     BLIND_HARVEST_EVERY_X_HOURS,
+    CHAINS_WE_SHOULD_BLIND_HARVEST,
     GASLESS_CHAIN_IDS,
     RPC_CONFIG,
     SILENCE_NOT_CALM_ERRORS_FOR_HOURS,
@@ -216,7 +217,10 @@ export async function harvestChain({
                 }
             }
 
-            if (VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)) {
+            if (
+                VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id) ||
+                CHAINS_WE_SHOULD_BLIND_HARVEST.includes(chain)
+            ) {
                 // to avoid remembering the last harvest time, we harvest at regular interval based on the current time
                 const truncatedDate = new Date();
                 truncatedDate.setMilliseconds(0);
