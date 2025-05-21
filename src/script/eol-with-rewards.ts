@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { BeefyHarvestLensV1ABI } from '../abi/BeefyHarvestLensV1ABI';
 import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
 import { BeefyHarvestLensV3ABI } from '../abi/BeefyHarvestLensV3ABI';
-import { getChainWNativeTokenAddress, getChainWNativeTokenDecimals } from '../lib/addressbook';
+import { getChainFeesTokenAddress, getChainFeesTokenDecimals } from '../lib/addressbook';
 import { type Chain, allChainIds } from '../lib/chain';
 import { RPC_CONFIG } from '../lib/config';
 import { type AItem, type AKey, type AVal, reportOnMultipleAsyncCall, serializeReport } from '../lib/reports';
@@ -247,11 +247,11 @@ async function main() {
                     acc[cur.chain] = [];
                 }
                 const rewards = BigInt(cur.rewards || '0');
-                const wnativeDecimals = getChainWNativeTokenDecimals(cur.chain);
-                const divisor = BigInt(`1${'0'.repeat(wnativeDecimals)}`);
+                const feesDecimals = getChainFeesTokenDecimals(cur.chain);
+                const divisor = BigInt(`1${'0'.repeat(feesDecimals)}`);
                 const rewardsEth = `${(rewards / divisor).toString()}.${rewards
                     .toString()
-                    .padStart(wnativeDecimals, '0')}`;
+                    .padStart(feesDecimals, '0')}`;
                 acc[cur.chain].push({ vaultId: cur.vaultId, rewards, rewardsEth });
                 return acc;
             },
@@ -296,7 +296,7 @@ function reportOnMultipleEolRewardsAsyncCall<
 }
 
 async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
-    const wnative = getChainWNativeTokenAddress(chain);
+    const fees = getChainFeesTokenAddress(chain);
     const publicClient = getReadOnlyRpcClient({ chain });
 
     // we need the harvest lense
@@ -323,7 +323,7 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
         const { result } = await publicClient.simulateContractInBatch({
             ...harvestLensContract,
             functionName: 'harvest',
-            args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
+            args: [getAddress(item.vault.strategyAddress), getAddress(fees)] as const,
             //account: walletAccount, // setting the account disables multicall batching
         });
 

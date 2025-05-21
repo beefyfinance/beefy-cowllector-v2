@@ -6,7 +6,7 @@ import { asyncResultGet } from '../util/async';
 import { bigintFormat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
 import { wait } from '../util/promise';
-import { getChainWNativeTokenSymbol } from './addressbook';
+import {getChainNativeSymbol, getChainWNativeTokenSymbol} from './addressbook';
 import {
     DISCORD_ALERT_WEBHOOK_URL,
     DISCORD_NOTIFY_UNEVENTFUL_HARVEST,
@@ -298,7 +298,7 @@ function getBalanceReportTable(report: AnyReport) {
     if (!wnativeSymbol) {
         return '??';
     }
-    const nativeSymbol = wnativeSymbol.slice(1); // remove "w" or "W" prefix
+    const nativeSymbol = getChainNativeSymbol(report.chain);
 
     return table(
         [

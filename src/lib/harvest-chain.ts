@@ -5,7 +5,7 @@ import { BeefyHarvestLensV3ABI } from '../abi/BeefyHarvestLensV3ABI';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
-import { getChainWNativeTokenAddress } from './addressbook';
+import { getChainFeesTokenAddress } from './addressbook';
 import type { Chain } from './chain';
 import { fetchCollectorBalance } from './collector-balance';
 import {
@@ -53,7 +53,7 @@ export async function harvestChain({
         data: { chain, vaults: vaults.length },
     });
 
-    const wnative = getChainWNativeTokenAddress(chain);
+    const fees = getChainFeesTokenAddress(chain);
     const publicClient = getReadOnlyRpcClient({ chain });
     const walletClient = getWalletClient({ chain });
     const walletAccount = getWalletAccount({ chain });
@@ -130,11 +130,11 @@ export async function harvestChain({
             const { result } = await publicClient.simulateContractInBatch({
                 ...harvestLensContract,
                 functionName: noParams ? 'harvestNoParams' : 'harvest',
-                args: [getAddress(item.vault.strategyAddress), getAddress(wnative)] as const,
+                args: [getAddress(item.vault.strategyAddress), getAddress(fees)] as const,
                 // setting the account disables multicall batching unless we use our custom simulateContractInBatch function
-                // moreover, the lens contract is setup so that it sends back any wnative to the caller
+                // moreover, the lens contract is setup so that it sends back any fees to the caller
                 // so we need to set the account anyway to avoid 0xec442f05 error (ERC20InvalidReceiver)
-                // as without a wallet account, the lens contract will send the wnative back to address(0)
+                // as without a wallet account, the lens contract will send the fees back to address(0)
                 account: walletAccount,
             });
             const lastHarvestDate = new Date(Number(result.lastHarvest) * 1000);
