@@ -4,7 +4,7 @@ import { BeefyHarvestLensV1ABI } from '../../abi/BeefyHarvestLensV1ABI';
 import { BeefyHarvestLensV2ABI } from '../../abi/BeefyHarvestLensV2ABI';
 import { BeefyHarvestLensV3ABI } from '../../abi/BeefyHarvestLensV3ABI';
 import { IStrategyABI } from '../../abi/IStrategyABI';
-import { getChainWNativeTokenAddress } from '../../lib/addressbook';
+import { getChainFeesTokenAddress } from '../../lib/addressbook';
 import { allChainIds } from '../../lib/chain';
 import type { Chain } from '../../lib/chain';
 import { RPC_CONFIG } from '../../lib/config';
@@ -62,7 +62,7 @@ async function main() {
 
     const publicClient = getReadOnlyRpcClient({ chain: options.chain });
     const walletAccount = getWalletAccount({ chain: options.chain });
-    const wnative = getChainWNativeTokenAddress(options.chain);
+    const fees = getChainFeesTokenAddress(options.chain);
     const rpcConfig = RPC_CONFIG[options.chain];
 
     if (!rpcConfig.contracts.harvestLens) {
@@ -88,7 +88,7 @@ async function main() {
             .simulateContract({
                 ...harvestLensContract,
                 functionName: 'harvest',
-                args: [getAddress(vault.strategyAddress), getAddress(wnative)],
+                args: [getAddress(vault.strategyAddress), getAddress(fees)],
                 account: walletAccount,
                 blockNumber: options.blockNumber || undefined,
             })
