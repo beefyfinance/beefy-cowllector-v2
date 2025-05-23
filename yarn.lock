@@ -1292,10 +1292,10 @@ base64-js@^1.3.1:
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-blockchain-addressbook@^0.54.6:
-  version "0.54.6"
-  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.54.6.tgz#801eebf46b840215ccca227cbaf3041349c8c75f"
-  integrity sha512-YLJicAFLeX/EH8ovKleUoSvDrKw4rjeeFo+CRot9PXpDT7aEKjsEf+gcuzfQJZa/hyaoobksol22ou3EyEVlMw==
+blockchain-addressbook@^0.54.14:
+  version "0.54.14"
+  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.54.14.tgz#648625fdc1fd360f0e2da9587941cf20cc39245e"
+  integrity sha512-SE0g235rVs/Dx1EyfVBKTSGgnLXTH1x1Wuc/OlOfe6st1jerPQnh1UABr1swvyCB7ID595MYXJpe3rmeT2fVZw==
 
 boxen@^7.0.0:
   version "7.1.1"
