@@ -959,6 +959,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultHarvestConfig,
             setTransactionGasLimit: true,
         },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+            setTransactionGasLimit: true,
+            forceGasLimit: 5_000_000n,
+        },
         unwrap: {
             ...defaultUnwrapConfig,
             enabled: false, // no gas = no unwrap
