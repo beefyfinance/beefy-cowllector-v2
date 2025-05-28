@@ -149,6 +149,6 @@ export type RpcConfig = {
 
         // enable or disable the wallet balance too low alert
         // useful for gasless chains like saga
-        walletBalanceTooLow: boolean;
+        walletBalanceTooLowAlert: boolean;
     };
 };

@@ -284,7 +284,7 @@ const defaultRevenueBridgeHarvestConfig: RpcConfig['revenueBridgeHarvest'] = {
 };
 const defaultAlertingConfig: RpcConfig['alerting'] = {
     networkCongestionWaitInDays: 5,
-    walletBalanceTooLow: true,
+    walletBalanceTooLowAlert: true,
 };
 
 const defaultConfig: RpcConfig = {
@@ -971,7 +971,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         alerting: {
             ...defaultAlertingConfig,
-            walletBalanceTooLow: true,
+            walletBalanceTooLowAlert: false,
         },
     },
     scroll: {
