@@ -1,8 +1,8 @@
 import { memoize } from 'lodash';
 import { createPublicClient, createWalletClient } from 'viem';
+import { defineChain } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type { Chain as ViemChain } from 'viem/chains';
-import { defineChain } from 'viem';
 import {
     arbitrum,
     aurora,
