@@ -114,7 +114,7 @@ In case you want to contribute, please follow next steps:
 - add the rpc url, explorer url and api key in `.env`
 - inspect the final chain config: `LOG_LEVEL=error yarn --silent ts-node ./src/script/inspect/config.ts -c <chain>`
 - test the api is working: `LOG_LEVEL=trace yarn --silent ts-node ./src/script/inspect/api.ts -h 0 -c <chain> > api.log`
-- test we can get a contract balance: `LOG_LEVEL=trace yarn ts-node ./src/script/inspect/balance.ts -c <chain> -a <some address> > balance.log`
+- test we can get a contract balance: `LOG_LEVEL=trace yarn ts-node ./src/script/inspect/balance.ts -c <chain> -a 0x03d9964f4D93a24B58c0Fc3a8Df3474b59Ba8557 > balance.log`
 - test any on chain action with a fork: `anvil -f <rpc url> --accounts 3 --balance 300 --no-cors --block-time 5 --auto-impersonate`
 - Deploy the lens contract: `forge script contracts/script/DeployLens.s.sol:DeployLens -vvvvvv --slow --account deployer --verify --retries 5 --delay 10 --rpc-url chain --broadcast`
     - if this errors try using foundry stable `foundryup --version stable`

@@ -2,6 +2,7 @@ import { memoize } from 'lodash';
 import { createPublicClient, createWalletClient } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type { Chain as ViemChain } from 'viem/chains';
+import { defineChain } from 'viem';
 import {
     arbitrum,
     aurora,
@@ -61,6 +62,32 @@ function applyConfig(chain: Chain, viemChain: ViemChain): ViemChain {
     };
 }
 
+const hyperevm = defineChain({
+    id: 999,
+    name: 'HyperEVM',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'Hyperliquid',
+        symbol: 'HYPE',
+    },
+    rpcUrls: {
+        default: {
+            http: ['https://rpc.hyperliquid.xyz/evm'],
+            webSocket: ['wss://rpc.hyperliquid.xyz/evm'],
+        },
+    },
+    blockExplorers: {
+        default: { name: 'Explorer', url: '"https://www.hyperscan.com' },
+    },
+    contracts: {
+        multicall3: {
+            address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+            blockCreated: 13051,
+        },
+    },
+    testnet: false,
+});
+
 const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     arbitrum: applyConfig('arbitrum', arbitrum),
     aurora: applyConfig('aurora', aurora),
@@ -78,6 +105,7 @@ const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     fuse: applyConfig('fuse', fuse),
     gnosis: applyConfig('gnosis', gnosis),
     heco: null,
+    hyperevm: applyConfig('hyperevm', hyperevm),
     kava: applyConfig('kava', kava),
     linea: applyConfig('linea', linea),
     lisk: applyConfig('lisk', lisk),

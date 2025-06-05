@@ -608,6 +608,27 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             enabled: false,
         },
     },
+    hyperevm: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.HYPEREVM_RPC_URL || 'https://rpc.hyperliquid.xyz/evm',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v3', address: getAddress('0x1012bA1d39575Db27c8D54A40F8CBb5b5bEb98FD') },
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
+    },
     kava: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.KAVA_RPC_URL || 'https://evm.kava.io',
@@ -1257,6 +1278,12 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         addressLinkTemplate: 'https://hecoinfo.com/address/${address}',
         transactionLinkTemplate: 'https://hecoinfo.com/tx/${hash}',
         apiUrl: process.env.HECO_EXPLORER_API_URL || 'https://api.hecoinfo.com/api?',
+        type: 'blockscout',
+    },
+    hyperevm: {
+        addressLinkTemplate: 'https://www.hyperscan.com/address/${address}',
+        transactionLinkTemplate: 'https://www.hyperscan.com/tx/${hash}',
+        apiUrl: process.env.HYPEREVM_EXPLORER_API_URL || 'https://www.hyperscan.com/api?',
         type: 'blockscout',
     },
     kava: {
