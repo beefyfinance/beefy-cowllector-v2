@@ -1074,6 +1074,13 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'legacy',
         },
+        harvest: {
+            ...defaultHarvestConfig,
+            balanceCheck: {
+                ...defaultHarvestConfig.balanceCheck,
+                gasLimitMultiplier: 1.1,
+            },
+        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
