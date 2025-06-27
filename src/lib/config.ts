@@ -624,10 +624,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
         },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            enabled: false,
-        },
     },
     kava: {
         ...defaultConfig,
