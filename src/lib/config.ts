@@ -453,6 +453,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     canto: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.CANTO_RPC_URL || 'https://canto.slingshot.finance',
+        eol: true,
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
