@@ -870,6 +870,27 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
         },
     },
+    plasma: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.PLASMA_RPC_URL || 'https://rpc.plasma.to',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v3', address: getAddress('0x1012bA1d39575Db27c8D54A40F8CBb5b5bEb98FD') },
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'legacy',
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.1),
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
+    },
     polygon: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.POLYGON_RPC_URL || 'https://rpc.ankr.com/polygon',
@@ -1359,6 +1380,14 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://optimistic.etherscan.io/tx/${hash}',
         apiUrl: process.env.OPTIMISM_EXPLORER_API_URL || 'https://api-optimistic.etherscan.io/api',
         apiKey: process.env.OPTIMISM_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    plasma: {
+        addressLinkTemplate: 'https://plasmascan.to/tx/${hash}',
+        transactionLinkTemplate: 'https://plasmascan.to/tx/${hash}',
+        apiUrl:
+            process.env.PLASMA_EXPLORER_API_URL || 'https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan/api',
+        apiKey: process.env.PLASMA_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     polygon: {
