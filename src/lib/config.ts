@@ -888,7 +888,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
-            enabled: false,
+            enabled: true,
         },
     },
     polygon: {
