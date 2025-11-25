@@ -1253,10 +1253,10 @@ base64-js@^1.3.1:
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-blockchain-addressbook@^0.54.77:
-  version "0.54.77"
-  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.54.77.tgz#c9db73a8d97dd60b6bf36b9578caf6e64e9d92e3"
-  integrity sha512-1ncp5TgxfaCiEfpzYbEurjgHTa08CTsdNseMrJjD2aAw+CUWx8oXcCnO5dFJNFggD3HOeEo5I5FcwoyDB6kA0A==
+blockchain-addressbook@^0.54.100:
+  version "0.54.100"
+  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.54.100.tgz#bfa7597d80541eda8935ff9d25911b6f2fe29159"
+  integrity sha512-2rmFvcPZ2fljAA7oRE+XfhlaaP0VEUh9OooPNGwq/cRrt+znmNyDuvXAMvjO1iOvpmVkvhkgTbBi8Y4YG7apsg==
 
 boxen@^7.0.0:
   version "7.1.1"
@@ -4722,10 +4722,10 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-viem@^2.37.8:
-  version "2.37.8"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.37.8.tgz#5290a041c9bfbf9ea92e6348d65bb05e928c2ee0"
-  integrity sha512-mL+5yvCQbRIR6QvngDQMfEiZTfNWfd+/QL5yFaOoYbpH3b1Q2ddwF7YG2eI2AcYSh9LE1gtUkbzZLFUAVyj4oQ==
+viem@^2.40.2:
+  version "2.40.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.40.2.tgz#d9b38c5f8e85a413b604f7652cd1f39dba6f691d"
+  integrity sha512-iZXVl5Uip1BUQv0PI9yOq+vHGRTnJ0a8azC5IAAJMSrvdkGrvghIwGskp3+g243fpzFlO/iqAFrWIG15SDoiTQ==
   dependencies:
     "@noble/curves" "1.9.1"
     "@noble/hashes" "1.8.0"

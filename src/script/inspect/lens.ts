@@ -57,7 +57,7 @@ async function main() {
         strategyAddress: options.strategyAddress,
     });
     if (!vault) {
-        throw new Error(`Vault not found for chain ${options.chain} and contract address ${options.strategyAddress}`);
+        logger.warn(`Vault not found for chain ${options.chain} and contract address ${options.strategyAddress}`);
     }
 
     const publicClient = getReadOnlyRpcClient({ chain: options.chain });
@@ -80,7 +80,7 @@ async function main() {
     };
     const strategyContract = {
         abi: IStrategyABI,
-        address: vault.strategyAddress,
+        address: options.strategyAddress,
     };
 
     const res = await Promise.allSettled([
@@ -88,7 +88,7 @@ async function main() {
             .simulateContract({
                 ...harvestLensContract,
                 functionName: 'harvest',
-                args: [getAddress(vault.strategyAddress), getAddress(fees)],
+                args: [getAddress(options.strategyAddress), getAddress(fees)],
                 account: walletAccount,
                 blockNumber: options.blockNumber || undefined,
             })

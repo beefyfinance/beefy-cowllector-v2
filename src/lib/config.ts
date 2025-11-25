@@ -769,6 +769,28 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             setTransactionGasLimit: false,
         },
     },
+    monad: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.MONAD_RPC_URL || 'https://rpc.monad.xyz',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v3', address: getAddress('0x6e15fc6f4be1a02a1f5a097174e862e6a3780565') },
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
+    },
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
@@ -1367,6 +1389,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://moonriver.moonscan.io/address/tx/${hash}',
         apiUrl: process.env.MOONRIVER_EXPLORER_API_URL || 'https://api-moonriver.moonscan.io/api',
         apiKey: process.env.MOONRIVER_EXPLORER_API_KEY || '',
+        type: 'etherscan',
+    },
+    monad: {
+        addressLinkTemplate: 'https://monadscan.io/address/${address}',
+        transactionLinkTemplate: 'https://monadscan.io/tx/${hash}',
+        apiUrl: process.env.MONAD_EXPLORER_API_URL || 'https://api.etherscan.io/v2/api',
+        apiKey: process.env.MONAD_EXPLORER_API_KEY || '',
         type: 'etherscan',
     },
     one: {
