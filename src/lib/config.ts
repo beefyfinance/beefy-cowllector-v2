@@ -490,6 +490,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     cronos: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.CRONOS_RPC_URL || 'https://evm.cronos.org',
+        eol: true,
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 1.5), // 1.5 cro
@@ -998,6 +999,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     saga: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SAGA_RPC_URL || 'https://sagaevm.jsonrpc.sagarpc.io',
+        eol: true,
         batch: {
             ...defaultBatch,
             multicall: false,
