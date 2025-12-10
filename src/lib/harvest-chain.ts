@@ -217,10 +217,32 @@ export async function harvestChain({
                 }
             }
 
-            if (
-                VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id) ||
-                CHAINS_WE_SHOULD_BLIND_HARVEST.includes(chain)
-            ) {
+            const blindHarvestChainConfig = CHAINS_WE_SHOULD_BLIND_HARVEST.find(c => c.chain === chain);
+            if (blindHarvestChainConfig) {
+                // to avoid remembering the last harvest time, we harvest at regular interval based on the current time
+                // this might not work if we are not running the harvest script every hour
+                const truncatedDate = new Date();
+                truncatedDate.setMilliseconds(0);
+                truncatedDate.setSeconds(0);
+                truncatedDate.setMinutes(0);
+                const shouldBlindHarvest =
+                    truncatedDate.getTime() % (blindHarvestChainConfig.blindHarvestEveryXHours * 60 * 60 * 1000) === 0;
+                if (shouldBlindHarvest) {
+                    return {
+                        shouldHarvest: true,
+                        blindHarvestDate: truncatedDate,
+                        level: 'info',
+                    };
+                }
+                return {
+                    shouldHarvest: false,
+                    blindHarvestDate: truncatedDate,
+                    level: 'info',
+                    notHarvestingReason: 'Blind harvest date not reached yet',
+                };
+            }
+
+            if (VAULT_IDS_WE_SHOULD_BLIND_HARVEST.includes(item.vault.id)) {
                 // to avoid remembering the last harvest time, we harvest at regular interval based on the current time
                 const truncatedDate = new Date();
                 truncatedDate.setMilliseconds(0);

@@ -110,7 +110,9 @@ export const GASLESS_CHAIN_IDS = ['saga'];
 // the beefy lens anymore and are not advertizing rewards anymore
 // it's less costly and less risky to just blindly harvest those vaults
 // than it is to update these strategies
-export const CHAINS_WE_SHOULD_BLIND_HARVEST: Chain[] = ['fraxtal'];
+export const CHAINS_WE_SHOULD_BLIND_HARVEST: { chain: Chain; blindHarvestEveryXHours: number }[] = [
+    { chain: 'fraxtal', blindHarvestEveryXHours: 24 },
+];
 
 export const VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US = [
     // beefy-bes do not gives rewards to the harvester
