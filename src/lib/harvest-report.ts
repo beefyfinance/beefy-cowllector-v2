@@ -33,7 +33,8 @@ type HarvestReportSimulation = Async<{
     harvestWillSucceed: boolean;
     lastHarvest: Date;
     hoursSinceLastHarvest: number;
-    isLastHarvestRecent: boolean;
+    isLastHarvestRecent: boolean | null;
+    harvestTimeBucket: { minTvlThresholdUsd: number; targetTimeBetweenHarvestsMs: number } | null;
     isCalmBeforeHarvest: number;
     paused: boolean;
     blockNumber: bigint;
@@ -44,7 +45,8 @@ export type HarvestReportDecision = Async<
     | {
           shouldHarvest: false;
           level: 'info';
-          tvlThresholdUsd: number;
+          /** @deprecated field is not provided anymore but kept for backward compatibility */
+          tvlThresholdUsd: 0;
           vaultTvlUsd: number;
           notHarvestingReason: 'Tvl do not meet minimum threshold';
       }

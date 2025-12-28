@@ -214,7 +214,6 @@ export async function db_migrate() {
             unwrap_max_amount_of_native_wei::numeric,
             (harvest_enabled = 't')::boolean as harvest_enabled,
             (harvest_profitability_check_enabled = 't')::boolean as harvest_profitability_check_enabled,
-            (target_hours_between_harvests || ' hours')::interval as target_time_between_harvests,
             harvest_balance_gas_multiplier_threshold::double precision,
             (revenue_bridge_harvest_enabled = 't')::boolean as revenue_bridge_harvest_enabled,
             revenue_bridge_harvest_balance_gas_multiplier_threshold::double precision,
@@ -228,7 +227,6 @@ export async function db_migrate() {
               unwrap_max_amount_of_native_wei,
               harvest_enabled,
               harvest_profitability_check_enabled,
-              target_hours_between_harvests,
               harvest_balance_gas_multiplier_threshold,
               revenue_bridge_harvest_enabled,
               revenue_bridge_harvest_balance_gas_multiplier_threshold,
@@ -246,7 +244,6 @@ export async function db_migrate() {
                 RPC_CONFIG[c].unwrap.maxAmountOfNativeWei,
                 RPC_CONFIG[c].harvest.enabled,
                 RPC_CONFIG[c].harvest.profitabilityCheck.enabled,
-                RPC_CONFIG[c].harvest.targetTimeBetweenHarvestsMs / 1000 / 60 / 60,
                 RPC_CONFIG[c].harvest.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost,
                 RPC_CONFIG[c].revenueBridgeHarvest.enabled,
                 RPC_CONFIG[c].revenueBridgeHarvest.balanceCheck

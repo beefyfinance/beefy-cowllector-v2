@@ -32,7 +32,7 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter(chain => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
-export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['sonic'];
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['ethereum'];
 
 export const ADD_RP_TVL_TO_CLM_TVL = process.env.ADD_RP_TVL_TO_CLM_TVL === 'true';
 export const ADD_RP_VAULT_TVL_TO_CLM_TVL = process.env.ADD_RP_VAULT_TVL_TO_CLM_TVL === 'true';
@@ -144,24 +144,23 @@ export const VAULT_IDS_WE_SHOULD_BLIND_HARVEST = [
 export const SILENCE_NOT_CALM_ERRORS_FOR_HOURS = 24 * 3;
 
 // those platforms are known to be slow to refill rewards so we give them a bit more time before we alert
-const oneDayInHours = 24;
 export const SLOW_REWARD_WAIT_IN_HOURS: {
     platform: Record<string, number>;
     vault: Record<string, number>;
     strategyTypeId: Record<string, number>;
 } = {
     platform: {
-        curve: 30 * oneDayInHours,
-        balancer: 30 * oneDayInHours,
-        convex: 30 * oneDayInHours,
-        aura: 30 * oneDayInHours,
+        curve: 30 * 24,
+        balancer: 30 * 24,
+        convex: 30 * 24,
+        aura: 30 * 24,
         // morpho refill rewards on a weekly basis
-        morpho: 8 * oneDayInHours,
+        morpho: 8 * 24,
     },
     vault: {
-        'joe-joe': 30 * oneDayInHours,
+        'joe-joe': 30 * 24,
         // this specific vault has a weekly refill
-        'aavev3-sonic-usdc.e': 8 * oneDayInHours,
+        'aavev3-sonic-usdc.e': 8 * 24,
     },
     // GMX v2 may not have harvest for up to 7 days
     // The strategy just holds the GM market tokens, waiting for the weekly ARB airdrop.
@@ -173,7 +172,7 @@ export const SLOW_REWARD_WAIT_IN_HOURS: {
     // The extra GM tokens are recorded as profit and are linearly released over the next 7 days
     // (as the locked profit decays the balanceOf gets larger).
     strategyTypeId: {
-        'gmx-gm': 7 * oneDayInHours,
+        'gmx-gm': 7 * 24,
     },
 };
 
@@ -199,6 +198,10 @@ export const VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION: string[] = [
 // 1 ether value in wei
 const ONE_ETHER = 1_000_000_000_000_000_000n;
 const ONE_GWEI = 1_000_000_000n;
+const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+
+// subtract 2 hours to make sure we harvest before the time is up
+const harvestDaysToMs = (days: number) => (days * 24 - 2) * ONE_HOUR_IN_MS;
 
 const defaultBatch: RpcConfig['batch'] = {
     jsonRpc: {
@@ -260,14 +263,28 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 };
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
-    minTvlThresholdUsd: 100,
-    minClmTvlThresholdUsd: 100,
+    harvestTimeBuckets: [
+        // no harvest below $100
+        // {}
+        {
+            // harvest at least every hour above $100
+            minTvlThresholdUsd: 100,
+            targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+        },
+    ],
+    clmHarvestTimeBuckets: [
+        // no harvest below $100
+        // {}
+        {
+            minTvlThresholdUsd: 100,
+            targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+        },
+    ],
     parallelSimulations: 5,
     profitabilityCheck: {
         enabled: false,
         minExpectedRewardsWei: bigintMultiplyFloat(ONE_ETHER, 0.002),
     },
-    targetTimeBetweenHarvestsMs: HARVEST_AT_LEAST_EVERY_HOURS * 60 * 60 * 1000,
     setTransactionGasLimit: true,
     balanceCheck: {
         gasLimitMultiplier: HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER,
@@ -433,8 +450,22 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            minTvlThresholdUsd: 10_000,
-            minClmTvlThresholdUsd: 1_000,
+            harvestTimeBuckets: [
+                // no harvest below $10,000
+                // {}
+                {
+                    minTvlThresholdUsd: 10_000,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+                },
+            ],
+            clmHarvestTimeBuckets: [
+                // no harvest below $1,000
+                // {}
+                {
+                    minTvlThresholdUsd: 1_000,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+                },
+            ],
             profitabilityCheck: {
                 ...defaultHarvestConfig.profitabilityCheck,
                 enabled: true,
@@ -517,18 +548,92 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     ethereum: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ETHEREUM_RPC_URL || 'https://rpc.ankr.com/eth',
-        // ethereum is harvested by gelato
+        timeoutMs: 120_000,
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v3', address: getAddress('0x6e15fc6f4be1a02a1f5a097174e862e6a3780565') },
+        },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // at $3k/eth that's $15 worth of gas
+            maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 2.0),
+            totalTries: 2,
+            retryGasMultiplier: {
+                gasPrice: 1.1,
+                maxFeePerGas: 1.2,
+                maxPriorityFeePerGas: 1.2,
+            },
+        },
         harvest: {
             ...defaultHarvestConfig,
-            enabled: false,
+            harvestTimeBuckets: [
+                // no harvest if the tvl is below $10,000
+                // {}
+                // 15 days if between 10k and 100k
+                {
+                    minTvlThresholdUsd: 10_000,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(15),
+                },
+                // 3 days between harvests if >100k TVL
+                {
+                    minTvlThresholdUsd: 100_000,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(3),
+                },
+            ],
+            clmHarvestTimeBuckets: [
+                // no harvest if the tvl is below $10,000
+                // {}
+                // 15 days if between 10k and 100k
+                {
+                    minTvlThresholdUsd: 10_000,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(15),
+                },
+                // 3 days between harvests if >100k TVL
+                {
+                    minTvlThresholdUsd: 100_000,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(3),
+                },
+            ],
+            setTransactionGasLimit: true,
+            // don't try to harvest even if we detect the harvest would be profitable
+            // that's more likely to expose us to high gas prices and out of gas errors
+            profitabilityCheck: {
+                ...defaultHarvestConfig.profitabilityCheck,
+                enabled: false,
+            },
+            // target time between harvests
+            balanceCheck: {
+                // have a smaller multiplier for ethereum as it's more reliable and more expensive to harvest
+                gasPriceMultiplier: 1.05,
+                gasLimitMultiplier: 1.05,
+                minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: 2.0,
+            },
         },
         unwrap: {
             ...defaultUnwrapConfig,
-            enabled: false,
+            enabled: true,
+
+            // with ETH at ~$3k, we need to unwrap at least $30 to cover the gas fees and more
+            // -> $30 / $3k = 0.01 ETH
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            // only unwrap if the wallet balance is below $300
+            // -> $300 / $3k = 0.1 ETH
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.1),
+
+            balanceCheck: {
+                ...defaultUnwrapConfig.balanceCheck,
+                minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: 2.0,
+            },
         },
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
             enabled: false,
+        },
+        alerting: {
+            ...defaultAlertingConfig,
+            networkCongestionWaitInDays: 1,
+            walletBalanceTooLowAlert: true,
         },
     },
     fantom: {
@@ -984,8 +1089,18 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            // 5 days
-            targetTimeBetweenHarvestsMs: (5 * 24 - 2) * 60 * 60 * 1000,
+            harvestTimeBuckets: [
+                {
+                    minTvlThresholdUsd: 100,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(5),
+                },
+            ],
+            clmHarvestTimeBuckets: [
+                {
+                    minTvlThresholdUsd: 100,
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(5),
+                },
+            ],
         },
         unwrap: {
             ...defaultUnwrapConfig,

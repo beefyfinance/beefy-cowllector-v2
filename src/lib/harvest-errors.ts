@@ -14,10 +14,3 @@ export class NotEnoughRemainingGasError extends Error {
         this.name = 'NotEnoughRemainingGasError';
     }
 }
-
-export class UnsupportedChainError extends Error {
-    constructor(public data: { chain: Chain }) {
-        super('Unsupported chain');
-        this.name = 'UnsupportedChainError';
-    }
-}

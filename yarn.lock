@@ -302,6 +302,11 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@beefyfinance/blockchain-addressbook@^0.54.128":
+  version "0.54.128"
+  resolved "https://registry.yarnpkg.com/@beefyfinance/blockchain-addressbook/-/blockchain-addressbook-0.54.128.tgz#d01204f26f432250c3a27428e93995c289aa1d8f"
+  integrity sha512-r/nQ1d9JKjfwFU4OnKX+/5ZAlXL7QGu0uWrwcx36RW9GNH56bIu6SBGn0MA+OXU3vq5vvk4X2Up6C+D2s/F0Mg==
+
 "@biomejs/biome@1.8.2":
   version "1.8.2"
   resolved "https://registry.npmjs.org/@biomejs/biome/-/biome-1.8.2.tgz"
@@ -997,15 +1002,10 @@ abbrev@^1.0.0:
   resolved "https://registry.npmjs.org/abbrev/-/abbrev-1.1.1.tgz"
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
 
-abitype@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.0.tgz#510c5b3f92901877977af5e864841f443bf55406"
-  integrity sha512-6Vh4HcRxNMLA0puzPjM5GBgT4aAcFGKZzSgAXvuZ27shJP6NEpielTuqbBmZILR5/xd0PizkBGy5hReKz9jl5A==
-
-abitype@^1.0.9:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.1.tgz#b50ed400f8bfca5452eb4033445c309d3e1117c8"
-  integrity sha512-Loe5/6tAgsBukY95eGaPSDmQHIjRZYQq8PB1MpsNccDIK8WiV+Uw6WzaIXipvaxTEL2yEB0OpEaQv3gs8pkS9Q==
+abitype@1.2.3, abitype@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.2.3.tgz#bec3e09dea97d99ef6c719140bee663a329ad1f4"
+  integrity sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -1252,11 +1252,6 @@ base64-js@^1.3.1:
   version "1.5.1"
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
-
-blockchain-addressbook@^0.54.100:
-  version "0.54.100"
-  resolved "https://registry.yarnpkg.com/blockchain-addressbook/-/blockchain-addressbook-0.54.100.tgz#bfa7597d80541eda8935ff9d25911b6f2fe29159"
-  integrity sha512-2rmFvcPZ2fljAA7oRE+XfhlaaP0VEUh9OooPNGwq/cRrt+znmNyDuvXAMvjO1iOvpmVkvhkgTbBi8Y4YG7apsg==
 
 boxen@^7.0.0:
   version "7.1.1"
@@ -3477,10 +3472,10 @@ onetime@^6.0.0:
   dependencies:
     mimic-fn "^4.0.0"
 
-ox@0.9.6:
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.9.6.tgz#5cf02523b6db364c10ee7f293ff1e664e0e1eab7"
-  integrity sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==
+ox@0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/ox/-/ox-0.11.1.tgz#ee1d1b88e794533db244e90bf7fb3863293169f3"
+  integrity sha512-1l1gOLAqg0S0xiN1dH5nkPna8PucrZgrIJOfS49MLNiMevxu07Iz4ZjuJS9N+xifvT+PsZyIptS7WHM8nC+0+A==
   dependencies:
     "@adraffy/ens-normalize" "^1.11.0"
     "@noble/ciphers" "^1.3.0"
@@ -3488,7 +3483,7 @@ ox@0.9.6:
     "@noble/hashes" "^1.8.0"
     "@scure/bip32" "^1.7.0"
     "@scure/bip39" "^1.6.0"
-    abitype "^1.0.9"
+    abitype "^1.2.3"
     eventemitter3 "5.0.1"
 
 p-cancelable@^3.0.0:
@@ -4722,18 +4717,18 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-viem@^2.40.2:
-  version "2.40.2"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.40.2.tgz#d9b38c5f8e85a413b604f7652cd1f39dba6f691d"
-  integrity sha512-iZXVl5Uip1BUQv0PI9yOq+vHGRTnJ0a8azC5IAAJMSrvdkGrvghIwGskp3+g243fpzFlO/iqAFrWIG15SDoiTQ==
+viem@^2.43.3:
+  version "2.43.3"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.43.3.tgz#fa3e089f8f094db0be7a9218e8e6d6a7d40ee074"
+  integrity sha512-zM251fspfSjENCtfmT7cauuD+AA/YAlkFU7cksdEQJxj7wDuO0XFRWRH+RMvfmTFza88B9kug5cKU+Wk2nAjJg==
   dependencies:
     "@noble/curves" "1.9.1"
     "@noble/hashes" "1.8.0"
     "@scure/bip32" "1.7.0"
     "@scure/bip39" "1.6.0"
-    abitype "1.1.0"
+    abitype "1.2.3"
     isows "1.0.7"
-    ox "0.9.6"
+    ox "0.11.1"
     ws "8.18.3"
 
 walker@^1.0.8:

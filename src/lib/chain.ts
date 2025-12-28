@@ -1,5 +1,5 @@
-import { addressBook } from 'blockchain-addressbook';
+import { addressBook } from '@beefyfinance/blockchain-addressbook';
 
-export type Chain = keyof typeof addressBook | 'sonic';
+export type Chain = keyof typeof addressBook;
 
-export const allChainIds: Chain[] = [...Object.keys(addressBook), 'sonic'] as Chain[];
+export const allChainIds: Chain[] = [...Object.keys(addressBook)] as Chain[];

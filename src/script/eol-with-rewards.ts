@@ -9,6 +9,7 @@ import { type Chain, allChainIds } from '../lib/chain';
 import { RPC_CONFIG } from '../lib/config';
 import { type AItem, type AKey, type AVal, reportOnMultipleAsyncCall, serializeReport } from '../lib/reports';
 import { getReadOnlyRpcClient } from '../lib/rpc-client';
+import { getHarvestTimeBucket } from '../lib/should-harvest';
 import type { BeefyVault } from '../lib/vault';
 import { getVaultsToMonitorByChain } from '../lib/vault-list';
 import type { Async } from '../util/async';
@@ -62,7 +63,8 @@ interface EolWithRewardsReportItem {
         harvestWillSucceed: boolean;
         lastHarvest: Date;
         hoursSinceLastHarvest: number;
-        isLastHarvestRecent: boolean;
+        isLastHarvestRecent: boolean | null;
+        harvestTimeBucket: { minTvlThresholdUsd: number; targetTimeBetweenHarvestsMs: number } | null;
         isCalmBeforeHarvest: number;
         paused: boolean;
         blockNumber: bigint;
@@ -330,7 +332,13 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
         const now = new Date();
         const lastHarvestDate = new Date(Number(result.lastHarvest) * 1000);
         const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
-        const isLastHarvestRecent = timeSinceLastHarvestMs < rpcConfig.harvest.targetTimeBetweenHarvestsMs;
+        const harvestTimeBucket = getHarvestTimeBucket({
+            vault: item.vault,
+            rpcConfig,
+        });
+        const isLastHarvestRecent = harvestTimeBucket?.targetTimeBetweenHarvestsMs
+            ? timeSinceLastHarvestMs < harvestTimeBucket.targetTimeBetweenHarvestsMs
+            : null;
         const isCalmBeforeHarvest = 'isCalmBeforeHarvest' in result ? result.isCalmBeforeHarvest : -1;
 
         //await new Promise(resolve => setTimeout(resolve, 1000));
@@ -340,6 +348,7 @@ async function fetchLensResult(chain: Chain, vaults: BeefyVault[]) {
             lastHarvest: lastHarvestDate,
             hoursSinceLastHarvest: timeSinceLastHarvestMs / 1000 / 60 / 60,
             isLastHarvestRecent,
+            harvestTimeBucket,
             isCalmBeforeHarvest,
             paused: result.paused,
             blockNumber: result.blockNumber,

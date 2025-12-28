@@ -71,7 +71,7 @@ LOG_LEVEL=debug yarn ts-node ./src/script/inspect/balance.ts -help
 Update the addressbook
 
 ```bash
-yarn run ncu --upgrade blockchain-addressbook
+yarn run ncu --upgrade @beefyfinance/blockchain-addressbook
 yarn
 ```
 
@@ -105,7 +105,7 @@ In case you want to contribute, please follow next steps:
 ## Adding a new chain
 
 - update the addressbook and viem: `yarn update:addressbook`
-- add the chain in `src/lib/addressbook.ts` if it's not in `blockchain-addressbook` already
+- add the chain in `src/lib/addressbook.ts` if it's not in `@beefyfinance/blockchain-addressbook` already
 - Fix TS errors `yarn test:ts`
   - update `src/lib/config.ts`
   - update `src/lib/rpc-client.ts` 

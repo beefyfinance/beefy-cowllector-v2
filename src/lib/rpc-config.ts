@@ -76,13 +76,17 @@ export type RpcConfig = {
             minExpectedRewardsWei: bigint;
         };
 
-        // we try to harvest at most every X ms (24h by default)
-        targetTimeBetweenHarvestsMs: number;
+        // time between harvests based on the tvl bucket
+        // this is an ordered list, so the first matching bucket will be used
+        harvestTimeBuckets: {
+            minTvlThresholdUsd: number;
+            targetTimeBetweenHarvestsMs: number;
+        }[];
 
-        // We only harvest if the vault tvl is above this threshold
-        minTvlThresholdUsd: number;
-        // special threshold for clm
-        minClmTvlThresholdUsd: number;
+        clmHarvestTimeBuckets: {
+            minTvlThresholdUsd: number;
+            targetTimeBetweenHarvestsMs: number;
+        }[];
 
         // wether we should set the transaction gas limit
         setTransactionGasLimit: boolean;

@@ -24,13 +24,13 @@ import {
 } from './config';
 import { createGasEstimationReport } from './gas';
 import type { HarvestParameters } from './harvest-actions/harvest';
-import { UnsupportedChainError } from './harvest-errors';
 import {
     type HarvestReport,
     createDefaultHarvestReportItem,
     reportOnMultipleHarvestAsyncCall,
     reportOnSingleHarvestAsyncCall,
 } from './harvest-report';
+import { getHarvestTimeBucket } from './should-harvest';
 import type { BeefyVault } from './vault';
 
 const logger = rootLogger.child({ module: 'harvest-chain' });
@@ -108,7 +108,11 @@ export async function harvestChain({
                     harvestWillSucceed: true,
                     lastHarvest: new Date(),
                     hoursSinceLastHarvest: 0,
-                    isLastHarvestRecent: true,
+                    isLastHarvestRecent: null,
+                    harvestTimeBucket: null as {
+                        minTvlThresholdUsd: number;
+                        targetTimeBetweenHarvestsMs: number;
+                    } | null,
                     isCalmBeforeHarvest: -1,
                     paused: false,
                     blockNumber: 0n,
@@ -139,7 +143,13 @@ export async function harvestChain({
             });
             const lastHarvestDate = new Date(Number(result.lastHarvest) * 1000);
             const timeSinceLastHarvestMs = now.getTime() - lastHarvestDate.getTime();
-            const isLastHarvestRecent = timeSinceLastHarvestMs < rpcConfig.harvest.targetTimeBetweenHarvestsMs;
+            const harvestTimeBucket = getHarvestTimeBucket({
+                vault: item.vault,
+                rpcConfig,
+            });
+            const isLastHarvestRecent = harvestTimeBucket?.targetTimeBetweenHarvestsMs
+                ? timeSinceLastHarvestMs < harvestTimeBucket.targetTimeBetweenHarvestsMs
+                : null;
             const isCalmBeforeHarvest = 'isCalmBeforeHarvest' in result ? result.isCalmBeforeHarvest : -1;
 
             return {
@@ -148,6 +158,7 @@ export async function harvestChain({
                 lastHarvest: lastHarvestDate,
                 hoursSinceLastHarvest: timeSinceLastHarvestMs / 1000 / 60 / 60,
                 isLastHarvestRecent,
+                harvestTimeBucket,
                 isCalmBeforeHarvest,
                 paused: result.paused,
                 blockNumber: result.blockNumber,
@@ -168,9 +179,6 @@ export async function harvestChain({
     // ============================
     // use some kind of logic to filter out strats that we don't want to harvest
 
-    if (chain === 'ethereum') {
-        throw new UnsupportedChainError({ chain });
-    }
     const shouldHarvestDecisions = await reportOnMultipleHarvestAsyncCall(
         successfulSimulations,
         'decision',
@@ -193,28 +201,14 @@ export async function harvestChain({
             }
 
             // TVL checks
-            if (item.vault.isClmVault) {
-                // clm vaults have a dedicated threshold
-                if (item.vault.tvlUsd < rpcConfig.harvest.minClmTvlThresholdUsd) {
-                    return {
-                        shouldHarvest: false,
-                        level: 'info',
-                        tvlThresholdUsd: rpcConfig.harvest.minClmTvlThresholdUsd,
-                        vaultTvlUsd: item.vault.tvlUsd,
-                        notHarvestingReason: 'Tvl do not meet minimum threshold',
-                    };
-                }
-            } else if (item.vault.tvlUsd < rpcConfig.harvest.minTvlThresholdUsd) {
-                // make sure to harvest CLMs at least once per 24 hours regardless if $100 or more is in them.
-                if (!item.vault.isClmManager) {
-                    return {
-                        shouldHarvest: false,
-                        level: 'info',
-                        tvlThresholdUsd: rpcConfig.harvest.minTvlThresholdUsd,
-                        vaultTvlUsd: item.vault.tvlUsd,
-                        notHarvestingReason: 'Tvl do not meet minimum threshold',
-                    };
-                }
+            if (item.simulation.harvestTimeBucket === null) {
+                return {
+                    shouldHarvest: false,
+                    level: 'info',
+                    tvlThresholdUsd: 0,
+                    vaultTvlUsd: item.vault.tvlUsd,
+                    notHarvestingReason: 'Tvl do not meet minimum threshold',
+                };
             }
 
             const blindHarvestChainConfig = CHAINS_WE_SHOULD_BLIND_HARVEST.find(c => c.chain === chain);
