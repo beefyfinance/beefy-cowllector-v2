@@ -263,7 +263,8 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 };
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
-    harvestTimeBuckets: [
+    clmManagerTimeBetweenHarvestsMs: harvestDaysToMs(24),
+    classicVaultHarvestTimeBuckets: [
         // no harvest below $100
         // {}
         {
@@ -272,7 +273,7 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
             targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
         },
     ],
-    clmHarvestTimeBuckets: [
+    clmVaultHarvestTimeBuckets: [
         // no harvest below $100
         // {}
         {
@@ -450,7 +451,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            harvestTimeBuckets: [
+            classicVaultHarvestTimeBuckets: [
                 // no harvest below $10,000
                 // {}
                 {
@@ -458,7 +459,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                     targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
                 },
             ],
-            clmHarvestTimeBuckets: [
+            clmVaultHarvestTimeBuckets: [
                 // no harvest below $1,000
                 // {}
                 {
@@ -567,7 +568,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            harvestTimeBuckets: [
+            classicVaultHarvestTimeBuckets: [
                 // no harvest if the tvl is below $10,000
                 // {}
                 // 15 days if between 10k and 100k
@@ -581,7 +582,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                     targetTimeBetweenHarvestsMs: harvestDaysToMs(3),
                 },
             ],
-            clmHarvestTimeBuckets: [
+            clmVaultHarvestTimeBuckets: [
                 // no harvest if the tvl is below $10,000
                 // {}
                 // 15 days if between 10k and 100k
@@ -1089,13 +1090,13 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         harvest: {
             ...defaultHarvestConfig,
-            harvestTimeBuckets: [
+            classicVaultHarvestTimeBuckets: [
                 {
                     minTvlThresholdUsd: 100,
                     targetTimeBetweenHarvestsMs: harvestDaysToMs(5),
                 },
             ],
-            clmHarvestTimeBuckets: [
+            clmVaultHarvestTimeBuckets: [
                 {
                     minTvlThresholdUsd: 100,
                     targetTimeBetweenHarvestsMs: harvestDaysToMs(5),

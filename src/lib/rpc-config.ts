@@ -76,14 +76,17 @@ export type RpcConfig = {
             minExpectedRewardsWei: bigint;
         };
 
+        // time between harvests for clm managers
+        clmManagerTimeBetweenHarvestsMs: number;
+
         // time between harvests based on the tvl bucket
         // this is an ordered list, so the first matching bucket will be used
-        harvestTimeBuckets: {
+        classicVaultHarvestTimeBuckets: {
             minTvlThresholdUsd: number;
             targetTimeBetweenHarvestsMs: number;
         }[];
 
-        clmHarvestTimeBuckets: {
+        clmVaultHarvestTimeBuckets: {
             minTvlThresholdUsd: number;
             targetTimeBetweenHarvestsMs: number;
         }[];

@@ -5,11 +5,12 @@ import type { BeefyVault } from './vault';
  * Returns the harvest time bucket that matches the vault's TVL.
  * The buckets should be ordered by minTvlThresholdUsd in ascending order with no duplicates.
  * Returns null if no bucket matches (i.e., TVL is below all thresholds).
+ * For CLM managers, uses the configured clmManagerTimeBetweenHarvestsMs from the RPC config.
  *
  * @param options - Configuration options
  * @param options.vault - The vault to check
  * @param options.rpcConfig - The RPC configuration containing harvest time buckets
- * @returns An object containing the minTvlThresholdUsd and targetTimeBetweenHarvestsMs, or null if no bucket matches
+ * @returns An object containing the minTvlThresholdUsd and targetTimeBetweenHarvestsMs, or null if no bucket matches (except for CLM managers which always return the configured time)
  * @throws Error if buckets are not ordered by minTvlThresholdUsd or contain duplicate thresholds
  */
 export function getHarvestTimeBucket(options: {
@@ -18,8 +19,20 @@ export function getHarvestTimeBucket(options: {
 }): { minTvlThresholdUsd: number; targetTimeBetweenHarvestsMs: number } | null {
     const { vault, rpcConfig } = options;
 
-    const buckets = vault.isClmVault ? rpcConfig.harvest.clmHarvestTimeBuckets : rpcConfig.harvest.harvestTimeBuckets;
+    // Early exit for CLM managers - ignore buckets and use configured time between harvests
+    if (vault.isClmManager) {
+        return {
+            minTvlThresholdUsd: 0,
+            targetTimeBetweenHarvestsMs: rpcConfig.harvest.clmManagerTimeBetweenHarvestsMs,
+        };
+    }
 
+    // Determine which buckets to use: CLM vaults use clmHarvestTimeBuckets, classic vaults use harvestTimeBuckets
+    const buckets = vault.isClmVault
+        ? rpcConfig.harvest.clmVaultHarvestTimeBuckets
+        : rpcConfig.harvest.classicVaultHarvestTimeBuckets;
+
+    // Normal logic for CLM vaults and classic vaults
     // Validate that buckets are ordered by minTvlThresholdUsd (ascending) and have no duplicates
     for (let i = 1; i < buckets.length; i++) {
         const prevThreshold = buckets[i - 1].minTvlThresholdUsd;

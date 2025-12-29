@@ -22,8 +22,9 @@ function createMockVault(options: {
 }
 
 function createMockRpcConfig(
-    harvestBuckets: RpcConfig['harvest']['harvestTimeBuckets'],
-    clmBuckets: RpcConfig['harvest']['clmHarvestTimeBuckets']
+    harvestBuckets: RpcConfig['harvest']['classicVaultHarvestTimeBuckets'],
+    clmBuckets: RpcConfig['harvest']['clmVaultHarvestTimeBuckets'],
+    clmManagerTimeBetweenHarvestsMs: number = 24 * 60 * 60 * 1000
 ): RpcConfig {
     return {
         url: 'https://test.rpc',
@@ -70,8 +71,9 @@ function createMockRpcConfig(
         },
         harvest: {
             enabled: true,
-            harvestTimeBuckets: harvestBuckets,
-            clmHarvestTimeBuckets: clmBuckets,
+            clmManagerTimeBetweenHarvestsMs: clmManagerTimeBetweenHarvestsMs,
+            classicVaultHarvestTimeBuckets: harvestBuckets,
+            clmVaultHarvestTimeBuckets: clmBuckets,
             setTransactionGasLimit: true,
             parallelSimulations: 5,
             profitabilityCheck: {
@@ -247,5 +249,109 @@ describe('getHarvestTimeBucket', () => {
                 rpcConfig,
             })
         ).toEqual({ minTvlThresholdUsd: 200, targetTimeBetweenHarvestsMs: 1800000 });
+    });
+
+    describe('CLM manager harvest time requirements', () => {
+        const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000; // 86400000 ms
+
+        it('should always return configured time for CLM manager, ignoring buckets and TVL', () => {
+            const rpcConfig = createMockRpcConfig(
+                [{ minTvlThresholdUsd: 100, targetTimeBetweenHarvestsMs: 3600000 }],
+                [{ minTvlThresholdUsd: 200, targetTimeBetweenHarvestsMs: 1800000 }],
+                TWENTY_FOUR_HOURS_MS
+            );
+
+            expect(
+                getHarvestTimeBucket({
+                    vault: createMockVault({ tvlUsd: 50, isClmVault: true, isClmManager: true }),
+                    rpcConfig,
+                })
+            ).toEqual({ minTvlThresholdUsd: 0, targetTimeBetweenHarvestsMs: TWENTY_FOUR_HOURS_MS });
+        });
+
+        it('should return configured time for CLM manager when buckets are empty', () => {
+            const rpcConfig = createMockRpcConfig([], [], TWENTY_FOUR_HOURS_MS);
+
+            expect(
+                getHarvestTimeBucket({
+                    vault: createMockVault({ tvlUsd: 100, isClmVault: true, isClmManager: true }),
+                    rpcConfig,
+                })
+            ).toEqual({ minTvlThresholdUsd: 0, targetTimeBetweenHarvestsMs: TWENTY_FOUR_HOURS_MS });
+        });
+
+        it('should return configured time for CLM manager regardless of bucket values', () => {
+            const rpcConfig = createMockRpcConfig(
+                [],
+                [{ minTvlThresholdUsd: 100, targetTimeBetweenHarvestsMs: 48 * 60 * 60 * 1000 }], // 48 hours
+                TWENTY_FOUR_HOURS_MS
+            );
+
+            expect(
+                getHarvestTimeBucket({
+                    vault: createMockVault({ tvlUsd: 200, isClmVault: true, isClmManager: true }),
+                    rpcConfig,
+                })
+            ).toEqual({ minTvlThresholdUsd: 0, targetTimeBetweenHarvestsMs: TWENTY_FOUR_HOURS_MS });
+        });
+
+        it('should return configured time for CLM manager even when bucket has shorter interval', () => {
+            const rpcConfig = createMockRpcConfig(
+                [],
+                [{ minTvlThresholdUsd: 100, targetTimeBetweenHarvestsMs: 12 * 60 * 60 * 1000 }], // 12 hours
+                TWENTY_FOUR_HOURS_MS
+            );
+
+            expect(
+                getHarvestTimeBucket({
+                    vault: createMockVault({ tvlUsd: 200, isClmVault: true, isClmManager: true }),
+                    rpcConfig,
+                })
+            ).toEqual({ minTvlThresholdUsd: 0, targetTimeBetweenHarvestsMs: TWENTY_FOUR_HOURS_MS });
+        });
+
+        it('should use custom configured time for CLM manager', () => {
+            const CUSTOM_TIME_MS = 12 * 60 * 60 * 1000; // 12 hours
+            const rpcConfig = createMockRpcConfig(
+                [],
+                [{ minTvlThresholdUsd: 100, targetTimeBetweenHarvestsMs: 48 * 60 * 60 * 1000 }], // 48 hours
+                CUSTOM_TIME_MS
+            );
+
+            expect(
+                getHarvestTimeBucket({
+                    vault: createMockVault({ tvlUsd: 200, isClmVault: true, isClmManager: true }),
+                    rpcConfig,
+                })
+            ).toEqual({ minTvlThresholdUsd: 0, targetTimeBetweenHarvestsMs: CUSTOM_TIME_MS });
+        });
+
+        it('should not affect non-CLM manager vaults when TVL is below all thresholds', () => {
+            const rpcConfig = createMockRpcConfig(
+                [{ minTvlThresholdUsd: 100, targetTimeBetweenHarvestsMs: 3600000 }],
+                []
+            );
+
+            expect(
+                getHarvestTimeBucket({
+                    vault: createMockVault({ tvlUsd: 50, isClmVault: false, isClmManager: false }),
+                    rpcConfig,
+                })
+            ).toBeNull();
+        });
+
+        it('should not affect CLM vaults that are not managers', () => {
+            const rpcConfig = createMockRpcConfig(
+                [],
+                [{ minTvlThresholdUsd: 200, targetTimeBetweenHarvestsMs: 1800000 }]
+            );
+
+            expect(
+                getHarvestTimeBucket({
+                    vault: createMockVault({ tvlUsd: 50, isClmVault: true, isClmManager: false }),
+                    rpcConfig,
+                })
+            ).toBeNull();
+        });
     });
 });
