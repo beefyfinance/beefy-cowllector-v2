@@ -9,6 +9,7 @@ export const rootLogger = pino(
                 return {};
             },
         },
+        depthLimit: 10,
     },
     pino.destination({
         dest: 1, // stdout

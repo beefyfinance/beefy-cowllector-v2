@@ -198,10 +198,9 @@ export const VAULT_IDS_WITH_MISSING_PROPER_HARVEST_FUNCTION: string[] = [
 // 1 ether value in wei
 const ONE_ETHER = 1_000_000_000_000_000_000n;
 const ONE_GWEI = 1_000_000_000n;
-const ONE_HOUR_IN_MS = 60 * 60 * 1000;
 
 // subtract 2 hours to make sure we harvest before the time is up
-const harvestDaysToMs = (days: number) => (days * 24 - 2) * ONE_HOUR_IN_MS;
+const harvestDaysToMs = (days: number) => (days * 24 - 2) * 60 * 60 * 1000;
 
 const defaultBatch: RpcConfig['batch'] = {
     jsonRpc: {

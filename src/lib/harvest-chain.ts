@@ -149,7 +149,7 @@ export async function harvestChain({
             });
             const isLastHarvestRecent = harvestTimeBucket?.targetTimeBetweenHarvestsMs
                 ? timeSinceLastHarvestMs < harvestTimeBucket.targetTimeBetweenHarvestsMs
-                : null;
+                : true;
             const isCalmBeforeHarvest = 'isCalmBeforeHarvest' in result ? result.isCalmBeforeHarvest : -1;
 
             return {
