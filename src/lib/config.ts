@@ -269,7 +269,7 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
         {
             // harvest at least every hour above $100
             minTvlThresholdUsd: 100,
-            targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+            targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS / 24.0),
         },
     ],
     clmVaultHarvestTimeBuckets: [
@@ -277,7 +277,7 @@ const defaultHarvestConfig: RpcConfig['harvest'] = {
         // {}
         {
             minTvlThresholdUsd: 100,
-            targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+            targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS / 24.0),
         },
     ],
     parallelSimulations: 5,
@@ -455,7 +455,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 // {}
                 {
                     minTvlThresholdUsd: 10_000,
-                    targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS / 24.0),
                 },
             ],
             clmVaultHarvestTimeBuckets: [
