@@ -413,6 +413,18 @@ export async function harvestChain({
                     };
                 }
 
+                // ensure we harvest the clm managers even if the estimated call rewards is 0
+                if (item.vault.isClmManager) {
+                    return {
+                        shouldHarvest: true,
+                        level: 'info',
+                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                        callRewardsWei: item.simulation.estimatedCallRewardsWei,
+                        estimatedGainWei: item.simulation.gas.estimatedGainWei,
+                        wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
+                    };
+                }
+
                 return {
                     shouldHarvest: false,
                     level: 'error',
