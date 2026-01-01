@@ -337,19 +337,56 @@ export async function harvestChain({
                 };
             }
 
+            if (item.simulation.isLastHarvestRecent) {
+                return {
+                    shouldHarvest: false,
+                    level: 'info',
+                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
+                    wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
+                    callRewardsWei: item.simulation.estimatedCallRewardsWei,
+                    estimatedGainWei: item.simulation.gas.estimatedGainWei,
+                    notHarvestingReason: 'harvested too recently',
+                };
+            }
+
+            if (
+                rpcConfig.transaction.maxNativePerTransactionWei &&
+                item.simulation.gas.transactionCostEstimationWei > rpcConfig.transaction.maxNativePerTransactionWei
+            ) {
+                return {
+                    shouldHarvest: false,
+                    level:
+                        item.simulation.hoursSinceLastHarvest > rpcConfig.alerting.networkCongestionWaitInDays * 24
+                            ? 'error'
+                            : 'warning',
+                    maxNativePerTransactionWei: rpcConfig.transaction.maxNativePerTransactionWei,
+                    transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
+                    notHarvestingReason:
+                        'estimated transaction cost would be too high, waiting until the network is less congested',
+                };
+            }
+
+            if (
+                rpcConfig.transaction.maxGasPricePerTransactionWei &&
+                item.simulation.gas.gasPrice > rpcConfig.transaction.maxGasPricePerTransactionWei
+            ) {
+                return {
+                    shouldHarvest: false,
+                    level:
+                        item.simulation.hoursSinceLastHarvest > rpcConfig.alerting.networkCongestionWaitInDays * 24
+                            ? 'error'
+                            : 'warning',
+                    maxGasPricePerTransactionWei: rpcConfig.transaction.maxGasPricePerTransactionWei,
+                    gasPrice: item.simulation.gas.gasPrice,
+                    notHarvestingReason:
+                        'estimated gas price would be too high, waiting until the network is less congested',
+                };
+            }
+
             if (
                 !VAULT_IDS_WE_KNOW_HAVE_REWARDS_BUT_IS_NOT_TELLING_US.includes(item.vault.id) &&
                 item.simulation.estimatedCallRewardsWei === 0n
             ) {
-                if (item.simulation.isLastHarvestRecent) {
-                    return {
-                        shouldHarvest: false,
-                        level: 'info',
-                        hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
-                        notHarvestingReason: 'estimated call rewards is 0, but vault harvested recently',
-                    };
-                }
-
                 // estimated call rewards is 0, we do not pay for gas on this chain so lets harvest anyway
                 if (GASLESS_CHAIN_IDS.includes(chain)) {
                     return {
@@ -434,40 +471,6 @@ export async function harvestChain({
                 };
             }
 
-            if (
-                rpcConfig.transaction.maxNativePerTransactionWei &&
-                item.simulation.gas.transactionCostEstimationWei > rpcConfig.transaction.maxNativePerTransactionWei
-            ) {
-                return {
-                    shouldHarvest: false,
-                    level:
-                        item.simulation.hoursSinceLastHarvest > rpcConfig.alerting.networkCongestionWaitInDays * 24
-                            ? 'error'
-                            : 'warning',
-                    maxNativePerTransactionWei: rpcConfig.transaction.maxNativePerTransactionWei,
-                    transactionCostEstimationWei: item.simulation.gas.transactionCostEstimationWei,
-                    notHarvestingReason:
-                        'estimated transaction cost would be too high, waiting until the network is less congested',
-                };
-            }
-
-            if (
-                rpcConfig.transaction.maxGasPricePerTransactionWei &&
-                item.simulation.gas.gasPrice > rpcConfig.transaction.maxGasPricePerTransactionWei
-            ) {
-                return {
-                    shouldHarvest: false,
-                    level:
-                        item.simulation.hoursSinceLastHarvest > rpcConfig.alerting.networkCongestionWaitInDays * 24
-                            ? 'error'
-                            : 'warning',
-                    maxGasPricePerTransactionWei: rpcConfig.transaction.maxGasPricePerTransactionWei,
-                    gasPrice: item.simulation.gas.gasPrice,
-                    notHarvestingReason:
-                        'estimated gas price would be too high, waiting until the network is less congested',
-                };
-            }
-
             // l2s like optimism are more difficult to estimate gas price for since they have additional l1 fees
             // so we removed our profitability check for now
             if (item.simulation.gas.wouldBeProfitable) {
@@ -488,18 +491,6 @@ export async function harvestChain({
                         simulation: item.simulation,
                     },
                 });
-            }
-
-            if (item.simulation.isLastHarvestRecent) {
-                return {
-                    shouldHarvest: false,
-                    level: 'info',
-                    hoursSinceLastHarvest: item.simulation.hoursSinceLastHarvest,
-                    wouldBeProfitable: item.simulation.gas.wouldBeProfitable,
-                    callRewardsWei: item.simulation.estimatedCallRewardsWei,
-                    estimatedGainWei: item.simulation.gas.estimatedGainWei,
-                    notHarvestingReason: 'harvested too recently',
-                };
             }
 
             if (
