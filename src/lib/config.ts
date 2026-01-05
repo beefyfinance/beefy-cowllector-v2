@@ -926,6 +926,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     moonbeam: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MOONBEAM_RPC_URL || 'https://rpc.ankr.com/moonbeam',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
@@ -945,6 +946,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MOONRIVER_RPC_URL || 'https://moonriver.api.onfinality.io/public',
         // moonriver has tighter rate limiting
+        eol: true,
         retry: {
             ...defaultRetry,
             exponentialDelayMs: 1000,
