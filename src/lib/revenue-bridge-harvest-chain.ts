@@ -68,9 +68,10 @@ export async function revenueBridgeHarvestChain({
             data: { chain, strat: item },
         });
 
+        const setGasLimit = RPC_CONFIG[chain].revenueBridgeHarvest.setTransactionGasLimit;
         let gasLimit = RPC_CONFIG[chain].revenueBridgeHarvest.forceGasLimit;
         let rawGasEstimation = gasLimit;
-        if (gasLimit === null) {
+        if (gasLimit === null && setGasLimit === true) {
             rawGasEstimation = await publicClient.estimateContractGas({
                 abi: BeefyRevenueBridgeABI,
                 address: revenueBridgeAddress,
@@ -93,7 +94,7 @@ export async function revenueBridgeHarvestChain({
             address: revenueBridgeAddress,
             functionName: 'harvest',
             account: walletAccount,
-            gas: rpcConfig.revenueBridgeHarvest.setTransactionGasLimit ? gasLimit : undefined,
+            gas: setGasLimit === true ? gasLimit ?? undefined : undefined,
         });
         logger.debug({
             msg: 'Got transaction receipt',
@@ -106,8 +107,8 @@ export async function revenueBridgeHarvestChain({
         });
         return {
             transactionHash,
-            rawGasEstimation: rawGasEstimation ?? gasLimit,
-            gasLimit,
+            rawGasEstimation: rawGasEstimation ?? gasLimit ?? null,
+            gasLimit: setGasLimit === true ? gasLimit ?? null : null,
             blockNumber: transactionReceipt.blockNumber,
             gasUsed: transactionReceipt.gasUsed,
             effectiveGasPrice: transactionReceipt.effectiveGasPrice,

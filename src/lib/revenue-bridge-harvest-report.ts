@@ -15,8 +15,8 @@ export type RevenueBridgeHarvestReport = {
         gasUsed: bigint;
         effectiveGasPrice: bigint;
         balanceBeforeWei: bigint;
-        rawGasEstimation: bigint;
-        gasLimit: bigint;
+        rawGasEstimation: bigint | null;
+        gasLimit: bigint | null;
     }> | null;
     summary: {
         success: boolean;

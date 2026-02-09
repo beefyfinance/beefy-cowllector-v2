@@ -40,7 +40,7 @@
         "update:addressbook": "npx ncu --upgrade @beefyfinance/blockchain-addressbook viem && yarn"
     },
     "dependencies": {
-        "@beefyfinance/blockchain-addressbook": "^0.54.128",
+        "@beefyfinance/blockchain-addressbook": "^0.54.168",
         "@openzeppelin/contracts": "^4.9.3",
         "async-lock": "^1.4.0",
         "axios": "^1.5.0",
@@ -51,7 +51,7 @@
         "pg-format": "^1.0.4",
         "pino": "^8.15.1",
         "table": "^6.8.1",
-        "viem": "^2.43.3",
+        "viem": "^2.45.2",
         "yaml": "^2.3.2",
         "yargs": "^17.7.2"
     },

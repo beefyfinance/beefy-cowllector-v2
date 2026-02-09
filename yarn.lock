@@ -302,10 +302,10 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@beefyfinance/blockchain-addressbook@^0.54.128":
-  version "0.54.128"
-  resolved "https://registry.yarnpkg.com/@beefyfinance/blockchain-addressbook/-/blockchain-addressbook-0.54.128.tgz#d01204f26f432250c3a27428e93995c289aa1d8f"
-  integrity sha512-r/nQ1d9JKjfwFU4OnKX+/5ZAlXL7QGu0uWrwcx36RW9GNH56bIu6SBGn0MA+OXU3vq5vvk4X2Up6C+D2s/F0Mg==
+"@beefyfinance/blockchain-addressbook@^0.54.168":
+  version "0.54.168"
+  resolved "https://registry.yarnpkg.com/@beefyfinance/blockchain-addressbook/-/blockchain-addressbook-0.54.168.tgz#88dc4b238348740e7c43879f35d82adc5e6289b8"
+  integrity sha512-ik58bROlmffSthCqNVUWa1CKQ/bVyGksFwvdad0FIWAy9RYDtMlAfdIDUR+AjzdxKjbbb6431FrbYCn2KA2Ong==
 
 "@biomejs/biome@1.8.2":
   version "1.8.2"
@@ -3472,10 +3472,10 @@ onetime@^6.0.0:
   dependencies:
     mimic-fn "^4.0.0"
 
-ox@0.11.1:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.11.1.tgz#ee1d1b88e794533db244e90bf7fb3863293169f3"
-  integrity sha512-1l1gOLAqg0S0xiN1dH5nkPna8PucrZgrIJOfS49MLNiMevxu07Iz4ZjuJS9N+xifvT+PsZyIptS7WHM8nC+0+A==
+ox@0.11.3:
+  version "0.11.3"
+  resolved "https://registry.yarnpkg.com/ox/-/ox-0.11.3.tgz#f50be1cae88822f5111b1e3f4a324c4c07eed422"
+  integrity sha512-1bWYGk/xZel3xro3l8WGg6eq4YEKlaqvyMtVhfMFpbJzK2F6rj4EDRtqDCWVEJMkzcmEi9uW2QxsqELokOlarw==
   dependencies:
     "@adraffy/ens-normalize" "^1.11.0"
     "@noble/ciphers" "^1.3.0"
@@ -4717,10 +4717,10 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-viem@^2.43.3:
-  version "2.43.3"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.43.3.tgz#fa3e089f8f094db0be7a9218e8e6d6a7d40ee074"
-  integrity sha512-zM251fspfSjENCtfmT7cauuD+AA/YAlkFU7cksdEQJxj7wDuO0XFRWRH+RMvfmTFza88B9kug5cKU+Wk2nAjJg==
+viem@^2.45.2:
+  version "2.45.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.45.2.tgz#b609caf50d3ad1b6151fc9eebabe3f7953d6e47f"
+  integrity sha512-GXPMmj0ukqFNL87sgpsZBy4CjGvsFQk42/EUdsn8dv3ZWtL4ukDXNCM0nME2hU0IcuS29CuUbrwbZN6iWxAipw==
   dependencies:
     "@noble/curves" "1.9.1"
     "@noble/hashes" "1.8.0"
@@ -4728,7 +4728,7 @@ viem@^2.43.3:
     "@scure/bip39" "1.6.0"
     abitype "1.2.3"
     isows "1.0.7"
-    ox "0.11.1"
+    ox "0.11.3"
     ws "8.18.3"
 
 walker@^1.0.8:

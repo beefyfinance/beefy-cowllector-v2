@@ -418,10 +418,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
         },
-        transaction: {
-            ...defaultTransactionConfig,
-            type: 'eip1559',
-        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.5),
@@ -775,18 +771,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
         },
-        transaction: {
-            ...defaultTransactionConfig,
-            type: 'eip1559',
-        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
-        },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            enabled: true,
         },
     },
     manta: {
@@ -850,6 +838,24 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             forceGasLimit: 2_198_429_209n,
         },
     },
+    megaeth: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.MEGAETH_RPC_URL || 'https://mainnet.megaeth.com/rpc',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v3', address: getAddress('0x6E15fC6F4be1a02A1F5A097174e862E6a3780565') },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            setTransactionGasLimit: false,
+        },
+    },
     mode: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MODE_RPC_URL || 'https://mainnet.mode.network',
@@ -884,19 +890,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultContracts,
             harvestLens: { kind: 'v3', address: getAddress('0x6e15fc6f4be1a02a1f5a097174e862e6a3780565') },
         },
-        transaction: {
-            ...defaultTransactionConfig,
-            type: 'eip1559',
-        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
             setTransactionGasLimit: false,
-        },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            enabled: true,
         },
     },
     metis: {
@@ -1017,10 +1015,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.1),
-        },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            enabled: true,
         },
     },
     polygon: {
@@ -1490,6 +1484,13 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         transactionLinkTemplate: 'https://andromeda-explorer.metis.io/tx/${hash}',
         apiUrl: process.env.METIS_EXPLORER_API_URL || 'https://andromeda-explorer.metis.io/api?',
         type: 'blockscout',
+    },
+    megaeth: {
+        addressLinkTemplate: 'https://mega.etherscan.io/address/${address}',
+        transactionLinkTemplate: 'https://mega.etherscan.io/tx/${hash}',
+        apiUrl: process.env.MEGAETH_EXPLORER_API_URL || 'https://api.mega.etherscan.io/api',
+        apiKey: process.env.MEGAETH_EXPLORER_API_KEY || '',
+        type: 'etherscan',
     },
     mode: {
         addressLinkTemplate: 'https://modescan.io//address/${address}',
