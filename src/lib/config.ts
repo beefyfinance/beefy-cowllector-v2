@@ -854,7 +854,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         revenueBridgeHarvest: {
             ...defaultRevenueBridgeHarvestConfig,
             setTransactionGasLimit: false,
-            enabled: false,
         },
     },
     mode: {
