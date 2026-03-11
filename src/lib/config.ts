@@ -894,7 +894,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
-            setTransactionGasLimit: false,
+            setTransactionGasLimit: false, // monad will consume all gas defined as limit
+        },
+        harvest: {
+            ...defaultHarvestConfig,
+            setTransactionGasLimit: false, // monad will consume all gas defined as limit
         },
     },
     metis: {
