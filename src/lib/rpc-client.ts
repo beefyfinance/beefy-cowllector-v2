@@ -2,6 +2,7 @@ import { memoize } from 'lodash';
 import { createPublicClient, createWalletClient } from 'viem';
 import { defineChain } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+import { createNonceManager, jsonRpc } from 'viem/nonce';
 import type { Chain as ViemChain } from 'viem/chains';
 import {
     arbitrum,
@@ -48,6 +49,11 @@ import { RPC_CONFIG } from './config';
 import { createCustomHarvestWalletActions } from './harvest-actions';
 import { createCustomRpcPublicActions, createCustomRpcWalletActions } from './rpc-actions';
 import { loggingHttpTransport } from './rpc-transport';
+
+/** Shared across chains; nonces are keyed by address + chainId (see viem NonceManager). */
+const nonceManager = createNonceManager({
+    source: jsonRpc(),
+});
 
 function applyConfig(chain: Chain, viemChain: ViemChain): ViemChain {
     const rpcConfig = RPC_CONFIG[chain];
@@ -189,7 +195,7 @@ export const getWalletAccount = memoize(
     ({ chain }: { chain: Chain }) => {
         const rpcConfig = RPC_CONFIG[chain];
         const pk = rpcConfig.account.privateKey;
-        return privateKeyToAccount(pk);
+        return privateKeyToAccount(pk, { nonceManager });
     },
     ({ chain }) => chain
 );
