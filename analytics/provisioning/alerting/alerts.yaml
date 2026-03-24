@@ -279,7 +279,7 @@ groups:
             policy: follow_up_tuesdays
             ping_harvesters: "false"
             ping_strategists: "false"
-          isPaused: false
+          isPaused: true
         - uid: cacdfe7b-8b6e-4304-8dae-be3346e174c3 # Run Error Alert
           title: Run Error Alert
           condition: last value error
