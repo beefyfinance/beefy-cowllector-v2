@@ -190,7 +190,8 @@ groups:
             policy: follow_up
             ping_harvesters: "false"
             ping_strategists: "false"
-          isPaused: false
+          isPaused: true
+        
         - uid: aa5bc62b-7e16-48a0-aa7e-f84c978bbe84 # Vault might need EOL
           title: Vault might need EOL
           condition: last vault harvest status
@@ -555,7 +556,7 @@ groups:
             policy: follow_up
             ping_harvesters: "false"
             ping_strategists: "false"
-          isPaused: false
+          isPaused: true
         - uid: db80be8a-9edb-4e09-b93f-32598c6983ce # Harvest wasn't profitable after all
           title: Harvest wasn't profitable after all
           condition: last_error_serie_value
@@ -898,7 +899,7 @@ groups:
             ping_strategists: "false"
             policy: follow_up
             template: alert_vault_harvest_in_error
-          isPaused: false
+          isPaused: true
 
 
 # List of alert rule UIDs that should be deleted
