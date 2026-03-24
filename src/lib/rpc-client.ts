@@ -2,7 +2,6 @@ import { memoize } from 'lodash';
 import { createPublicClient, createWalletClient } from 'viem';
 import { defineChain } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { createNonceManager, jsonRpc } from 'viem/nonce';
 import type { Chain as ViemChain } from 'viem/chains';
 import {
     arbitrum,
@@ -44,6 +43,7 @@ import {
     unichain,
     zksync,
 } from 'viem/chains';
+import { createNonceManager, jsonRpc } from 'viem/nonce';
 import type { Chain } from './chain';
 import { RPC_CONFIG } from './config';
 import { createCustomHarvestWalletActions } from './harvest-actions';
