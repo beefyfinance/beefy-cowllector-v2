@@ -635,6 +635,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     fantom: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.FANTOM_RPC_URL || 'https://rpc.ankr.com/fantom',
+        eol: true,
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: ONE_ETHER,
@@ -670,6 +671,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     fuse: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.FUSE_RPC_URL || 'https://rpc.fuse.io',
+        eol: true,
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
@@ -780,6 +782,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     manta: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MANTA_RPC_URL || 'https://pacific-rpc.manta.network/http',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
@@ -859,6 +862,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     mode: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MODE_RPC_URL || 'https://mainnet.mode.network',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
@@ -1157,6 +1161,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     scroll: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SCROLL_RPC_URL || 'https://rpc.scroll.io',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
@@ -1255,6 +1260,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     unichain: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.UNICHAIN_RPC_URL || 'https://mainnet.unichain.org',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
@@ -1278,6 +1284,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     zkevm: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKEVM_RPC_URL || 'https://rpc.ankr.com/polygon_zkevm',
+        eol: true,
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
