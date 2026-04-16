@@ -538,6 +538,7 @@ export async function harvestChain({
             VAULT_IDS_WE_NEED_TO_HARVEST_NO_PARAMS.includes(item.vault.id) &&
             rpcConfig.contracts.harvestLens?.kind === 'v3';
 
+        const forcedGasLimit = rpcConfig.harvest.forceGasLimit;
         let harvestParams: HarvestParameters = {
             strategyAddress: item.vault.strategyAddress,
             // mode fails to estimate gas because their eth_estimateGas method doesn't accept fee params
@@ -557,6 +558,12 @@ export async function harvestChain({
                 ),
                 noParams,
             };
+        }
+
+        if (rpcConfig.harvest.setTransactionGasLimit && forcedGasLimit !== null) {
+            // use forced limit for wallet-balance checks too (more conservative than simulation gasUsed)
+            harvestParams.transactionCostEstimationWei = forcedGasLimit * item.simulation.gas.gasPrice;
+            harvestParams.transactionGasLimit = forcedGasLimit;
         }
 
         const res = await walletClient.harvest(harvestParams);

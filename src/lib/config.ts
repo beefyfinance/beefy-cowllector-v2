@@ -262,6 +262,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 };
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
+    forceGasLimit: null,
     clmManagerTimeBetweenHarvestsMs: harvestDaysToMs(1),
     classicVaultHarvestTimeBuckets: [
         // no harvest below $100
