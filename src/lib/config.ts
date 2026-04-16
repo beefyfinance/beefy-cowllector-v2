@@ -813,6 +813,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     mantle: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0xDe67C516FECC039EA2A303Bf8507d2b05543e316') },
@@ -914,6 +915,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     metis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.METIS_RPC_URL || 'https://andromeda.metis.io/?owner=1088',
+        eol: true,
         transaction: {
             ...defaultTransactionConfig,
             type: 'legacy',
