@@ -908,7 +908,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             // ex: https://monadscan.com/tx/0xc23e051f937c25c1a67ff79bb8a94bb84c16324118acf281244a325aaaf84c90
             // so we set a high enough force gas limit to avoid this but low enough to not waste gas
             setTransactionGasLimit: true,
-            forceGasLimit: 10_000_000n,
+            forceGasLimit: 30_000_000n,
         },
     },
     metis: {
