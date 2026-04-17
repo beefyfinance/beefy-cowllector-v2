@@ -101,7 +101,7 @@ groups:
             policy: follow_up
             ping_harvesters: "true"
             ping_strategists: "false"
-          isPaused: false
+          isPaused: true
         - uid: df122fcf-c214-4b04-90fa-d3e0cb3c56e9 # Vault Harvest Failed
           title: Vault Harvest Failed
           condition: last vault harvest status
