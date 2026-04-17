@@ -120,6 +120,10 @@ export type RpcConfig = {
         // as their native token is also an erc20 contract (mostly metis and celo)
         enabled: boolean;
 
+        // some chains have unreliable gas estimation for unwrap (withdraw)
+        // since this transaction has pretty stable gas cost, we can hardcode it
+        forceGasLimit: bigint | null;
+
         // we try to unwrap if the amount of wrapped tokens is above this threshold
         minAmountOfWNativeWei: bigint;
         // but only if we are low on native

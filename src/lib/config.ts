@@ -252,6 +252,7 @@ const defaultTransactionConfig: RpcConfig['transaction'] = {
 const defaultTimeoutMs: RpcConfig['timeoutMs'] = 60_000; // high timeout because we batch calls
 const defaultUnwrapConfig: RpcConfig['unwrap'] = {
     enabled: true,
+    forceGasLimit: null,
     // default to 0.01 wnative (18 decimals)
     minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
     maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
@@ -900,7 +901,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
             maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
-            setTransactionGasLimit: false, // monad will consume all gas defined as limit
+            // monad will consume all gas defined as limit
+            // but if we don't set it, txs can fail with not enough gas errors
+            setTransactionGasLimit: true,
+            forceGasLimit: 500_000n,
         },
         harvest: {
             ...defaultHarvestConfig,

@@ -89,6 +89,7 @@ function createMockRpcConfig(
         },
         unwrap: {
             enabled: true,
+            forceGasLimit: null,
             minAmountOfWNativeWei: BigInt(0),
             maxAmountOfNativeWei: BigInt(0),
             setTransactionGasLimit: true,
