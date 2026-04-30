@@ -555,7 +555,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultTransactionConfig,
             type: 'eip1559',
             maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // at $3k/eth that's $15 worth of gas
-            maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 2.0),
+            maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 0.45),
             totalTries: 2,
             retryGasMultiplier: {
                 gasPrice: 1.1,
