@@ -4,7 +4,9 @@ import {
     TimeoutError,
     TransactionReceiptNotFoundError,
     type Chain as ViemChain,
+    WaitForCallsStatusTimeoutError,
     type WaitForTransactionReceiptReturnType,
+    WaitForTransactionReceiptTimeoutError,
 } from 'viem';
 import { rootLogger } from '../../util/logger';
 import { withRetry } from '../../util/promise';
@@ -26,7 +28,13 @@ const logger = rootLogger.child({
 // BlockNotFoundError: when we use an rpc cluster with many nodes and we hit one that is lagging behind, happens a lot with ankr's rpc cluster
 // TransactionReceiptNotFoundError: when a transaction is not mined yet and we are waiting for it
 // TimeoutError: when we are waiting for a transaction receipt and we hit the RPC timeout
-const retryableErrorsWhileWaitingForReceipt = [TimeoutError, BlockNotFoundError, TransactionReceiptNotFoundError];
+const retryableErrorsWhileWaitingForReceipt = [
+    TimeoutError,
+    BlockNotFoundError,
+    TransactionReceiptNotFoundError,
+    WaitForTransactionReceiptTimeoutError,
+    WaitForCallsStatusTimeoutError,
+];
 
 export function aggressivelyWaitForTransactionReceipt<TChain extends ViemChain | undefined>(
     { chain }: { chain: Chain },

@@ -302,10 +302,10 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@beefyfinance/blockchain-addressbook@^0.54.190":
-  version "0.54.190"
-  resolved "https://registry.yarnpkg.com/@beefyfinance/blockchain-addressbook/-/blockchain-addressbook-0.54.190.tgz#d2a3b83d558785483d4d7fad119dbdda44173a39"
-  integrity sha512-kIHuCnHZkAdt/AZev49u8BQgPN4U9Z5NotYyVjmQtz1b3+AFLI2RJhPKDTKUgSVbGky+Rs/9D+TigCRY5TKeMQ==
+"@beefyfinance/blockchain-addressbook@^0.54.225":
+  version "0.54.225"
+  resolved "https://registry.yarnpkg.com/@beefyfinance/blockchain-addressbook/-/blockchain-addressbook-0.54.225.tgz#39a9b1c94aafc47453b7dd91518da4bd843a07e9"
+  integrity sha512-5qt3UEM6V1Peduww+KeuD9sF9lyNHBBCWd2tg25yzQuhLLxa/YVC0Oejocgi9XscEP4SeL1vYao2OwMrybtkLw==
 
 "@biomejs/biome@1.8.2":
   version "1.8.2"
@@ -3472,10 +3472,9 @@ onetime@^6.0.0:
   dependencies:
     mimic-fn "^4.0.0"
 
-ox@0.14.7:
-  version "0.14.7"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.14.7.tgz#efe6770f7a138f823fb2df26001b679c2565b0a4"
-  integrity sha512-zSQ/cfBdolj7U4++NAvH7sI+VG0T3pEohITCgcQj8KlawvTDY4vGVhDT64Atsm0d6adWfIYHDpu88iUBMMp+AQ==
+"ox@https://pkg.pr.new/ox@386a3439fe1ce76d237930f8c6e6bb493746069a":
+  version "0.14.26-386a343.0"
+  resolved "https://pkg.pr.new/ox@386a3439fe1ce76d237930f8c6e6bb493746069a#e134bee93f43316c3ca62fdf001e8d8a98e5a127"
   dependencies:
     "@adraffy/ens-normalize" "^1.11.0"
     "@noble/ciphers" "^1.3.0"
@@ -4717,10 +4716,10 @@ validate-npm-package-name@^5.0.0:
   dependencies:
     builtins "^5.0.0"
 
-viem@^2.47.6:
-  version "2.47.6"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.47.6.tgz#0249c166d5e0555074ffd3d320f2be2057551796"
-  integrity sha512-zExmbI99NGvMdYa7fmqSTLgkwh48dmhgEqFrUgkpL4kfG4XkVefZ8dZqIKVUhZo6Uhf0FrrEXOsHm9LUyIvI2Q==
+viem@^2.51.0:
+  version "2.51.0"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.51.0.tgz#0246e010cce289f64186d16b8d03f91015d730e6"
+  integrity sha512-8C0Ca+eEapXE29vHMUW59NqKENl1X4s9P6xSNC9Nvw6EvAeAhn/LNUlgztk6TOw7KN1Gzz5a/n9Wv4okUfmY9g==
   dependencies:
     "@noble/curves" "1.9.1"
     "@noble/hashes" "1.8.0"
@@ -4728,8 +4727,8 @@ viem@^2.47.6:
     "@scure/bip39" "1.6.0"
     abitype "1.2.3"
     isows "1.0.7"
-    ox "0.14.7"
-    ws "8.18.3"
+    ox "https://pkg.pr.new/ox@386a3439fe1ce76d237930f8c6e6bb493746069a"
+    ws "8.20.1"
 
 walker@^1.0.8:
   version "1.0.8"
@@ -4816,10 +4815,10 @@ write-file-atomic@^4.0.2:
     imurmurhash "^0.1.4"
     signal-exit "^3.0.7"
 
-ws@8.18.3:
-  version "8.18.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.3.tgz#b56b88abffde62791c639170400c93dcb0c95472"
-  integrity sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==
+ws@8.20.1:
+  version "8.20.1"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.20.1.tgz#91a9ae2b312ccf98e0a85ec499b48cef45ab0ddb"
+  integrity sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==
 
 xdg-basedir@^5.0.1, xdg-basedir@^5.1.0:
   version "5.1.0"
