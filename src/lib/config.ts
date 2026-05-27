@@ -782,9 +782,9 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 0.1),
             totalTries: 2, // we need to try twice to avoid the TransactionReceiptNotFoundError
             retryGasMultiplier: {
-                gasPrice: 1.1,
-                maxFeePerGas: 1.1,
-                maxPriorityFeePerGas: 1.1,
+                gasPrice: 1.5,
+                maxFeePerGas: 1.5,
+                maxPriorityFeePerGas: 1.5,
             },
             receipt: {
                 ...defaultTransactionConfig.receipt,
