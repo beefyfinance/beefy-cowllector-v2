@@ -775,6 +775,26 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
         },
+        transaction: {
+            ...defaultTransactionConfig,
+            type: 'eip1559',
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.000005),
+            maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 0.1),
+            totalTries: 2, // we need to try twice to avoid the TransactionReceiptNotFoundError
+            retryGasMultiplier: {
+                gasPrice: 1.1,
+                maxFeePerGas: 1.1,
+                maxPriorityFeePerGas: 1.1,
+            },
+            receipt: {
+                ...defaultTransactionConfig.receipt,
+                blockConfirmations: 1, // we don't need to wait for 3 confirmations on lisk
+                notFoundErrorRetryDelayMs: 1000, // 1 second
+                notFoundErrorRetryCount: 5, // more retries
+                pollingIntervalMs: 1000, // 1 second
+                receiptTimeoutMs: 30000, // 30 seconds
+            },
+        },
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.005),
