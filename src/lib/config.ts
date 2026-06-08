@@ -637,7 +637,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                     targetTimeBetweenHarvestsMs: harvestDaysToMs(3),
                 },
             ],
-            setTransactionGasLimit: true,
+            setTransactionGasLimit: false,
             // don't try to harvest even if we detect the harvest would be profitable
             // that's more likely to expose us to high gas prices and out of gas errors
             profitabilityCheck: {
