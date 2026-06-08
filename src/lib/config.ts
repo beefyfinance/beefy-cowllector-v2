@@ -85,19 +85,6 @@ export const EXTRA_VAULTS_TO_MONITOR: BeefyVault[] = [
         lastHarvest: null,
         strategyTypeId: null,
     },
-    // vault: 0x1f2e246a23d9e620f0c643e1239d77ddc5a82743
-    {
-        chain: 'ethereum',
-        id: 'extra-eth-1f2e246a',
-        strategyAddress: getAddress('0x5140823f2ccb75a72fda04693b0b3cab3c2b8c76'),
-        eol: false,
-        isClmManager: true,
-        isClmVault: false,
-        tvlUsd: 100_000,
-        platformId: 'beefy',
-        lastHarvest: null,
-        strategyTypeId: null,
-    },
     // vault: 0xc7afdb8ef47c058e8f4094cca09080bcab662e80
     {
         chain: 'ethereum',
