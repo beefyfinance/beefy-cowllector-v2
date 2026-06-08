@@ -3,7 +3,7 @@ import { groupBy, keyBy, mapValues, uniqBy } from 'lodash';
 import type { Hex } from 'viem';
 import { rootLogger } from '../util/logger';
 import type { Chain } from './chain';
-import { ADD_RP_TVL_TO_CLM_TVL, ADD_RP_VAULT_TVL_TO_CLM_TVL, BEEFY_API_URL } from './config';
+import { ADD_RP_TVL_TO_CLM_TVL, ADD_RP_VAULT_TVL_TO_CLM_TVL, BEEFY_API_URL, EXTRA_VAULTS_TO_MONITOR } from './config';
 import type { BeefyVault, StrategyTypeId } from './vault';
 
 const logger = rootLogger.child({ module: 'vault-list' });
@@ -86,9 +86,12 @@ export async function getVault(options: {
     chain: Chain;
     strategyAddress: Hex;
 }): Promise<BeefyVault | null> {
-    const vaults = await fetchVaults();
+    const apiVaults = await fetchVaults();
+    const vaults = [...apiVaults, ...EXTRA_VAULTS_TO_MONITOR];
     const vault = vaults.find(
-        vault => vault.chain === options.chain && vault.strategyAddress === options.strategyAddress
+        vault =>
+            vault.chain === options.chain &&
+            vault.strategyAddress.toLowerCase() === options.strategyAddress.toLowerCase()
     );
     return vault || null;
 }
@@ -97,16 +100,21 @@ export async function getVaultsToMonitorByChain(options: {
     chains: Chain[];
     strategyAddress: Hex | null;
 }): Promise<Record<Chain, BeefyVault[]>> {
-    const allVaults = await fetchVaults();
+    const apiVaults = await fetchVaults();
 
     logger.info({
         msg: 'Got vaults from api',
-        data: { vaultLength: allVaults.length },
+        data: { vaultLength: apiVaults.length },
     });
-    // apply command line options
-    const vaults = allVaults
+
+    const vaults = [...apiVaults, ...EXTRA_VAULTS_TO_MONITOR]
+        // apply command line options
         .filter(vault => options.chains.includes(vault.chain))
-        .filter(vault => (options.strategyAddress ? vault.strategyAddress === options.strategyAddress : true));
+        .filter(vault =>
+            options.strategyAddress
+                ? vault.strategyAddress.toLowerCase() === options.strategyAddress.toLowerCase()
+                : true
+        );
     logger.info({ msg: 'Filtered vaults', data: { vaultLength: vaults.length } });
 
     // split by chain

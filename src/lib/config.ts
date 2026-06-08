@@ -5,6 +5,7 @@ import { allLogLevels } from '../util/logger-type';
 import type { LogLevels } from '../util/logger-type';
 import { type Chain, allChainIds } from './chain';
 import type { RpcConfig } from './rpc-config';
+import type { BeefyVault } from './vault';
 dotenv.config();
 
 const timezone = process.env.TZ;
@@ -68,6 +69,62 @@ const REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = Number.parseFloat(
     process.env.REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER || '1.5'
 );
 const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = Number.parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
+
+// vaults missing from the Beefy API but still need harvesting
+export const EXTRA_VAULTS_TO_MONITOR: BeefyVault[] = [
+    // vault: 0x136363ca1219c943a560f22eefbb2beb4c92ef3c
+    {
+        chain: 'ethereum',
+        id: 'extra-eth-136363ca',
+        strategyAddress: getAddress('0x3a50abeff8a0d0363b0bf613a0346da7853a6e97'),
+        eol: false,
+        isClmManager: true,
+        isClmVault: false,
+        tvlUsd: 100_000,
+        platformId: 'beefy',
+        lastHarvest: null,
+        strategyTypeId: null,
+    },
+    // vault: 0x1f2e246a23d9e620f0c643e1239d77ddc5a82743
+    {
+        chain: 'ethereum',
+        id: 'extra-eth-1f2e246a',
+        strategyAddress: getAddress('0x5140823f2ccb75a72fda04693b0b3cab3c2b8c76'),
+        eol: false,
+        isClmManager: true,
+        isClmVault: false,
+        tvlUsd: 100_000,
+        platformId: 'beefy',
+        lastHarvest: null,
+        strategyTypeId: null,
+    },
+    // vault: 0xc7afdb8ef47c058e8f4094cca09080bcab662e80
+    {
+        chain: 'ethereum',
+        id: 'extra-eth-c7afdb8e',
+        strategyAddress: getAddress('0xf1baa1626e1ef554e5ea4c04aaa13277d0212001'),
+        eol: false,
+        isClmManager: true,
+        isClmVault: false,
+        tvlUsd: 100_000,
+        platformId: 'beefy',
+        lastHarvest: null,
+        strategyTypeId: null,
+    },
+    // vault: 0xdcfbfc35173ecf5a4451f86600b741cc365ceb60
+    {
+        chain: 'ethereum',
+        id: 'extra-eth-dcfbfc35',
+        strategyAddress: getAddress('0x05d9915e1f299e2aa496c821485ccb32bd0c76ae'),
+        eol: false,
+        isClmManager: true,
+        isClmVault: false,
+        tvlUsd: 100_000,
+        platformId: 'beefy',
+        lastHarvest: null,
+        strategyTypeId: null,
+    },
+];
 
 // some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
@@ -554,8 +611,8 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         transaction: {
             ...defaultTransactionConfig,
             type: 'eip1559',
-            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.005), // at $3k/eth that's $15 worth of gas
-            maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 0.45),
+            maxNativePerTransactionWei: bigintMultiplyFloat(ONE_ETHER, 0.01), // at $1.5k/eth that's $15 worth of gas
+            maxGasPricePerTransactionWei: bigintMultiplyFloat(ONE_GWEI, 2.0),
             totalTries: 2,
             retryGasMultiplier: {
                 gasPrice: 1.1,
