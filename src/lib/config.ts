@@ -811,6 +811,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     lisk: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.LISK_RPC_URL || 'https://lisk.drpc.org',
+        eol: true,
         batch: {
             jsonRpc: false,
             multicall: false, // drpc has low timeout so we avoid using multicall
@@ -1282,6 +1283,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     sei: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.SEI_RPC_URL || 'https://evm-rpc.sei-apis.com',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
