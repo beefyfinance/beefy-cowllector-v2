@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+.git
+.github
+.turbo
+**/.turbo
+apps/cowllector
+apps/contracts
+apps/analytics
+scripts
+lefthook.yml
+docker-compose*.yml

@@ -7,6 +7,14 @@ pnpm install
 pnpm --filter @beefyfinance/cowllector-api dev
 ```
 
+## Docker
+
+From the monorepo root:
+
+```bash
+docker build -f apps/api/Dockerfile -t cowllector-api .
+```
+
 The server will start at http://localhost:3000
 
 ## API Documentation

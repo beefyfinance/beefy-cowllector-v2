@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Stage API Dockerfile for Heroku
+        run: cp apps/api/Dockerfile Dockerfile
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
       - uses: akhileshns/heroku-deploy@v3.13.15
@@ -18,4 +20,4 @@ jobs:
           heroku_app_name: ${{secrets.HEROKU_API_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           usedocker: true
-          appdir: "apps/api"
+          appdir: "."
