@@ -1,4 +1,3 @@
-import yargs from 'yargs';
 import type { Chain } from '../lib/chain';
 import { allChainIds } from '../lib/chain';
 import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
@@ -11,6 +10,7 @@ import { asyncResultGet, promiseTimings } from '../util/async';
 import { rootLogger } from '../util/logger';
 import { runMain } from '../util/process';
 import { splitPromiseResultsByStatus } from '../util/promise';
+import { createArgv } from '../util/yargs';
 
 const logger = rootLogger.child({ module: 'revenue-bridge-harvest-main' });
 
@@ -19,16 +19,18 @@ type CmdOptions = {
 };
 
 async function main() {
-    const argv = await yargs.usage('$0 <cmd> [args]').options({
-        chain: {
-            type: 'array',
-            choices: [...allChainIds, 'all'],
-            alias: 'c',
-            demand: false,
-            default: 'all',
-            describe: 'only harest revenue bridge for these chains. eol chains will be ignored',
-        },
-    }).argv;
+    const argv = await createArgv()
+        .usage('$0 <cmd> [args]')
+        .options({
+            chain: {
+                type: 'array',
+                choices: [...allChainIds, 'all'],
+                alias: 'c',
+                demand: false,
+                default: 'all',
+                describe: 'only harest revenue bridge for these chains. eol chains will be ignored',
+            },
+        }).argv;
 
     const options: CmdOptions = {
         chain: argv.chain.includes('all') ? allChainIds : (argv.chain as Chain[]),

@@ -1,5 +1,4 @@
 import { getAddress, type Hex } from 'viem';
-import yargs from 'yargs';
 import { BeefyHarvestLensV1ABI } from '../../abi/BeefyHarvestLensV1ABI';
 import { BeefyHarvestLensV2ABI } from '../../abi/BeefyHarvestLensV2ABI';
 import { BeefyHarvestLensV3ABI } from '../../abi/BeefyHarvestLensV3ABI';
@@ -12,6 +11,7 @@ import { getReadOnlyRpcClient, getWalletAccount } from '../../lib/rpc-client';
 import { getVault } from '../../lib/vault-list';
 import { rootLogger } from '../../util/logger';
 import { runMain } from '../../util/process';
+import { createArgv } from '../../util/yargs';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'lens' });
 
@@ -22,27 +22,29 @@ type CmdOptions = {
 };
 
 async function main() {
-    const argv = await yargs.usage('$0 <cmd> [args]').options({
-        chain: {
-            type: 'string',
-            choices: allChainIds,
-            alias: 'c',
-            demand: true,
-            describe: 'Run lens for this chain',
-        },
-        'strategy-address': {
-            type: 'string',
-            demand: true,
-            alias: 'a',
-            describe: 'Run lens for this strategy address',
-        },
-        'block-number': {
-            type: 'string',
-            demand: false,
-            alias: 'b',
-            describe: 'Run lens for this block number, default is latest',
-        },
-    }).argv;
+    const argv = await createArgv()
+        .usage('$0 <cmd> [args]')
+        .options({
+            chain: {
+                type: 'string',
+                choices: allChainIds,
+                alias: 'c',
+                demand: true,
+                describe: 'Run lens for this chain',
+            },
+            'strategy-address': {
+                type: 'string',
+                demand: true,
+                alias: 'a',
+                describe: 'Run lens for this strategy address',
+            },
+            'block-number': {
+                type: 'string',
+                demand: false,
+                alias: 'b',
+                describe: 'Run lens for this block number, default is latest',
+            },
+        }).argv;
 
     const options: CmdOptions = {
         chain: argv.chain as Chain,

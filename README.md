@@ -69,33 +69,33 @@ anvil -f 'https://rpc.ankr.com/arbitrum' --accounts 3 --balance 300 --no-cors --
 
 ```shell
 # harvest
-LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/harvest.ts -c arbitrum
+LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/harvest.ts -c arbitrum
 
 # Run harvest with pretty log parser (pino-pretty also has many formatting and filtering options)
-LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/harvest.ts -c base | pnpm --filter @beefyfinance/cowllector exec pino-pretty > debug-pretty.log
+LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/harvest.ts -c base | pnpm --filter @beefyfinance/cowllector exec pino-pretty > debug-pretty.log
 
 # see harvest script options
-pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/harvest.ts --help
+pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/harvest.ts --help
 ```
 
 ```shell
 # unwrap wnative to native
-LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/unwrap.ts -c arbitrum
+LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/unwrap.ts -c arbitrum
 
 # see unwrap script options
-pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/unwrap.ts --help
+pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/unwrap.ts --help
 ```
 
 Use our inspect commands
   
 ```shell
 # get the result of our lens contract 
-LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/lens.ts -c zkevm -a 0x000000...
-LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/lens.ts --help
+LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/lens.ts -c zkevm -a 0x000000...
+LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/lens.ts --help
 
 # see a contract balance
-LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/balance.ts -c zkevm -a 0x000000...
-LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/balance.ts -help
+LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/balance.ts -c zkevm -a 0x000000...
+LOG_LEVEL=debug pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/balance.ts -help
 ```
 
 Update the addressbook
@@ -141,9 +141,9 @@ In case you want to contribute, please follow next steps:
 - apply migrations (only needed locally, migrations are applied on deploy): `pnpm db:migrate`
 - create an explorer api key (important to verify the lens contract later on)
 - add the rpc url, explorer url and api key in `.env`
-- inspect the final chain config: `LOG_LEVEL=error pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/config.ts -c <chain>`
-- test the api is working: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/api.ts -h 0 -c <chain> > api.log`
-- test we can get a contract balance: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/balance.ts -c <chain> -a 0x03d9964f4D93a24B58c0Fc3a8Df3474b59Ba8557 > balance.log`
+- inspect the final chain config: `LOG_LEVEL=error pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/config.ts -c <chain>`
+- test the api is working: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/api.ts -h 0 -c <chain> > api.log`
+- test we can get a contract balance: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/balance.ts -c <chain> -a 0x03d9964f4D93a24B58c0Fc3a8Df3474b59Ba8557 > balance.log`
 - test any on chain action with a fork: `anvil -f <rpc url> --accounts 3 --balance 300 --no-cors --block-time 5 --auto-impersonate`
 - Deploy the lens contract: `forge script apps/contracts/script/DeployLens.s.sol:DeployLens -vvvvvv --slow --account deployer --verify --retries 5 --delay 10 --rpc-url chain --broadcast`
     - if this errors try using foundry stable `foundryup --version stable`
@@ -155,10 +155,10 @@ In case you want to contribute, please follow next steps:
         - compiler version: see in `apps/contracts/out/BeefyHarvestLens.sol/BeefyHarvestLens.json`
         - license: MIT
     - if that doesn't work, idk
-- test we can lens a strategy: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/inspect/lens.ts -c <chain> -a <strat_address> > lens.log`
-- test the harvest script: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/revenue-bridge-harvest.ts -c gnosis > revenue.log`
-- test the harvest script: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/harvest.ts -c <chain> -a <strat_address> > harvest.log`
-- test the unwrap script: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec ts-node ./src/script/unwrap.ts -c gnosis > unwrap.log`
+- test we can lens a strategy: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/inspect/lens.ts -c <chain> -a <strat_address> > lens.log`
+- test the harvest script: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/revenue-bridge-harvest.ts -c gnosis > revenue.log`
+- test the harvest script: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/harvest.ts -c <chain> -a <strat_address> > harvest.log`
+- test the unwrap script: `LOG_LEVEL=trace pnpm --filter @beefyfinance/cowllector exec tsx ./src/script/unwrap.ts -c gnosis > unwrap.log`
 - add a custom rpc url to our heroku deployment <CHAIN>_RPC_URL
 - auto-deployed on commit to main
 

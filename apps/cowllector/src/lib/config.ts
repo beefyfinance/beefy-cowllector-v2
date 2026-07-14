@@ -60,47 +60,7 @@ const REVENUE_BRIDGE_HARVEST_LIMIT_GAS_AMOUNT_MULTIPLIER = Number.parseFloat(pro
 const HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER = Number.parseFloat(process.env.HARVEST_ENOUGH_GAS_CHECK_MULTIPLIER || '2');
 
 // vaults missing from the Beefy API but still need harvesting
-export const EXTRA_VAULTS_TO_MONITOR: BeefyVault[] = [
-    // vault: 0x136363ca1219c943a560f22eefbb2beb4c92ef3c
-    {
-        chain: 'ethereum',
-        id: 'extra-eth-136363ca',
-        strategyAddress: getAddress('0x3a50abeff8a0d0363b0bf613a0346da7853a6e97'),
-        eol: false,
-        isClmManager: true,
-        isClmVault: false,
-        tvlUsd: 100_000,
-        platformId: 'beefy',
-        lastHarvest: null,
-        strategyTypeId: null,
-    },
-    // vault: 0xc7afdb8ef47c058e8f4094cca09080bcab662e80
-    {
-        chain: 'ethereum',
-        id: 'extra-eth-c7afdb8e',
-        strategyAddress: getAddress('0xf1baa1626e1ef554e5ea4c04aaa13277d0212001'),
-        eol: false,
-        isClmManager: true,
-        isClmVault: false,
-        tvlUsd: 100_000,
-        platformId: 'beefy',
-        lastHarvest: null,
-        strategyTypeId: null,
-    },
-    // vault: 0xdcfbfc35173ecf5a4451f86600b741cc365ceb60
-    {
-        chain: 'ethereum',
-        id: 'extra-eth-dcfbfc35',
-        strategyAddress: getAddress('0x05d9915e1f299e2aa496c821485ccb32bd0c76ae'),
-        eol: false,
-        isClmManager: true,
-        isClmVault: false,
-        tvlUsd: 100_000,
-        platformId: 'beefy',
-        lastHarvest: null,
-        strategyTypeId: null,
-    },
-];
+export const EXTRA_VAULTS_TO_MONITOR: BeefyVault[] = [];
 
 // some vaults don't get any rewards but are used as colateral by other protocols so we can't retire them
 // some stargate vaults are not compatible with the lens since they don't send rewards to the caller immediately
@@ -1156,7 +1116,17 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         url: RPC_FORCE_URL || process.env.ROBINHOOD_RPC_URL || 'https://rpc.mainnet.chain.robinhood.com',
         contracts: {
             ...defaultContracts,
-            harvestLens: { kind: 'v2', address: getAddress('0x71e4DF2Bdc7ce0b2dc7CDB9EaC983B251F8A0B58') },
+            harvestLens: { kind: 'v2', address: getAddress('0xF994A118aFD5FdAF908BD7b8793387fEEE0566ce') },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            setTransactionGasLimit: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            setTransactionGasLimit: false,
         },
     },
     rootstock: {

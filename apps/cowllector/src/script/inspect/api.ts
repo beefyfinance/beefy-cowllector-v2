@@ -1,9 +1,9 @@
 import type { Hex } from 'viem';
-import yargs from 'yargs';
 import { allChainIds, type Chain } from '../../lib/chain';
 import { getVaultsToMonitorByChain } from '../../lib/vault-list';
 import { rootLogger } from '../../util/logger';
 import { runMain } from '../../util/process';
+import { createArgv } from '../../util/yargs';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'api' });
 
@@ -14,30 +14,32 @@ type CmdOptions = {
 };
 
 async function main() {
-    const argv = await yargs.usage('$0 <cmd> [args]').options({
-        chain: {
-            type: 'string',
-            choices: [...allChainIds, 'all'],
-            alias: 'c',
-            demand: true,
-            default: 'all',
-            describe: 'Only show vaults for this chain',
-        },
-        hoursSinceLastHarvest: {
-            type: 'number',
-            alias: 'h',
-            demand: false,
-            default: 26,
-            describe: 'Hours since last harvest',
-        },
-        strategyAddress: {
-            type: 'string',
-            alias: 'a',
-            demand: false,
-            default: null,
-            describe: 'Only show vaults with this strategy address',
-        },
-    }).argv;
+    const argv = await createArgv()
+        .usage('$0 <cmd> [args]')
+        .options({
+            chain: {
+                type: 'string',
+                choices: [...allChainIds, 'all'],
+                alias: 'c',
+                demand: true,
+                default: 'all',
+                describe: 'Only show vaults for this chain',
+            },
+            hoursSinceLastHarvest: {
+                type: 'number',
+                alias: 'h',
+                demand: false,
+                default: 26,
+                describe: 'Hours since last harvest',
+            },
+            strategyAddress: {
+                type: 'string',
+                alias: 'a',
+                demand: false,
+                default: null,
+                describe: 'Only show vaults with this strategy address',
+            },
+        }).argv;
 
     const options: CmdOptions = {
         chains: argv.chain === 'all' ? allChainIds : [argv.chain as Chain],

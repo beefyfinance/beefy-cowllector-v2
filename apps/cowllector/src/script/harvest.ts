@@ -1,5 +1,4 @@
 import type { Hex } from 'viem';
-import yargs from 'yargs';
 import type { Chain } from '../lib/chain';
 import { allChainIds } from '../lib/chain';
 import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
@@ -20,6 +19,7 @@ import { asyncResultGet, promiseTimings } from '../util/async';
 import { rootLogger } from '../util/logger';
 import { runMain } from '../util/process';
 import { splitPromiseResultsByStatus } from '../util/promise';
+import { createArgv } from '../util/yargs';
 
 const logger = rootLogger.child({ module: 'harvest-main' });
 
@@ -31,35 +31,37 @@ type CmdOptions = {
 };
 
 async function main() {
-    const argv = await yargs.usage('$0 <cmd> [args]').options({
-        chain: {
-            type: 'array',
-            choices: [...allChainIds, 'all'],
-            alias: 'c',
-            demand: false,
-            default: 'all',
-            describe: 'only harest these chains. eol chains will be ignored',
-        },
-        'strategy-address': {
-            type: 'string',
-            demand: false,
-            alias: 'a',
-            describe: 'only harvest for this strategy address',
-        },
-        now: {
-            type: 'string',
-            demand: false,
-            alias: 'n',
-            describe: 'force the current date time instead of using Date.now()',
-        },
-        dryRun: {
-            type: 'boolean',
-            demand: false,
-            default: false,
-            alias: 'd',
-            describe: 'dry run',
-        },
-    }).argv;
+    const argv = await createArgv()
+        .usage('$0 <cmd> [args]')
+        .options({
+            chain: {
+                type: 'array',
+                choices: [...allChainIds, 'all'],
+                alias: 'c',
+                demand: false,
+                default: 'all',
+                describe: 'only harest these chains. eol chains will be ignored',
+            },
+            'strategy-address': {
+                type: 'string',
+                demand: false,
+                alias: 'a',
+                describe: 'only harvest for this strategy address',
+            },
+            now: {
+                type: 'string',
+                demand: false,
+                alias: 'n',
+                describe: 'force the current date time instead of using Date.now()',
+            },
+            dryRun: {
+                type: 'boolean',
+                demand: false,
+                default: false,
+                alias: 'd',
+                describe: 'dry run',
+            },
+        }).argv;
 
     const options: CmdOptions = {
         chain: argv.chain.includes('all') ? allChainIds : (argv.chain as Chain[]),

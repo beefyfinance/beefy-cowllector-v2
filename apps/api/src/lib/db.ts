@@ -1,4 +1,7 @@
+import dotenv from 'dotenv';
 import { Pool } from 'pg';
+
+dotenv.config();
 
 // Define database types
 export type DB = Pool;

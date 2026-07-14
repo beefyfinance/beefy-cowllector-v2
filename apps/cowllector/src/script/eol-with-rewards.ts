@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import { getAddress, type Hex } from 'viem';
-import yargs from 'yargs';
 import { BeefyHarvestLensV1ABI } from '../abi/BeefyHarvestLensV1ABI';
 import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
 import { BeefyHarvestLensV3ABI } from '../abi/BeefyHarvestLensV3ABI';
@@ -15,6 +14,7 @@ import { getVaultsToMonitorByChain } from '../lib/vault-list';
 import type { Async } from '../util/async';
 import { rootLogger } from '../util/logger';
 import { runMain } from '../util/process';
+import { createArgv } from '../util/yargs';
 
 class JsonFileKVStore<T> {
     private path: string;
@@ -82,31 +82,33 @@ type CmdOptions = {
 };
 
 async function main() {
-    const argv = await yargs.usage('$0 <cmd> [args]').options({
-        chain: {
-            type: 'array',
-            choices: [...allChainIds, 'all'],
-            alias: 'c',
-            demand: false,
-            default: 'all',
-            describe: 'only harest these chains. eol chains will be ignored',
-        },
-        'store-path': {
-            type: 'string',
-            alias: 's',
-            demand: false,
-            default: 'eol-with-rewards.store.json',
-            describe: 'path to store the result and restart from in case of crash',
-        },
-        mode: {
-            type: 'string',
-            alias: 'm',
-            demand: false,
-            default: 'fetch',
-            choices: ['fetch', 'report-summary'],
-            describe: 'fetch the data or report the summary',
-        },
-    }).argv;
+    const argv = await createArgv()
+        .usage('$0 <cmd> [args]')
+        .options({
+            chain: {
+                type: 'array',
+                choices: [...allChainIds, 'all'],
+                alias: 'c',
+                demand: false,
+                default: 'all',
+                describe: 'only harest these chains. eol chains will be ignored',
+            },
+            'store-path': {
+                type: 'string',
+                alias: 's',
+                demand: false,
+                default: 'eol-with-rewards.store.json',
+                describe: 'path to store the result and restart from in case of crash',
+            },
+            mode: {
+                type: 'string',
+                alias: 'm',
+                demand: false,
+                default: 'fetch',
+                choices: ['fetch', 'report-summary'],
+                describe: 'fetch the data or report the summary',
+            },
+        }).argv;
 
     const options: CmdOptions = {
         chain: argv.chain.includes('all') ? allChainIds : (argv.chain as Chain[]),

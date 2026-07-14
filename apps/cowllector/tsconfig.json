@@ -16,10 +16,6 @@
     "noImplicitOverride": true,
     "noImplicitThis": true
   },
-  "ts-node": {
-    "compilerHost": true,
-    "emit": true
-  },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "old"]
 }

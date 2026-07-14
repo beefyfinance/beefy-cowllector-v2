@@ -1,11 +1,11 @@
 import type { Hex } from 'viem';
-import yargs from 'yargs';
 import { getChainWNativeTokenAddress } from '../../lib/addressbook';
 import type { Chain } from '../../lib/chain';
 import { allChainIds } from '../../lib/chain';
 import { fetchCollectorBalance } from '../../lib/collector-balance';
 import { rootLogger } from '../../util/logger';
 import { runMain } from '../../util/process';
+import { createArgv } from '../../util/yargs';
 
 const logger = rootLogger.child({ module: 'inspect', component: 'balance' });
 type CmdOptions = {
@@ -15,27 +15,29 @@ type CmdOptions = {
 };
 
 async function main() {
-    const argv = await yargs.usage('$0 <cmd> [args]').options({
-        chain: {
-            type: 'string',
-            choices: allChainIds,
-            alias: 'c',
-            demand: true,
-            describe: 'Get the balances on this chain',
-        },
-        'collector-address': {
-            type: 'string',
-            demand: true,
-            alias: 'a',
-            describe: 'Get the balances for this collector balance',
-        },
-        'block-number': {
-            type: 'string',
-            demand: false,
-            alias: 'b',
-            describe: 'Get the balances for this block number, default is latest',
-        },
-    }).argv;
+    const argv = await createArgv()
+        .usage('$0 <cmd> [args]')
+        .options({
+            chain: {
+                type: 'string',
+                choices: allChainIds,
+                alias: 'c',
+                demand: true,
+                describe: 'Get the balances on this chain',
+            },
+            'collector-address': {
+                type: 'string',
+                demand: true,
+                alias: 'a',
+                describe: 'Get the balances for this collector balance',
+            },
+            'block-number': {
+                type: 'string',
+                demand: false,
+                alias: 'b',
+                describe: 'Get the balances for this block number, default is latest',
+            },
+        }).argv;
 
     const options: CmdOptions = {
         chain: argv.chain as Chain,

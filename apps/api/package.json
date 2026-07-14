@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "node ./node_modules/typescript/lib/tsc.js",
-    "dev": "node --watch --import ts-node/register/esm src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "format": "biome check --write --unsafe",
     "format:safe": "biome check --write",
     "start": "node dist/index.js",
@@ -21,6 +21,7 @@
     "@hono/node-server": "catalog:",
     "@hono/swagger-ui": "catalog:",
     "@hono/zod-openapi": "catalog:",
+    "dotenv": "catalog:",
     "hono": "catalog:",
     "hono-rate-limiter": "0.4.2",
     "pg": "catalog:",
@@ -30,7 +31,7 @@
     "@biomejs/biome": "catalog:",
     "@types/node": "catalog:",
     "@types/pg": "catalog:",
-    "ts-node": "10.9.2",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }
