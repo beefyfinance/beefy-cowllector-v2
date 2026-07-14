@@ -1,0 +1,66 @@
+packages:
+  - apps/*
+
+catalog:
+  '@biomejs/biome': 2.4.16
+  '@hono/node-server': 2.0.8
+  '@hono/swagger-ui': 0.6.0
+  '@hono/zod-openapi': 1.2.2
+  '@openzeppelin/contracts': 5.6.1
+  '@types/node': 26.0.1
+  '@types/pg': 8.20.0
+  axios: 1.18.1
+  dotenv: 17.4.2
+  hono: 4.12.5
+  pg: 8.22.0
+  pg-connection-string: 2.14.0
+  pino: 10.3.1
+  typescript: 7.0.2
+  viem: 2.55.2
+  zod: 4.2.1
+
+# pnpm 11+ — explicit false suppresses "Ignored build scripts" warnings
+allowBuilds:
+  '@biomejs/biome': true
+  '@swc/core': true
+  esbuild: false
+  lefthook: false
+  msw: false
+  protobufjs: false
+  unrs-resolver: false
+
+minimumReleaseAge: 10080 # 7 days in minutes
+minimumReleaseAgeExclude:
+  - '@beefyfinance/blockchain-addressbook@0.56.1'
+  - 'viem@2.55.2'
+  - 'typescript@7.0.2'
+  - '@typescript/typescript-aix-ppc64@7.0.2'
+  - '@typescript/typescript-darwin-arm64@7.0.2'
+  - '@typescript/typescript-darwin-x64@7.0.2'
+  - '@typescript/typescript-freebsd-arm64@7.0.2'
+  - '@typescript/typescript-freebsd-x64@7.0.2'
+  - '@typescript/typescript-linux-arm@7.0.2'
+  - '@typescript/typescript-linux-arm64@7.0.2'
+  - '@typescript/typescript-linux-loong64@7.0.2'
+  - '@typescript/typescript-linux-mips64el@7.0.2'
+  - '@typescript/typescript-linux-ppc64@7.0.2'
+  - '@typescript/typescript-linux-riscv64@7.0.2'
+  - '@typescript/typescript-linux-s390x@7.0.2'
+  - '@typescript/typescript-linux-x64@7.0.2'
+  - '@typescript/typescript-netbsd-arm64@7.0.2'
+  - '@typescript/typescript-netbsd-x64@7.0.2'
+  - '@typescript/typescript-openbsd-arm64@7.0.2'
+  - '@typescript/typescript-openbsd-x64@7.0.2'
+  - '@typescript/typescript-sunos-x64@7.0.2'
+  - '@typescript/typescript-win32-arm64@7.0.2'
+  - '@typescript/typescript-win32-x64@7.0.2'
+
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@swc/core'
+  - lefthook
+
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - 'pino@9.14.0'
+  - 'semver@6.3.1'

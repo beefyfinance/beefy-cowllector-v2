@@ -1,0 +1,20 @@
+pre-commit:
+  parallel: true
+  commands:
+    git-secrets:
+      run: ./scripts/git-secrets-check.sh
+      fail_text: "Secrets detected in staged files, run './scripts/git-secrets-check.sh' for details"
+    format:
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,sol}"
+      run: pnpm run format
+      stage_fixed: true
+
+pre-push:
+  parallel: true
+  commands:
+    types:
+      glob: "*.{ts,tsx}"
+      run: pnpm run test:ts
+    test:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: pnpm run test:unit

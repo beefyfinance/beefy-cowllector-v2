@@ -1,0 +1,15 @@
+{
+    "name": "@beefyfinance/cowllector-contracts",
+    "version": "2.0.0",
+    "private": true,
+    "scripts": {
+        "build": "forge build",
+        "format": "forge fmt",
+        "test:lint": "NO_COLOR=1 forge fmt --check",
+        "test:unit": "NO_COLOR=1 forge test --match-contract BeefyHarvestLensTest -vvv",
+        "test": "pnpm test:lint && pnpm test:unit"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts": "catalog:"
+    }
+}

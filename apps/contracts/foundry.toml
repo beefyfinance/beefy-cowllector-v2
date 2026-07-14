@@ -1,0 +1,44 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+cache_path = "cache"
+libs = ["node_modules", "lib"]
+ignored_error_codes = [
+    #"license",
+    #"code-size",
+    #"init-code-size",
+]
+ignored_warnings_from = ["lib", "node_modules"]
+remappings = [
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "ds-test/=lib/forge-std/lib/ds-test/src/",
+    "forge-std/=lib/forge-std/src/",
+]
+fs_permissions = [{ access = "read", path = "./out"}]
+solc_version = "0.8.28"
+# LINEA: keep solc version low
+#solc_version = "0.8.20"
+#evm_version = 'paris'
+# ROOTSTOCK: is on london (prevrandao error)
+#evm_version = 'london'
+# MANTLE: is on london (prevrandao error)
+#evm_version = 'paris'
+# SAGA: idk tbh
+#evm_version = 'shanghai'
+# HYPEREVM: is on paris (prevrandao error)
+#evm_version = 'cancun'
+
+[profile.gas-optimize]
+optimizer = true
+optimizer_runs = 200_000_000
+via_ir = true
+
+[profile.gas-optimize.optimizer_details]
+inliner = true
+deduplicate = true
+constantOptimizer = true
+# yul = true # makes it worse
+# orderLiterals = true # makes it worse
+# cse = true # makes it worse

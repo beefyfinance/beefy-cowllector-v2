@@ -1,0 +1,12 @@
+# default dev db url
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
+
+# .env.example placeholders
+DATABASE_URL=postgres://user:password@localhost:5432/dbname
+DATABASE_URL=postgres://beefy_cowllector:beefy_cowllector@localhost:5432/beefy_cowllector
+
+# heroku-run.sh usage hints
+Expected format: postgres://username:password@hostname:port/database
+
+# idk tbh
+BEGIN

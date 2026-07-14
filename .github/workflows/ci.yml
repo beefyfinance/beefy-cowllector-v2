@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Read .nvmrc
+      run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_ENV
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Use Node.js  ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version:  ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1.0.10
+      with:
+        version: stable
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Tests
+      run: pnpm run test
+
+      

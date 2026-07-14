@@ -1,35 +1,95 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.8.2/schema.json",
-    "formatter": {
-        "enabled": true,
-        "formatWithErrors": false,
-        "indentStyle": "space",
-        "indentWidth": 4,
-        "lineEnding": "lf",
-        "lineWidth": 120,
-        "attributePosition": "auto",
-        "ignore": [".idea/**", ".vscode/**", "node_modules/**"]
-    },
-    "organizeImports": {
-        "enabled": true,
-        "ignore": [".idea/**", ".vscode/**", "node_modules/**"]
-    },
-    "linter": {
-        "enabled": true,
-        "rules": { "recommended": true },
-        "ignore": [".idea/**", ".vscode/**", "node_modules/**"]
-    },
-    "javascript": {
-        "formatter": {
-            "jsxQuoteStyle": "double",
-            "quoteProperties": "asNeeded",
-            "trailingCommas": "es5",
-            "semicolons": "always",
-            "arrowParentheses": "asNeeded",
-            "bracketSpacing": true,
-            "bracketSameLine": false,
-            "quoteStyle": "single",
-            "attributePosition": "auto"
-        }
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "root": true,
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/.github", "!**/out", "!**/cache", "!**/coverage", "!**/build", "!**/broadcast"]
+  },
+  "formatter": {
+    "enabled": true,
+    "useEditorconfig": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 160,
+    "attributePosition": "auto",
+    "bracketSpacing": true,
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/.github", "!**/out", "!**/cache", "!**/broadcast"]
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
     }
+  },
+  "linter": {
+    "domains": {
+      "next": "none",
+      "react": "none",
+      "test": "all",
+      "solid": "none",
+      "project": "none"
+    },
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noFocusedTests": {
+          "level": "error",
+          "fix": "none"
+        }
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": {
+          "fix": "none"
+        },
+        "noUnusedPrivateClassMembers": {
+          "fix": "none"
+        }
+      },
+      "style": {
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error"
+      }
+    },
+    "includes": ["**", "!**/dist", "!**/node_modules", "!**/.github", "!**/out", "!**/cache", "!**/broadcast"]
+  },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSameLine": false,
+      "indentWidth": 4,
+      "quoteStyle": "single",
+      "attributePosition": "auto",
+      "bracketSpacing": true
+    }
+  },
+  "json": {
+    "formatter": {
+      "indentWidth": 2,
+      "indentStyle": "space"
+    }
+  }
 }

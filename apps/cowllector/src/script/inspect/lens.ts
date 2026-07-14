@@ -1,0 +1,130 @@
+import { getAddress, type Hex } from 'viem';
+import yargs from 'yargs';
+import { BeefyHarvestLensV1ABI } from '../../abi/BeefyHarvestLensV1ABI';
+import { BeefyHarvestLensV2ABI } from '../../abi/BeefyHarvestLensV2ABI';
+import { BeefyHarvestLensV3ABI } from '../../abi/BeefyHarvestLensV3ABI';
+import { IStrategyABI } from '../../abi/IStrategyABI';
+import { getChainFeesTokenAddress } from '../../lib/addressbook';
+import type { Chain } from '../../lib/chain';
+import { allChainIds } from '../../lib/chain';
+import { RPC_CONFIG } from '../../lib/config';
+import { getReadOnlyRpcClient, getWalletAccount } from '../../lib/rpc-client';
+import { getVault } from '../../lib/vault-list';
+import { rootLogger } from '../../util/logger';
+import { runMain } from '../../util/process';
+
+const logger = rootLogger.child({ module: 'inspect', component: 'lens' });
+
+type CmdOptions = {
+    chain: Chain;
+    strategyAddress: Hex;
+    blockNumber: bigint | null;
+};
+
+async function main() {
+    const argv = await yargs.usage('$0 <cmd> [args]').options({
+        chain: {
+            type: 'string',
+            choices: allChainIds,
+            alias: 'c',
+            demand: true,
+            describe: 'Run lens for this chain',
+        },
+        'strategy-address': {
+            type: 'string',
+            demand: true,
+            alias: 'a',
+            describe: 'Run lens for this strategy address',
+        },
+        'block-number': {
+            type: 'string',
+            demand: false,
+            alias: 'b',
+            describe: 'Run lens for this block number, default is latest',
+        },
+    }).argv;
+
+    const options: CmdOptions = {
+        chain: argv.chain as Chain,
+        strategyAddress: argv['strategy-address'] as Hex,
+        blockNumber: argv['block-number'] ? BigInt(argv['block-number']) : null,
+    };
+    logger.trace({ msg: 'running with options', data: options });
+
+    // fetch vaults from beefy api
+    const vault = await getVault({
+        chain: options.chain,
+        strategyAddress: options.strategyAddress,
+    });
+    if (!vault) {
+        logger.warn(`Vault not found for chain ${options.chain} and contract address ${options.strategyAddress}`);
+    }
+
+    const publicClient = getReadOnlyRpcClient({ chain: options.chain });
+    const walletAccount = getWalletAccount({ chain: options.chain });
+    const fees = getChainFeesTokenAddress(options.chain);
+    const rpcConfig = RPC_CONFIG[options.chain];
+
+    if (!rpcConfig.contracts.harvestLens) {
+        throw new Error(`Missing harvest lens address for chain ${options.chain}`);
+    }
+
+    const harvestLensContract = {
+        abi:
+            rpcConfig.contracts.harvestLens.kind === 'v1'
+                ? BeefyHarvestLensV1ABI
+                : rpcConfig.contracts.harvestLens.kind === 'v2'
+                  ? BeefyHarvestLensV2ABI
+                  : BeefyHarvestLensV3ABI,
+        address: rpcConfig.contracts.harvestLens.address,
+    };
+    const strategyContract = {
+        abi: IStrategyABI,
+        address: options.strategyAddress,
+    };
+
+    const res = await Promise.allSettled([
+        publicClient
+            .simulateContract({
+                ...harvestLensContract,
+                functionName: 'harvest',
+                args: [getAddress(options.strategyAddress), getAddress(fees)],
+                account: walletAccount,
+                blockNumber: options.blockNumber || undefined,
+            })
+            .then((res) => {
+                // @ts-expect-error
+                res.request.abi = 'BeefyHarvestLensABI';
+                // @ts-expect-error
+                res.request.account = walletAccount.address;
+                return res;
+            }),
+        publicClient
+            .simulateContract({
+                ...strategyContract,
+                functionName: 'harvest',
+                args: [getAddress(walletAccount.address)],
+                account: walletAccount,
+                blockNumber: options.blockNumber || undefined,
+            })
+            .then((res) => {
+                // @ts-expect-error
+                res.request.abi = 'IStrategyABI';
+                // @ts-expect-error
+                res.request.account = walletAccount.address;
+                return res;
+            }),
+    ]);
+
+    console.dir(
+        res.map((r) => {
+            if (r.status === 'rejected') {
+                r.reason.abi = 'redacted';
+            }
+            return r;
+        }),
+        { depth: null }
+    );
+}
+
+runMain(main);

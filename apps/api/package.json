@@ -1,0 +1,36 @@
+{
+  "name": "@beefyfinance/cowllector-api",
+  "version": "2.0.0",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": "26.x"
+  },
+  "scripts": {
+    "build": "node ./node_modules/typescript/lib/tsc.js",
+    "dev": "node --watch --import ts-node/register/esm src/index.ts",
+    "format": "biome check --write --unsafe",
+    "format:safe": "biome check --write",
+    "start": "node dist/index.js",
+    "test:lint": "biome ci",
+    "test:ts": "node ./node_modules/typescript/lib/tsc.js --noEmit",
+    "test:unit": "echo 'No unit tests yet'",
+    "test": "pnpm test:lint && pnpm test:ts && pnpm test:unit"
+  },
+  "dependencies": {
+    "@hono/node-server": "catalog:",
+    "@hono/swagger-ui": "catalog:",
+    "@hono/zod-openapi": "catalog:",
+    "hono": "catalog:",
+    "hono-rate-limiter": "0.4.2",
+    "pg": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "ts-node": "10.9.2",
+    "typescript": "catalog:"
+  }
+}
