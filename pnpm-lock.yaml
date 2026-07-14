@@ -55,8 +55,8 @@ catalogs:
       specifier: 2.55.2
       version: 2.55.2
     zod:
-      specifier: 4.2.1
-      version: 4.2.1
+      specifier: 4.4.3
+      version: 4.4.3
 
 importers:
 
@@ -85,7 +85,7 @@ importers:
         version: 0.6.0(hono@4.12.5)
       '@hono/zod-openapi':
         specifier: 'catalog:'
-        version: 1.2.2(hono@4.12.5)(zod@4.2.1)
+        version: 1.2.2(hono@4.12.5)(zod@4.4.3)
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -100,7 +100,7 @@ importers:
         version: 8.22.0
       zod:
         specifier: 'catalog:'
-        version: 4.2.1
+        version: 4.4.3
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'
@@ -2835,9 +2835,6 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zod@4.2.1:
-    resolution: {integrity: sha512-0wZ1IRqGGhMP76gLqz8EyfBXKk0J2qo2+H3fi4mcUP/KtTocoX08nmIAHl1Z2kJIZbZee8KOpBCSNPRgauucjw==}
-
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
@@ -2845,10 +2842,10 @@ snapshots:
 
   '@adraffy/ens-normalize@1.11.1': {}
 
-  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.2.1)':
+  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.4.3)':
     dependencies:
       openapi3-ts: 4.6.0
-      zod: 4.2.1
+      zod: 4.4.3
 
   '@babel/code-frame@7.29.7':
     dependencies:
@@ -3210,18 +3207,18 @@ snapshots:
     dependencies:
       hono: 4.12.5
 
-  '@hono/zod-openapi@1.2.2(hono@4.12.5)(zod@4.2.1)':
+  '@hono/zod-openapi@1.2.2(hono@4.12.5)(zod@4.4.3)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.2.1)
-      '@hono/zod-validator': 0.7.6(hono@4.12.5)(zod@4.2.1)
+      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.4.3)
+      '@hono/zod-validator': 0.7.6(hono@4.12.5)(zod@4.4.3)
       hono: 4.12.5
       openapi3-ts: 4.6.0
-      zod: 4.2.1
+      zod: 4.4.3
 
-  '@hono/zod-validator@0.7.6(hono@4.12.5)(zod@4.2.1)':
+  '@hono/zod-validator@0.7.6(hono@4.12.5)(zod@4.4.3)':
     dependencies:
       hono: 4.12.5
-      zod: 4.2.1
+      zod: 4.4.3
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -5536,7 +5533,5 @@ snapshots:
     optional: true
 
   yocto-queue@0.1.0: {}
-
-  zod@4.2.1: {}
 
   zod@4.4.3: {}
