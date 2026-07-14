@@ -26,6 +26,11 @@
     "pg:console": "docker exec -it dev-postgres-1 psql -U beefy_cowllector",
     "db:migrate": "pnpm --filter @beefyfinance/cowllector db:migrate",
     "update:addressbook": "pnpm --filter @beefyfinance/cowllector update:addressbook",
+    "heroku:harvest": "pnpm --filter @beefyfinance/cowllector heroku:harvest",
+    "heroku:unwrap": "pnpm --filter @beefyfinance/cowllector heroku:unwrap",
+    "heroku:revenue": "pnpm --filter @beefyfinance/cowllector heroku:revenue",
+    "heroku:db:migrate": "pnpm --filter @beefyfinance/cowllector heroku:db:migrate",
+    "heroku:db:apply-retention": "pnpm --filter @beefyfinance/cowllector heroku:db:apply-retention",
     "heroku-postbuild": "pnpm --filter @beefyfinance/cowllector build"
   },
   "devDependencies": {
