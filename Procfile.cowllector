@@ -1,0 +1,2 @@
+release: pnpm run heroku:db:migrate
+web: echo "hello web"

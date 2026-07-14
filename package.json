@@ -8,7 +8,8 @@
     "pnpm": "11.x"
   },
   "scripts": {
-    "build": "turbo run build",
+    "build": "if [ -n \"$STACK\" ]; then pnpm run build:heroku; else turbo run build; fi",
+    "build:heroku": "pnpm --filter @beefyfinance/cowllector build",
     "dev": "turbo run dev",
     "dev:cowllector": "turbo run dev --filter=@beefyfinance/cowllector",
     "dev:api": "turbo run dev --filter=@beefyfinance/cowllector-api",
@@ -31,7 +32,7 @@
     "heroku:revenue": "pnpm --filter @beefyfinance/cowllector heroku:revenue",
     "heroku:db:migrate": "pnpm --filter @beefyfinance/cowllector heroku:db:migrate",
     "heroku:db:apply-retention": "pnpm --filter @beefyfinance/cowllector heroku:db:apply-retention",
-    "heroku-postbuild": "pnpm --filter @beefyfinance/cowllector build"
+    "prepare": "if [ -z \"$DYNO\" ]; then command -v lefthook >/dev/null && lefthook install || true; fi"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

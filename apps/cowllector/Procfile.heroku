@@ -1,2 +1,0 @@
-release: node apps/cowllector/dist/script/db/migrate.js
-web: echo "hello web"

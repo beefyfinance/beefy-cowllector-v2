@@ -1,0 +1,29 @@
+{
+  "name": "beefy-cowllector-v2",
+  "stack": "heroku-26",
+  "app": {
+    "region": "us"
+  },
+  "image": "heroku/nodejs",
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-multi-procfile"
+    },
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "PROCFILE": {
+      "required": true
+    },
+    "HEROKU_APP": {
+      "required": true
+    }
+  }
+}
