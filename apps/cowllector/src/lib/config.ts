@@ -753,6 +753,11 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             ...defaultRevenueBridgeHarvestConfig,
             forceGasLimit: 593_200n,
         },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.003),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+        },
     },
     lisk: {
         ...defaultConfig,
