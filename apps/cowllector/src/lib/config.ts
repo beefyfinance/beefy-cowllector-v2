@@ -232,6 +232,7 @@ const defaultTransactionConfig: RpcConfig['transaction'] = {
         maxPriorityFeePerGas: 1.2, // up gas by 20% on each retry
     },
     baseFeeMultiplier: 1.25, // 25% above base fee
+    useAccessList: false,
     receipt: {
         blockConfirmations: 3,
         receiptTimeoutMs: 5 * 60 * 1000,
@@ -552,6 +553,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 maxFeePerGas: 1.2,
                 maxPriorityFeePerGas: 1.2,
             },
+            useAccessList: true,
         },
         harvest: {
             ...defaultHarvestConfig,

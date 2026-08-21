@@ -1,4 +1,4 @@
-import { getAddress, type Hex, type TransactionReceipt } from 'viem';
+import { type AccessList, encodeFunctionData, getAddress, type Hex, type TransactionReceipt } from 'viem';
 import { IStrategyABI } from '../../abi/IStrategyABI';
 import { bigintMultiplyFloat } from '../../util/bigint';
 import { rootLogger } from '../../util/logger';
@@ -77,12 +77,35 @@ export async function harvest(
             msg: 'Blindly harvesting strat',
             data: { chain, strategyAddress },
         });
-        transactionHash = await walletClient.writeContract({
+        const params = {
             abi: IStrategyABI,
-            address: strategyAddress,
-            functionName: 'harvest',
-            args: noParams ? [] : [getAddress(walletAccount.address)],
             account: walletAccount,
+            address: strategyAddress,
+            functionName: 'harvest' as const,
+            args: noParams ? ([] as const) : ([getAddress(walletAccount.address)] as const),
+        };
+        let accessList: AccessList | undefined;
+        if (rpcConfig.transaction.useAccessList) {
+            try {
+                const { accessList: created } = await publicClient.createAccessList({
+                    data: encodeFunctionData(params),
+                    to: strategyAddress,
+                });
+                accessList = created;
+                logger.debug({
+                    msg: 'Created access list',
+                    data: { chain, strategyAddress, accessListLength: accessList.length },
+                });
+            } catch (err) {
+                logger.warn({
+                    msg: 'Failed to create access list, continuing without one',
+                    data: { chain, strategyAddress, err },
+                });
+            }
+        }
+        transactionHash = await walletClient.writeContract({
+            ...params,
+            ...{ accessList },
         });
         transactionReceipt = await publicClient.waitForTransactionReceipt({
             hash: transactionHash,

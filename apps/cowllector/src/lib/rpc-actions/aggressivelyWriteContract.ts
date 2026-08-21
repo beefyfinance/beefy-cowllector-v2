@@ -1,6 +1,7 @@
 import { cloneDeep } from 'lodash';
 import type {
     Abi,
+    AccessList,
     Account,
     Address,
     ContractFunctionArgs,
@@ -14,6 +15,7 @@ import type {
     TransactionReceipt,
     Chain as ViemChain,
 } from 'viem';
+import { encodeFunctionData } from 'viem';
 import { bigintMultiplyFloat } from '../../util/bigint';
 import { rootLogger } from '../../util/logger';
 import type { Chain } from '../chain';
@@ -127,12 +129,34 @@ export async function aggressivelyWriteContract<
         }
     }
 
+    let accessList: AccessList | undefined;
+    if (rpcConfig.transaction.useAccessList) {
+        try {
+            const { accessList: created } = await publicClient.createAccessList({
+                // biome-ignore lint/suspicious/noExplicitAny: viem CreateAccessListParameters is a complex conditional union
+                data: encodeFunctionData(args as any) as Hex,
+                to: args.address,
+            });
+            accessList = created;
+            logger.debug({
+                msg: 'Created access list',
+                data: { chain, address: args.address, accessListLength: accessList.length },
+            });
+        } catch (err) {
+            logger.warn({
+                msg: 'Failed to create access list, continuing without one',
+                data: { chain, address: args.address, err },
+            });
+        }
+    }
+
     const allPendingTransactions: Hex[] = [];
 
     const mint = async () => {
         const { request, result: simulationResult } = await publicClient.simulateContract({
             nonce,
             ...gasParams,
+            ...{ accessList },
             // biome-ignore lint/suspicious/noExplicitAny: simulateContract args typing is incomplete for spread params
             ...(args as any), // TODO: fix typings
         });
@@ -140,8 +164,11 @@ export async function aggressivelyWriteContract<
             msg: 'Simulation ok',
             data: { chain, address: args.address, request },
         });
-        // biome-ignore lint/suspicious/noExplicitAny: writeContract request type doesn't match simulation output
-        const transactionHash = await walletClient.writeContract(request as any); // TODO: fix typings
+        const transactionHash = await walletClient.writeContract({
+            // biome-ignore lint/suspicious/noExplicitAny: writeContract request type doesn't match simulation output
+            ...(request as any),
+            ...{ accessList },
+        }); // TODO: fix typings
         logger.debug({ msg: 'Transaction ok', data: { chain, transactionHash } });
         allPendingTransactions.push(transactionHash);
         // wait for the transaction to be mined so we have a proper nonce for the next transaction

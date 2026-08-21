@@ -50,6 +50,7 @@ function createMockRpcConfig(
                 maxPriorityFeePerGas: 1.2,
             },
             baseFeeMultiplier: 1.5,
+            useAccessList: false,
             receipt: {
                 blockConfirmations: 1,
                 notFoundErrorRetryCount: 3,

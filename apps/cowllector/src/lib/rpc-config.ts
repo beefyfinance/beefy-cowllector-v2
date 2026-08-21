@@ -43,6 +43,8 @@ export type RpcConfig = {
         };
         // default gas price multiplier, effective on the first try
         baseFeeMultiplier: number;
+        // when true, generate an EIP-2930 access list via eth_createAccessList and attach it to writes
+        useAccessList: boolean;
         receipt: {
             // how many blocks to wait for the transaction to be considered mined
             blockConfirmations: number;
