@@ -687,6 +687,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     gnosis: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.GNOSIS_RPC_URL || 'https://rpc.gnosis.io',
+        eol: true,
         harvest: {
             ...defaultHarvestConfig,
             profitabilityCheck: {
@@ -747,6 +748,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     linea: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.LINEA_RPC_URL || 'https://rpc.linea.build',
+        eol: true,
         contracts: {
             ...defaultContracts,
             harvestLens: { kind: 'v2', address: getAddress('0x4FE8b35C2AA9a581aa244c959582d56A3A9da596') },
@@ -1376,6 +1378,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
     zksync: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.ZKSYNC_RPC_URL || 'https://rpc.ankr.com/zksync_era',
+        eol: true,
         contracts: {
             ...defaultContracts,
             deployer: null,
