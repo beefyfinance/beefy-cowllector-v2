@@ -1129,8 +1129,9 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         },
         unwrap: {
             ...defaultUnwrapConfig,
+            // harvests fail the 2x gas check well above 0.01 ETH, so unwrap while native is still high enough to pay for it
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.003),
-            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
             setTransactionGasLimit: false,
         },
         revenueBridgeHarvest: {
