@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import type { Async } from '../util/async';
 import type { Chain } from './chain';
 import { VAULT_IDS_WE_ARE_OK_NOT_HARVESTING } from './config';
-import { extractErrorMessage } from './error-message';
+import { extractErrorMessage, isNoRewardsError } from './error-message';
 import type { BeefyVault } from './vault';
 
 // info: do not show or alert in the notifier message
@@ -36,6 +36,10 @@ export function getReportAsyncStatus<T>({ chain, vault }: ReportAsyncStatusConte
         return 'success';
     }
     if (get(report, 'status', undefined) === 'rejected') {
+        // NoRewards() (0x3fb087f4) means there is nothing to harvest, not a broken simulation
+        if (isNoRewardsError(report)) {
+            return 'notice';
+        }
         if (chain === 'zkevm' && extractErrorMessage(report) === 'failed to execute the unsigned transaction') {
             return 'notice';
         }

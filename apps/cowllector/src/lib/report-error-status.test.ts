@@ -107,6 +107,50 @@ describe('getReportAsyncStatus', () => {
             })
         ).toEqual('notice');
     });
+
+    it('should return notice when a simulation reverts with NoRewards()', () => {
+        expect(
+            getReportAsyncStatus(ctx, {
+                status: 'rejected',
+                reason: {
+                    shortMessage: 'The contract function "harvest" reverted with the following signature:\n0x3fb087f4',
+                    cause: {
+                        name: 'ContractFunctionRevertedError',
+                        signature: '0x3fb087f4',
+                        raw: '0x3fb087f4',
+                    },
+                },
+                timing,
+            })
+        ).toEqual('notice');
+        expect(
+            getReportAsyncStatus(ctx, {
+                status: 'rejected',
+                reason: {
+                    shortMessage: 'The contract function "harvest" reverted with the following reason:\nNoRewards()',
+                    data: { errorName: 'NoRewards' },
+                },
+                timing,
+            })
+        ).toEqual('notice');
+        expect(
+            getReportAsyncStatus(ctx, {
+                status: 'rejected',
+                reason: {
+                    shortMessage: 'The contract function "harvest" reverted with the following signature:\n0x3fb087f4',
+                    details: 'execution reverted: 0x3fb087f4 extra context',
+                },
+                timing,
+            })
+        ).toEqual('error');
+        expect(
+            getReportAsyncStatus(ctx, {
+                status: 'rejected',
+                reason: { signature: '0x3fb087f40001', raw: '0x3fb087f4dead' },
+                timing,
+            })
+        ).toEqual('error');
+    });
 });
 
 describe('mergeReportAsyncStatus', () => {
@@ -188,5 +232,12 @@ describe('getMergedReportAsyncStatus', () => {
                 { status: 'fulfilled', value: { warning: true }, timing },
             ])
         ).toEqual('error');
+        expect(
+            getMergedReportAsyncStatus(ctx, [
+                { status: 'rejected', reason: { signature: '0x3fb087f4' }, timing },
+                { status: 'fulfilled', value: { ok: true }, timing },
+                null,
+            ])
+        ).toEqual('notice');
     });
 });
