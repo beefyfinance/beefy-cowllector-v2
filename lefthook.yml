@@ -6,6 +6,8 @@ pre-commit:
       fail_text: "Secrets detected in staged files, run './scripts/git-secrets-check.sh' for details"
     format:
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,sol}"
+      env:
+        COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
       run: pnpm run format
       stage_fixed: true
 

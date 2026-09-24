@@ -347,10 +347,6 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             // https://docs.arc.io/arc/concepts/stablecoin-native-model
             enabled: false,
         },
-        revenueBridgeHarvest: {
-            ...defaultRevenueBridgeHarvestConfig,
-            enabled: false,
-        },
     },
     aurora: {
         ...defaultConfig,
