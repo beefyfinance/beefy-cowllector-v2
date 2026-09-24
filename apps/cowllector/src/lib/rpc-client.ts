@@ -4,6 +4,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import type { Chain as ViemChain } from 'viem/chains';
 import {
     arbitrum,
+    arc,
     aurora,
     avalanche,
     base,
@@ -99,6 +100,7 @@ const hyperevm = defineChain({
 
 const VIEM_CHAINS: Record<Chain, ViemChain | null> = {
     arbitrum: applyConfig('arbitrum', arbitrum),
+    arc: applyConfig('arc', arc),
     aurora: applyConfig('aurora', aurora),
     avax: applyConfig('avax', avalanche),
     base: applyConfig('base', base),

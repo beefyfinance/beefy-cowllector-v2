@@ -118,8 +118,7 @@ export type RpcConfig = {
         };
     };
     unwrap: {
-        // some chains do not need unwrapping
-        // as their native token is also an erc20 contract (mostly metis and celo)
+        // some chains do not need unwrapping (native token is also erc20: metis, celo, arc)
         enabled: boolean;
 
         // some chains have unreliable gas estimation for unwrap (withdraw)

@@ -24,7 +24,7 @@
     "update:addressbook": "pnpm up @beefyfinance/blockchain-addressbook viem"
   },
   "dependencies": {
-    "@beefyfinance/blockchain-addressbook": "0.56.1",
+    "@beefyfinance/blockchain-addressbook": "0.60.0",
     "async-lock": "1.4.1",
     "axios": "catalog:",
     "dotenv": "catalog:",

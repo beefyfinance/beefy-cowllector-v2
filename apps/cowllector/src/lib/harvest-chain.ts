@@ -5,7 +5,7 @@ import { BeefyHarvestLensV3ABI } from '../abi/BeefyHarvestLensV3ABI';
 import { getReadOnlyRpcClient, getWalletAccount, getWalletClient } from '../lib/rpc-client';
 import { bigintMultiplyFloat } from '../util/bigint';
 import { rootLogger } from '../util/logger';
-import { getChainFeesTokenAddress } from './addressbook';
+import { getChainFeesTokenAddress, getChainFeesTokenDecimals } from './addressbook';
 import type { Chain } from './chain';
 import { fetchCollectorBalance } from './collector-balance';
 import {
@@ -145,6 +145,9 @@ export async function harvestChain({
                 : true;
             const isCalmBeforeHarvest = 'isCalmBeforeHarvest' in result ? result.isCalmBeforeHarvest : -1;
 
+            // callReward is FEES ERC-20 units (Arc USDC = 6 dec); gas cost is native wei (18 dec)
+            const callRewardNativeWei = result.callReward * 10n ** BigInt(18 - getChainFeesTokenDecimals(chain));
+
             return {
                 estimatedCallRewardsWei: result.callReward,
                 harvestWillSucceed: result.success,
@@ -159,7 +162,7 @@ export async function harvestChain({
                 gas: createGasEstimationReport({
                     rawGasPrice,
                     rawGasAmountEstimation: result.gasUsed,
-                    estimatedCallRewardsWei: result.callReward,
+                    estimatedCallRewardsWei: callRewardNativeWei,
                     gasPriceMultiplier: rpcConfig.harvest.balanceCheck.gasPriceMultiplier,
                     minExpectedRewardsWei: rpcConfig.harvest.profitabilityCheck.minExpectedRewardsWei,
                 }),

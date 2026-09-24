@@ -334,6 +334,24 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             forceGasLimit: 2_000_000n,
         },
     },
+    arc: {
+        ...defaultConfig,
+        url: RPC_FORCE_URL || process.env.ARC_RPC_URL || 'https://rpc.mainnet.arc.io',
+        contracts: {
+            ...defaultContracts,
+            harvestLens: { kind: 'v3', address: getAddress('0xF994A118aFD5FdAF908BD7b8793387fEEE0566ce') },
+        },
+        unwrap: {
+            ...defaultUnwrapConfig,
+            // native USDC (18) === ERC-20 USDC (6), same balance — no wrap exists
+            // https://docs.arc.io/arc/concepts/stablecoin-native-model
+            enabled: false,
+        },
+        revenueBridgeHarvest: {
+            ...defaultRevenueBridgeHarvestConfig,
+            enabled: false,
+        },
+    },
     aurora: {
         ...defaultConfig,
         url: RPC_FORCE_URL || process.env.AURORA_RPC_URL || 'https://mainnet.aurora.dev',
@@ -1413,6 +1431,12 @@ export const EXPLORER_CONFIG: Record<Chain, ExplorerConfig> = {
         apiUrl: process.env.ARBITRUM_EXPLORER_API_URL || 'https://api.arbiscan.io/api',
         apiKey: process.env.ARBITRUM_EXPLORER_API_KEY || '',
         type: 'etherscan',
+    },
+    arc: {
+        addressLinkTemplate: 'https://explorer.arc.io/address/{{address}}',
+        transactionLinkTemplate: 'https://explorer.arc.io/tx/{{hash}}',
+        apiUrl: process.env.ARC_EXPLORER_API_URL || 'https://explorer.arc.io/api?',
+        type: 'blockscout',
     },
     aurora: {
         addressLinkTemplate: 'https://explorer.mainnet.aurora.dev/address/{{address}}',

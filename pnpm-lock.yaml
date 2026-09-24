@@ -127,8 +127,8 @@ importers:
   apps/cowllector:
     dependencies:
       '@beefyfinance/blockchain-addressbook':
-        specifier: 0.56.1
-        version: 0.56.1
+        specifier: 0.60.0
+        version: 0.60.0
       async-lock:
         specifier: 1.4.1
         version: 1.4.1
@@ -387,8 +387,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@beefyfinance/blockchain-addressbook@0.56.1':
-    resolution: {integrity: sha512-f/P6AWXkjzQdTZIq96OWuRHUoyom9P+knRDEcFmcHJV+8FjZZLzCHuqEU3VOpPYzAhkvIDqjNoMR9bENOi94vg==}
+  '@beefyfinance/blockchain-addressbook@0.60.0':
+    resolution: {integrity: sha512-aXLcNIVsJvMSMaeW2c/wKoo47FOFFKsn5fa4gWKStovRJhUtM/EPaWD3+HkyUCWY8ewfeZMsRt755dBjnPxHVA==}
 
   '@biomejs/biome@2.4.16':
     resolution: {integrity: sha512-x9ajFh1zChVybCiM3TN6OD4phAqLgtPZjFrZF+aTMYCPjwBO+k529TX7PPsAqtGNLeV4UgzwQnowEgS7bGmzcA==}
@@ -3042,7 +3042,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@beefyfinance/blockchain-addressbook@0.56.1': {}
+  '@beefyfinance/blockchain-addressbook@0.60.0': {}
 
   '@biomejs/biome@2.4.16':
     optionalDependencies:

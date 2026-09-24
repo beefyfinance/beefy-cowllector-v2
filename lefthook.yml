@@ -14,7 +14,11 @@ pre-push:
   commands:
     types:
       glob: "*.{ts,tsx}"
+      env:
+        COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
       run: pnpm run test:ts
     test:
       glob: "*.{js,ts,jsx,tsx}"
+      env:
+        COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
       run: pnpm run test:unit
