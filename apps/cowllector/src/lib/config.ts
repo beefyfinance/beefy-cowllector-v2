@@ -466,7 +466,7 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                 // {}
                 {
                     minTvlThresholdUsd: 1_000,
-                    targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS * 24),
+                    targetTimeBetweenHarvestsMs: harvestDaysToMs(HARVEST_AT_LEAST_EVERY_HOURS / 24.0),
                 },
             ],
             profitabilityCheck: {
