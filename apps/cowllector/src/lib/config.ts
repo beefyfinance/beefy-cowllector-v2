@@ -934,7 +934,9 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
         unwrap: {
             ...defaultUnwrapConfig,
             minAmountOfWNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.05),
-            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 0.01),
+            // harvests burn the full 10M gas limit between hourly unwraps (~0.5 MON/h observed).
+            // 0.01 MON is below the unwrap tx itself (500k limit * ~127 gwei ≈ 0.06 MON).
+            maxAmountOfNativeWei: bigintMultiplyFloat(ONE_ETHER, 2.0),
             // monad will consume all gas defined as limit
             // but if we don't set it, txs can fail with not enough gas errors
             setTransactionGasLimit: true,
