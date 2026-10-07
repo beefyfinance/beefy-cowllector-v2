@@ -1,5 +1,6 @@
 import type { Chain } from '../lib/chain';
 import { allChainIds } from '../lib/chain';
+import { getEolByChain } from '../lib/chain-status';
 import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 import { insertRevenueBridgeHarvestReport } from '../lib/db/db-report';
 import { withDbClient } from '../lib/db/utils';
@@ -37,6 +38,8 @@ async function main() {
     };
     logger.trace({ msg: 'running with options', data: options });
 
+    const eolByChain = await getEolByChain();
+
     // harvest each chain
     const { fulfilled: successfulReports, rejected: rejectedReports } = splitPromiseResultsByStatus(
         await Promise.allSettled(
@@ -62,7 +65,7 @@ async function main() {
                     return !isChainDisabled;
                 })
                 .filter((chain) => {
-                    const isChainEol = RPC_CONFIG[chain].eol;
+                    const isChainEol = eolByChain[chain];
                     if (isChainEol) {
                         logger.debug({ msg: 'Skipping eol chain', data: { chain } });
                     }

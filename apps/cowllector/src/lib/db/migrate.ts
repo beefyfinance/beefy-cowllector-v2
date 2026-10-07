@@ -1,5 +1,6 @@
 import { rootLogger } from '../../util/logger';
 import { allChainIds } from '../chain';
+import { getEolByChain } from '../chain-status';
 import { RPC_CONFIG } from '../config';
 import { allReportTypes } from './report-types';
 import { db_query, typeExists } from './utils';
@@ -194,6 +195,7 @@ export async function db_migrate() {
         );
     `);
 
+    const eolByChain = await getEolByChain();
     await db_query(
         `
         drop view if exists chain cascade;
@@ -230,7 +232,7 @@ export async function db_migrate() {
         [
             allChainIds.map((c) => [
                 c,
-                RPC_CONFIG[c].eol,
+                eolByChain[c],
                 RPC_CONFIG[c].unwrap.enabled,
                 RPC_CONFIG[c].unwrap.balanceCheck.minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost,
                 RPC_CONFIG[c].unwrap.minAmountOfWNativeWei,

@@ -5,6 +5,7 @@ import { BeefyHarvestLensV2ABI } from '../abi/BeefyHarvestLensV2ABI';
 import { BeefyHarvestLensV3ABI } from '../abi/BeefyHarvestLensV3ABI';
 import { getChainFeesTokenAddress, getChainFeesTokenDecimals } from '../lib/addressbook';
 import { allChainIds, type Chain } from '../lib/chain';
+import { getEolByChain } from '../lib/chain-status';
 import { RPC_CONFIG } from '../lib/config';
 import { type AItem, type AKey, type AVal, reportOnMultipleAsyncCall, serializeReport } from '../lib/reports';
 import { getReadOnlyRpcClient } from '../lib/rpc-client';
@@ -121,14 +122,17 @@ async function main() {
     await store.load();
 
     if (options.mode === 'fetch') {
-        const vaultsByChain = await getVaultsToMonitorByChain({
-            chains: options.chain,
-            strategyAddress: null,
-        });
+        const [vaultsByChain, eolByChain] = await Promise.all([
+            getVaultsToMonitorByChain({
+                chains: options.chain,
+                strategyAddress: null,
+            }),
+            getEolByChain(),
+        ]);
 
         const processPromises = Object.entries(vaultsByChain).map(async ([chain, vaults]) => {
             const rpcConfig = RPC_CONFIG[chain as Chain];
-            if (rpcConfig.eol) {
+            if (eolByChain[chain as Chain]) {
                 logger.debug({ msg: 'skipping eol chain', data: { chain } });
                 return;
             }
