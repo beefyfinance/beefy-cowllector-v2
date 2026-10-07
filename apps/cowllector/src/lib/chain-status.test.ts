@@ -1,43 +1,42 @@
 import axios from 'axios';
-import { allChainIds } from './chain';
-import { getEolByChain, getEolByChainFromApiStatuses } from './chain-status';
+import { getBeefyChainApiStatuses, isChainEol } from './chain-status';
 import { RPC_CONFIG } from './config';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-describe('getEolByChainFromApiStatuses', () => {
-    it('treats only status active as not eol', () => {
-        const eolByChain = getEolByChainFromApiStatuses({
-            ethereum: 'active',
-            bsc: 'eol',
-            sonic: 'eol',
-            linea: 'paused',
-        });
-
-        expect(eolByChain.ethereum).toBe(false);
-        expect(eolByChain.bsc).toBe(true);
-        expect(eolByChain.sonic).toBe(true);
-        expect(eolByChain.linea).toBe(true);
+describe('isChainEol', () => {
+    it('is eol when the api status is not active', () => {
+        expect(isChainEol('ethereum', { ethereum: 'eol' })).toBe(true);
+        expect(isChainEol('ethereum', { ethereum: 'paused' })).toBe(true);
+        expect(isChainEol('sonic', { sonic: 'eol' })).toBe(true);
     });
 
-    it('treats chains missing from the api as eol', () => {
-        const eolByChain = getEolByChainFromApiStatuses({ ethereum: 'active' });
-
-        expect(eolByChain.ethereum).toBe(false);
-        expect(eolByChain.polygon).toBe(true);
-        expect(eolByChain.rootstock).toBe(true);
+    it('is eol when the chain is missing from the api', () => {
+        expect(isChainEol('ethereum', {})).toBe(true);
+        expect(isChainEol('rootstock', { ethereum: 'active' })).toBe(true);
     });
 
-    it('covers every known chain', () => {
-        const eolByChain = getEolByChainFromApiStatuses({});
-        expect(Object.keys(eolByChain).sort()).toEqual([...allChainIds].sort());
-        expect(allChainIds.every((chain) => eolByChain[chain] === true)).toBe(true);
+    it('is eol when local config says eol even if the api says active', () => {
+        expect(RPC_CONFIG.linea.eol).toBe(true);
+        expect(isChainEol('linea', { linea: 'active' })).toBe(true);
+    });
+
+    it('is not eol only when the api says active and local config does not', () => {
+        expect(RPC_CONFIG.ethereum.eol).toBe(false);
+        expect(isChainEol('ethereum', { ethereum: 'active' })).toBe(false);
+    });
+
+    it('uses only local config when the api request failed', () => {
+        expect(RPC_CONFIG.ethereum.eol).toBe(false);
+        expect(RPC_CONFIG.linea.eol).toBe(true);
+        expect(isChainEol('ethereum', null)).toBe(false);
+        expect(isChainEol('linea', null)).toBe(true);
     });
 });
 
-describe('getEolByChain', () => {
-    it('uses api statuses when the request succeeds', async () => {
+describe('getBeefyChainApiStatuses', () => {
+    it('returns api statuses when the request succeeds', async () => {
         mockedAxios.get.mockResolvedValueOnce({
             data: {
                 ethereum: { id: 'ethereum', status: 'active' },
@@ -45,21 +44,21 @@ describe('getEolByChain', () => {
             },
         });
 
-        const eolByChain = await getEolByChain();
+        const statuses = await getBeefyChainApiStatuses();
 
         expect(mockedAxios.get).toHaveBeenCalledWith(expect.stringContaining('/chains?'));
-        expect(eolByChain.ethereum).toBe(false);
-        expect(eolByChain.sonic).toBe(true);
-        expect(eolByChain.berachain).toBe(true);
+        expect(statuses).toEqual({
+            ethereum: 'active',
+            sonic: 'eol',
+        });
+        expect(isChainEol('ethereum', statuses)).toBe(false);
+        expect(isChainEol('sonic', statuses)).toBe(true);
+        expect(isChainEol('berachain', statuses)).toBe(true);
     });
 
-    it('falls back to local config when the api request fails', async () => {
+    it('returns null when the api request fails', async () => {
         mockedAxios.get.mockRejectedValueOnce(new Error('network down'));
 
-        const eolByChain = await getEolByChain();
-
-        for (const chain of allChainIds) {
-            expect(eolByChain[chain]).toBe(RPC_CONFIG[chain].eol);
-        }
+        await expect(getBeefyChainApiStatuses()).resolves.toBeNull();
     });
 });

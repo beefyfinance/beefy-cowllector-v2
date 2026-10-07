@@ -2,7 +2,7 @@ import type { Hex, HttpTransportConfig, MulticallBatchOptions } from 'viem';
 
 export type RpcConfig = {
     url: string;
-    // fallback only; harvest/unwrap use Beefy API `/chains` (`status === 'active'`) as source of truth
+    // local eol flag; a chain is skipped if this is true or if Beefy API `/chains` is not `status: "active"`
     eol: boolean;
     timeoutMs: number;
     batch: {

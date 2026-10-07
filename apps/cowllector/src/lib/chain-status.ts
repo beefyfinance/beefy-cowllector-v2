@@ -12,52 +12,48 @@ type ApiBeefyChain = {
 
 type ApiBeefyChainsResponse = Record<string, ApiBeefyChain>;
 
-/**
- * Beefy API `/chains` is the source of truth for whether a chain is active.
- * Only `status: "active"` is harvested; anything else (including missing chains) is eol.
- */
-export function getEolByChainFromApiStatuses(statuses: Partial<Record<string, string | undefined>>): Record<Chain, boolean> {
-    const eolByChain = {} as Record<Chain, boolean>;
-    for (const chain of allChainIds) {
-        eolByChain[chain] = statuses[chain] !== 'active';
-    }
-    return eolByChain;
-}
+export type BeefyChainApiStatuses = Partial<Record<string, string | undefined>>;
 
-function getEolByChainFromLocalConfig(): Record<Chain, boolean> {
-    const eolByChain = {} as Record<Chain, boolean>;
-    for (const chain of allChainIds) {
-        eolByChain[chain] = RPC_CONFIG[chain].eol;
-    }
-    return eolByChain;
-}
-
-async function fetchBeefyChainStatuses(): Promise<Partial<Record<string, string | undefined>>> {
+async function fetchBeefyChainStatuses(): Promise<BeefyChainApiStatuses> {
     const response = await axios.get<ApiBeefyChainsResponse>(`${BEEFY_API_URL}/chains?_cache_buster=${Date.now()}`);
-    const statuses: Partial<Record<string, string | undefined>> = {};
+    const statuses: BeefyChainApiStatuses = {};
     for (const [chainId, chain] of Object.entries(response.data ?? {})) {
         statuses[chainId] = chain?.status;
     }
     return statuses;
 }
 
-export async function getEolByChain(): Promise<Record<Chain, boolean>> {
+/**
+ * A chain is eol if the local config says so, or if Beefy API `/chains` does not report `status: "active"`.
+ * Config eol is a required extra check so a chain cannot be reactivated from the API alone.
+ * `apiStatuses === null` means the API request failed; only the local config is used.
+ */
+export function isChainEol(chain: Chain, apiStatuses: BeefyChainApiStatuses | null): boolean {
+    if (RPC_CONFIG[chain].eol) {
+        return true;
+    }
+    if (apiStatuses === null) {
+        return false;
+    }
+    return apiStatuses[chain] !== 'active';
+}
+
+export async function getBeefyChainApiStatuses(): Promise<BeefyChainApiStatuses | null> {
     try {
         const statuses = await fetchBeefyChainStatuses();
-        const eolByChain = getEolByChainFromApiStatuses(statuses);
         logger.info({
             msg: 'Got chain statuses from api',
             data: {
-                active: allChainIds.filter((chain) => !eolByChain[chain]),
-                eol: allChainIds.filter((chain) => eolByChain[chain]),
+                active: allChainIds.filter((chain) => !isChainEol(chain, statuses)),
+                eol: allChainIds.filter((chain) => isChainEol(chain, statuses)),
             },
         });
-        return eolByChain;
+        return statuses;
     } catch (error) {
         logger.error({
-            msg: 'Failed to fetch chain statuses from api, falling back to local config',
+            msg: 'Failed to fetch chain statuses from api, using local config only',
             data: { error },
         });
-        return getEolByChainFromLocalConfig();
+        return null;
     }
 }
