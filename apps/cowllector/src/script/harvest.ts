@@ -1,7 +1,7 @@
 import type { Hex } from 'viem';
 import type { Chain } from '../lib/chain';
 import { allChainIds } from '../lib/chain';
-import { getEolByChain } from '../lib/chain-status';
+import { getBeefyChainApiStatuses, isChainEol } from '../lib/chain-status';
 import { DISABLE_COLLECTOR_FOR_CHAINS, DISCORD_REPORT_ONLY_FOR_CHAINS, RPC_CONFIG } from '../lib/config';
 import { insertHarvestReport } from '../lib/db/db-report';
 import { withDbClient } from '../lib/db/utils';
@@ -73,12 +73,12 @@ async function main() {
     logger.trace({ msg: 'running with options', data: options });
 
     // fetch vaults and chain statuses from beefy api
-    const [vaultsByChain, eolByChain] = await Promise.all([
+    const [vaultsByChain, apiChainStatuses] = await Promise.all([
         getVaultsToMonitorByChain({
             chains: options.chain,
             strategyAddress: options.strategyAddress,
         }),
-        getEolByChain(),
+        getBeefyChainApiStatuses(),
     ]);
 
     // harvest each chain
@@ -96,16 +96,16 @@ async function main() {
                     }
                     return !isChainDisabled;
                 })
-                // remove eol chains (Beefy API `/chains` is the source of truth)
+                // skip chains that are eol in config or in Beefy API `/chains`
                 .filter(([chain, _]) => {
-                    const isChainEol = eolByChain[chain];
-                    if (isChainEol) {
+                    if (isChainEol(chain, apiChainStatuses)) {
                         logger.warn({
                             msg: 'Skipping chain, eol',
                             data: { chain },
                         });
+                        return false;
                     }
-                    return !isChainEol;
+                    return true;
                 })
                 .filter(([chain, _]) => {
                     const harvestEnabled = RPC_CONFIG[chain].harvest.enabled;
