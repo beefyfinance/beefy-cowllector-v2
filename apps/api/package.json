@@ -23,7 +23,7 @@
     "@hono/zod-openapi": "catalog:",
     "dotenv": "catalog:",
     "hono": "catalog:",
-    "hono-rate-limiter": "0.4.2",
+    "hono-rate-limiter": "0.5.3",
     "pg": "catalog:",
     "zod": "catalog:"
   },
