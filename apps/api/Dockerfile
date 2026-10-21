@@ -1,6 +1,6 @@
 # Build from monorepo root:
 #   docker build -f apps/api/Dockerfile -t cowllector-api .
-FROM node:26-slim AS build
+FROM node:26.12.1-slim AS build
 RUN npm install -g pnpm@11.13.0
 
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN pnpm install --frozen-lockfile --filter @beefyfinance/cowllector-api
 RUN pnpm --filter @beefyfinance/cowllector-api build
 RUN pnpm --filter @beefyfinance/cowllector-api deploy --prod --legacy /prod
 
-FROM node:26-slim AS runner
+FROM node:26.12.1-slim AS runner
 WORKDIR /app
 
 COPY --from=build /prod ./
