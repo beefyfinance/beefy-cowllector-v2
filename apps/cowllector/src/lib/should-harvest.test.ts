@@ -69,6 +69,7 @@ function createMockRpcConfig(
         harvest: {
             enabled: true,
             forceGasLimit: null,
+            maxGasLimit: null,
             clmManagerTimeBetweenHarvestsMs: clmManagerTimeBetweenHarvestsMs,
             classicVaultHarvestTimeBuckets: harvestBuckets,
             clmVaultHarvestTimeBuckets: clmBuckets,

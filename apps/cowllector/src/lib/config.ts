@@ -256,6 +256,7 @@ const defaultUnwrapConfig: RpcConfig['unwrap'] = {
 const defaultHarvestConfig: RpcConfig['harvest'] = {
     enabled: true,
     forceGasLimit: null,
+    maxGasLimit: null,
     clmManagerTimeBetweenHarvestsMs: harvestDaysToMs(1),
     classicVaultHarvestTimeBuckets: [
         // no harvest below $100
@@ -599,7 +600,12 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
                     targetTimeBetweenHarvestsMs: harvestDaysToMs(3),
                 },
             ],
-            setTransactionGasLimit: false,
+            // Always set an explicit gas limit: the bare eth_estimateGas lands right on the edge of
+            // `require(gasleft() > 250k, 'IG')` in the Aerodrome-style swap hook's afterSwap, so the tx
+            // reverts on-chain with "IG" even though the simulation passed
+            setTransactionGasLimit: true,
+            // EIP-7825 per-transaction gas cap (2^24), nodes refuse transactions above it
+            maxGasLimit: 16_777_216n,
             // don't try to harvest even if we detect the harvest would be profitable
             // that's more likely to expose us to high gas prices and out of gas errors
             profitabilityCheck: {
@@ -608,9 +614,10 @@ export const RPC_CONFIG: Record<Chain, RpcConfig> = {
             },
             // target time between harvests
             balanceCheck: {
-                // have a smaller multiplier for ethereum as it's more reliable and more expensive to harvest
                 gasPriceMultiplier: 1.05,
-                gasLimitMultiplier: 1.05,
+                // the estimate doesn't include the access list intrinsic gas nor the 250k the swap hook wants free
+                // unused gas is refunded so a higher limit costs nothing on success
+                gasLimitMultiplier: 1.4,
                 minGasInWalletThresholdAsMultiplierOfEstimatedTransactionCost: 2.0,
             },
         },

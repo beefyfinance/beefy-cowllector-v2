@@ -520,6 +520,16 @@ export async function harvestChain({
             harvestParams.transactionGasLimit = forcedGasLimit;
         }
 
+        // nodes refuse transactions with a gas limit above their max, so never go over the configured cap
+        const maxGasLimit = rpcConfig.harvest.maxGasLimit;
+        if (maxGasLimit !== null && harvestParams.transactionGasLimit !== null && harvestParams.transactionGasLimit > maxGasLimit) {
+            logger.warn({
+                msg: 'Harvest gas limit above the configured max, capping it',
+                data: { chain, vaultId: item.vault.id, transactionGasLimit: harvestParams.transactionGasLimit, maxGasLimit },
+            });
+            harvestParams.transactionGasLimit = maxGasLimit;
+        }
+
         const res = await walletClient.harvest(harvestParams);
 
         return {

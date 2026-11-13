@@ -75,6 +75,11 @@ export type RpcConfig = {
         // since this transaction often has stable-ish gas cost, we can hardcode it
         forceGasLimit: bigint | null;
 
+        // upper bound for the gas limit we set on harvest transactions (estimate * gasLimitMultiplier, or forceGasLimit)
+        // nodes refuse transactions above their max gas limit with a "gas too high" style error
+        // only applies when setTransactionGasLimit is true, null means no upper bound
+        maxGasLimit: bigint | null;
+
         // profitability check is implemented for some chains only
         // it is especially difficult to implement for L2 chains that have various way of dealing with L1 gas
         // for example, zksync has a gas rebate, optimism has additional L1 fees, etc.
