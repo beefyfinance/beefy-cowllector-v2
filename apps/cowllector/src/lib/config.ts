@@ -34,7 +34,8 @@ export const DISABLE_COLLECTOR_FOR_CHAINS: Chain[] = (
     process.env.DISABLE_COLLECTOR_FOR_CHAINS ? process.env.DISABLE_COLLECTOR_FOR_CHAINS.split(',') : []
 ).filter((chain) => allChainIds.includes(chain as Chain)) as Chain[];
 export const DISCORD_REPORT_WEBHOOK_URL = process.env.DISCORD_REPORT_WEBHOOK_URL || null;
-export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = ['ethereum'];
+// discord reports are disabled: add chains here to re-enable them (alerts are not affected)
+export const DISCORD_REPORT_ONLY_FOR_CHAINS: Chain[] = [];
 
 export const ADD_RP_TVL_TO_CLM_TVL = process.env.ADD_RP_TVL_TO_CLM_TVL === 'true';
 export const ADD_RP_VAULT_TVL_TO_CLM_TVL = process.env.ADD_RP_VAULT_TVL_TO_CLM_TVL === 'true';
